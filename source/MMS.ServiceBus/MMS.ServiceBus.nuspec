@@ -15,7 +15,9 @@
         <references>
 			<reference file="MMS.ServiceBus.dll" />
 		</references>
-		<frameworkAssemblies />		
+      <frameworkAssemblies>
+        <frameworkAssembly assemblyName="System.Transactions" targetFramework="net45" />
+      </frameworkAssemblies>
     </metadata>
     <files>
 		<file src="..\Bin\Release\MMS.ServiceBus.dll" target="lib\net45" />
