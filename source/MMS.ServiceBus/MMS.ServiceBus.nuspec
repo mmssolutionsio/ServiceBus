@@ -15,10 +15,7 @@
         <references>
 			<reference file="MMS.ServiceBus.dll" />
 		</references>
-		<frameworkAssemblies>
-			<frameworkAssembly assemblyName="System.Data" targetFramework="net45" />
-			<frameworkAssembly assemblyName="System.Data.Linq" targetFramework="net45" />
-		</frameworkAssemblies>			
+		<frameworkAssemblies />		
     </metadata>
     <files>
 		<file src="..\Bin\Release\MMS.ServiceBus.dll" target="lib\net45" />
