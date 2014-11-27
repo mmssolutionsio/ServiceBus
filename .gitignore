@@ -36,3 +36,4 @@ results/*
 source/MMS.FinancePlus.Web/Logs/*
 *.orig
 source/MMS.InDesignService.InDesignWrapper/IDS_Scripts/*.js*
+source/packages/*
