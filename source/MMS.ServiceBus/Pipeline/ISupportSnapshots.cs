@@ -1,4 +1,4 @@
-namespace MMS.Common.ServiceBusWrapper.Pipeline
+namespace MMS.ServiceBus.Pipeline
 {
     public interface ISupportSnapshots
     {

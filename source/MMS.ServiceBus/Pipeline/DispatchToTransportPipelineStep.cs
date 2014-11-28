@@ -1,8 +1,8 @@
-namespace MMS.Common.ServiceBusWrapper.Pipeline
-{
-    using System;
-    using System.Threading.Tasks;
+using System;
+using System.Threading.Tasks;
 
+namespace MMS.ServiceBus.Pipeline
+{
     public class DispatchToTransportPipelineStep : IOutgoingTransportPipelineStep
     {
         private readonly MessageSender sender;

@@ -1,7 +1,7 @@
-namespace MMS.Common.ServiceBusWrapper.Pipeline
-{
-    using System;
+using System;
 
+namespace MMS.ServiceBus.Pipeline
+{
     public sealed class SnapshotRegion : IDisposable
     {
         private readonly ISupportSnapshots chain;

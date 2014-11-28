@@ -1,9 +1,9 @@
-﻿namespace MMS.Common.ServiceBusWrapper.Pipeline
-{
-    using System;
-    using System.Runtime.Serialization;
-    using System.Threading.Tasks;
+﻿using System;
+using System.Runtime.Serialization;
+using System.Threading.Tasks;
 
+namespace MMS.ServiceBus.Pipeline
+{
     public class DeserializeTransportMessagePipelineStep : IIncomingTransportPipelineStep
     {
         private readonly IMessageSerializer serializer;

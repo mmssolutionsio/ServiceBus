@@ -1,9 +1,8 @@
-namespace MMS.Common.ServiceBusWrapper
+namespace MMS.ServiceBus
 {
     using System;
     using System.Collections.Generic;
     using System.IO;
-
     using Microsoft.ServiceBus.Messaging;
 
     public class TransportMessage
@@ -30,7 +29,7 @@ namespace MMS.Common.ServiceBusWrapper
 
             foreach (var pair in message.Properties)
             {
-                this.Headers.Add(pair.Key, (string)pair.Value);
+                this.Headers.Add(pair.Key, (string) pair.Value);
             }
         }
 
@@ -42,10 +41,7 @@ namespace MMS.Common.ServiceBusWrapper
 
         public Stream Body
         {
-            get
-            {
-                return this.body ?? (this.body = this.message.GetBody<Stream>());
-            }
+            get { return this.body ?? (this.body = this.message.GetBody<Stream>()); }
         }
 
         public void SetBody(Stream body)
@@ -61,11 +57,11 @@ namespace MMS.Common.ServiceBusWrapper
         public BrokeredMessage ToBrokeredMessage()
         {
             var brokeredMessage = new BrokeredMessage(this.body, false)
-                {
-                    ContentType = this.Headers[HeaderKeys.MessageType],
-                    MessageId = this.Id,
-                    CorrelationId = this.CorrelationId
-                };
+            {
+                ContentType = this.Headers[HeaderKeys.MessageType], 
+                MessageId = this.Id, 
+                CorrelationId = this.CorrelationId
+            };
 
             foreach (KeyValuePair<string, string> pair in this.Headers)
             {

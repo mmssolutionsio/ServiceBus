@@ -1,10 +1,10 @@
-namespace MMS.Common.ServiceBusWrapper.Pipeline
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Collections.ObjectModel;
-    using System.Threading.Tasks;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Threading.Tasks;
 
+namespace MMS.ServiceBus.Pipeline
+{
     public class HandlerRegistry
     {
         // TODO: Strong typing?

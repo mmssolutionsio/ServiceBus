@@ -1,7 +1,5 @@
-namespace MMS.Common.ServiceBusWrapper.Pipeline
+namespace MMS.ServiceBus.Pipeline
 {
-    using System;
-
     public class IncomingLogicalContext : Context
     {
         private const string HandlerInvocationAbortedKey = "HandlerInvocationAborted";

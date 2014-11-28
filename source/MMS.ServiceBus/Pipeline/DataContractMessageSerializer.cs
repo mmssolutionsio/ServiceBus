@@ -1,9 +1,9 @@
-namespace MMS.Common.ServiceBusWrapper.Pipeline
-{
-    using System;
-    using System.IO;
-    using System.Runtime.Serialization.Json;
+using System;
+using System.IO;
+using System.Runtime.Serialization.Json;
 
+namespace MMS.ServiceBus.Pipeline
+{
     public class DataContractMessageSerializer : IMessageSerializer
     {
         public string ContentType

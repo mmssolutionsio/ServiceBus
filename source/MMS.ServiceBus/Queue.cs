@@ -1,8 +1,8 @@
-namespace MMS.Common.ServiceBusWrapper
+namespace MMS.ServiceBus
 {
     public class Queue : Address
     {
-        internal Queue(string address)
+        public Queue(string address)
             : base(address)
         {
             // TODO Validate here

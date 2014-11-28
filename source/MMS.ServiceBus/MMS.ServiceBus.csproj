@@ -61,6 +61,7 @@
     <Compile Include="HeaderKeys.cs" />
     <Compile Include="IBus.cs" />
     <Compile Include="IHandleMessage.cs" />
+    <Compile Include="IHandleMessageAsync.cs" />
     <Compile Include="IncomingPipelineFactory.cs" />
     <Compile Include="LogicalMessage.cs" />
     <Compile Include="LogicalMessageFactory.cs" />

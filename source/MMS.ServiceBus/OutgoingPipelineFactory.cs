@@ -1,8 +1,7 @@
-﻿namespace MMS.Common.ServiceBusWrapper
+﻿namespace MMS.ServiceBus
 {
     using Microsoft.ServiceBus.Messaging;
-
-    using MMS.Common.ServiceBusWrapper.Pipeline;
+    using Pipeline;
 
     public class OutgoingPipelineFactory
     {

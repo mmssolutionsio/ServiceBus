@@ -1,6 +1,6 @@
-namespace MMS.Common.ServiceBusWrapper
+namespace MMS.ServiceBus
 {
-    using MMS.Common.ServiceBusWrapper.Pipeline;
+    using Pipeline;
 
     public class IncomingPipelineFactory
     {
@@ -15,7 +15,8 @@ namespace MMS.Common.ServiceBusWrapper
         {
             var pipeline = new IncomingPipeline();
             return pipeline
-                .RegisterStep(new DeserializeTransportMessagePipelineStep(new DataContractMessageSerializer(), new LogicalMessageFactory()))
+                .RegisterStep(new DeserializeTransportMessagePipelineStep(new DataContractMessageSerializer(), 
+                    new LogicalMessageFactory()))
                 .RegisterStep(new LoadMessageHandlers(this.registry))
                 .RegisterStep(new InvokeHandlers());
         }

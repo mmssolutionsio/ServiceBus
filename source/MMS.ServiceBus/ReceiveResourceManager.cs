@@ -1,4 +1,4 @@
-namespace MMS.Common.ServiceBusWrapper
+namespace MMS.ServiceBus
 {
     using System.Transactions;
 

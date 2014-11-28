@@ -1,8 +1,8 @@
-namespace MMS.Common.ServiceBusWrapper.Pipeline
-{
-    using System;
-    using System.IO;
+using System;
+using System.IO;
 
+namespace MMS.ServiceBus.Pipeline
+{
     public interface IMessageSerializer
     {
         string ContentType { get; }

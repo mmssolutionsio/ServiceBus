@@ -1,9 +1,9 @@
-namespace MMS.Common.ServiceBusWrapper.Pipeline
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Threading.Tasks;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
+namespace MMS.ServiceBus.Pipeline
+{
     public class IncomingPipeline : ISupportSnapshots
     {
         private readonly Queue<IIncomingTransportPipelineStep> registeredTransportPipeline;

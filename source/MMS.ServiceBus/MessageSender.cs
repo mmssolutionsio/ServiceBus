@@ -1,7 +1,6 @@
-namespace MMS.Common.ServiceBusWrapper
+namespace MMS.ServiceBus
 {
     using System.Threading.Tasks;
-
     using Microsoft.ServiceBus.Messaging;
 
     public class MessageSender

@@ -1,8 +1,8 @@
-namespace MMS.Common.ServiceBusWrapper.Pipeline
-{
-    using System;
-    using System.Collections.Generic;
+using System;
+using System.Collections.Generic;
 
+namespace MMS.ServiceBus.Pipeline
+{
     public abstract class Context
     {
         private readonly IDictionary<string, object> stash = new Dictionary<string, object>();

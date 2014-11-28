@@ -1,11 +1,10 @@
-﻿namespace MMS.Common.ServiceBusWrapper
+﻿namespace MMS.ServiceBus
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
-
-    using MMS.Common.ServiceBusWrapper.Pipeline;
+    using Pipeline;
 
     public class Bus : IBus
     {
@@ -21,7 +20,9 @@
 
         private readonly IncomingPipelineFactory incomingPipelineFactory;
 
-        public Bus(EndpointConfiguration configuration, DequeueStrategy strategy, LogicalMessageFactory factory, OutgoingPipelineFactory outgoingPipelineFactory, IncomingPipelineFactory incomingPipelineFactory, MessageRouter router)
+        public Bus(EndpointConfiguration configuration, DequeueStrategy strategy, LogicalMessageFactory factory, 
+            OutgoingPipelineFactory outgoingPipelineFactory, IncomingPipelineFactory incomingPipelineFactory, 
+            MessageRouter router)
         {
             this.incomingPipelineFactory = incomingPipelineFactory;
             this.outgoingPipelineFactory = outgoingPipelineFactory;

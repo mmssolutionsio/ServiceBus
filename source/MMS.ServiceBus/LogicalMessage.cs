@@ -1,4 +1,4 @@
-namespace MMS.Common.ServiceBusWrapper
+namespace MMS.ServiceBus
 {
     using System;
     using System.Collections.Generic;
@@ -17,18 +17,12 @@ namespace MMS.Common.ServiceBusWrapper
 
         public object Instance
         {
-            get
-            {
-                return this.message;
-            }
+            get { return this.message; }
         }
 
         public IDictionary<string, string> Headers
         {
-            get
-            {
-                return this.headers;
-            }
-        } 
+            get { return this.headers; }
+        }
     }
 }

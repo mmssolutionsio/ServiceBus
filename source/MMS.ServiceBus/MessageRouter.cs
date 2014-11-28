@@ -1,4 +1,4 @@
-namespace MMS.Common.ServiceBusWrapper
+namespace MMS.ServiceBus
 {
     using System;
     using System.Collections.Generic;
@@ -7,7 +7,7 @@ namespace MMS.Common.ServiceBusWrapper
     {
         public virtual IReadOnlyCollection<Address> GetDestinationFor(Type messageType)
         {
-            return new[] { new Queue("NachrichtenEmpfangen") };
+            return new[] {new Queue("NachrichtenEmpfangen")};
         }
     }
 }

@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("MMS.ServiceBus")]
+[assembly: AssemblyTitle("MMS.ServiceBus.Testing")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("MMS.ServiceBus")]
+[assembly: AssemblyProduct("MMS.ServiceBus.Testing")]
 [assembly: AssemblyCopyright("Copyright ©  2014")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("df6a63ad-bdc1-4f43-b91d-102de5f8fe7a")]
+[assembly: Guid("61e7c92e-412d-4288-8e3f-22702c692c2d")]
 
 // Version information for an assembly consists of the following four values:
 //
@@ -34,7 +34,3 @@ using System.Runtime.InteropServices;
 // [assembly: AssemblyVersion("1.0.*")]
 [assembly: AssemblyVersion("1.0.0.0")]
 [assembly: AssemblyFileVersion("1.0.0.0")]
-
-[assembly: InternalsVisibleTo("MMS.ServiceBus.Tests")]
-[assembly: InternalsVisibleTo("MMS.ServiceBus.AcceptanceTests")]
-[assembly: InternalsVisibleTo("MMS.ServiceBus.Testing")]

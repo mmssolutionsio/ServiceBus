@@ -1,10 +1,5 @@
-﻿namespace MMS.Common.ServiceBusWrapper
+﻿namespace MMS.ServiceBus
 {
-    using System.CodeDom;
-    using System.Collections.Concurrent;
-    using System.Runtime.ExceptionServices;
-    using System.Threading;
-
     public class EndpointConfiguration
     {
         public EndpointConfiguration Endpoint(string endpointName)

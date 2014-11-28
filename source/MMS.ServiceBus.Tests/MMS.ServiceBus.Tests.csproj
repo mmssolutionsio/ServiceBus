@@ -66,8 +66,11 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- NUnit -->
   <Target Name="AfterBuild">
+	<CreateItem Include="$(SolutionDir)\packages\NUnit.Runners*\tools\nunit-console.exe">
+		<Output TaskParameter="Include" ItemName="NUnitRunner"/>
+	</CreateItem>
     <Exec 
       Condition="'$(Configuration)' == 'Release'" 
-      Command="$(SolutionDir)\packages\NUnit.Runners.2.6.3\tools\nunit-console.exe $(TargetPath)" />
+      Command="%(NUnitRunner.Identity) $(TargetPath)" />
   </Target> 
 </Project>
