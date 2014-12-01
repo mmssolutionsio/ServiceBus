@@ -1,3 +1,9 @@
+//-------------------------------------------------------------------------------
+// <copyright file="IncomingTransportContext.cs" company="MMS AG">
+//   Copyright (c) MMS AG, 2008-2015
+// </copyright>
+//-------------------------------------------------------------------------------
+
 namespace MMS.ServiceBus.Pipeline
 {
     public class IncomingTransportContext : Context

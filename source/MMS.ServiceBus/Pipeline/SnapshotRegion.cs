@@ -1,7 +1,13 @@
-using System;
+//-------------------------------------------------------------------------------
+// <copyright file="SnapshotRegion.cs" company="MMS AG">
+//   Copyright (c) MMS AG, 2008-2015
+// </copyright>
+//-------------------------------------------------------------------------------
 
 namespace MMS.ServiceBus.Pipeline
 {
+    using System;
+
     public sealed class SnapshotRegion : IDisposable
     {
         private readonly ISupportSnapshots chain;

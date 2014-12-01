@@ -1,3 +1,9 @@
+//-------------------------------------------------------------------------------
+// <copyright file="TransportMessage.cs" company="MMS AG">
+//   Copyright (c) MMS AG, 2008-2015
+// </copyright>
+//-------------------------------------------------------------------------------
+
 namespace MMS.ServiceBus
 {
     using System;
@@ -29,7 +35,7 @@ namespace MMS.ServiceBus
 
             foreach (var pair in message.Properties)
             {
-                this.Headers.Add(pair.Key, (string) pair.Value);
+                this.Headers.Add(pair.Key, (string)pair.Value);
             }
         }
 

@@ -1,8 +1,14 @@
-using System;
-using System.IO;
+//-------------------------------------------------------------------------------
+// <copyright file="IMessageSerializer.cs" company="MMS AG">
+//   Copyright (c) MMS AG, 2008-2015
+// </copyright>
+//-------------------------------------------------------------------------------
 
 namespace MMS.ServiceBus.Pipeline
 {
+    using System;
+    using System.IO;
+
     public interface IMessageSerializer
     {
         string ContentType { get; }

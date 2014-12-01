@@ -1,3 +1,9 @@
+//-------------------------------------------------------------------------------
+// <copyright file="IncomingLogicalContext.cs" company="MMS AG">
+//   Copyright (c) MMS AG, 2008-2015
+// </copyright>
+//-------------------------------------------------------------------------------
+
 namespace MMS.ServiceBus.Pipeline
 {
     public class IncomingLogicalContext : Context
@@ -52,35 +58,5 @@ namespace MMS.ServiceBus.Pipeline
                 this.Set<bool>(HandlerInvocationAbortedKey, value);
             }
         }
-
-        //public IDisposable CreateSnapshot()
-        //{
-        //    var snapshot = new IncomingLogicalContextSnapshot
-        //        {
-        //            HandlerInvocationAborted = this.HandlerInvocationAborted
-        //        };
-
-        //    return new Disposable(() => { this.HandlerInvocationAborted = snapshot.HandlerInvocationAborted; });
-        //}
-
-        //private class IncomingLogicalContextSnapshot
-        //{
-        //    public bool HandlerInvocationAborted { get; set; }
-        //}
-
-        //private class Disposable : IDisposable 
-        //{
-        //    private readonly Action disposableAction;
-
-        //    public Disposable(Action disposableAction)
-        //    {
-        //        this.disposableAction = disposableAction;
-        //    }
-
-        //    public void Dispose()
-        //    {
-        //        this.disposableAction();
-        //    }
-        //}
     }
 }

@@ -1,10 +1,16 @@
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Threading.Tasks;
+//-------------------------------------------------------------------------------
+// <copyright file="HandlerRegistry.cs" company="MMS AG">
+//   Copyright (c) MMS AG, 2008-2015
+// </copyright>
+//-------------------------------------------------------------------------------
 
 namespace MMS.ServiceBus.Pipeline
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Collections.ObjectModel;
+    using System.Threading.Tasks;
+
     public class HandlerRegistry
     {
         // TODO: Strong typing?

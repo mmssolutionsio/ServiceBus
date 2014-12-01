@@ -1,4 +1,10 @@
-﻿namespace MMS.ServiceBus
+﻿//-------------------------------------------------------------------------------
+// <copyright file="RoutingMessages.cs" company="Multimedia Solutions AG">
+//   Copyright (c) MMS AG 2011-2015
+// </copyright>
+//-------------------------------------------------------------------------------
+
+namespace MMS.ServiceBus
 {
     using System;
     using System.Collections.Generic;

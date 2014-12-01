@@ -1,6 +1,8 @@
-using MMS.ServiceBus;
-using MMS.ServiceBus.Pipeline;
-using MMS.ServiceBus.Testing;
+//-------------------------------------------------------------------------------
+// <copyright file="AbortingMessageHandling.cs" company="Multimedia Solutions AG">
+//   Copyright (c) MMS AG 2011-2015
+// </copyright>
+//-------------------------------------------------------------------------------
 
 namespace MMS.Common.ServiceBusWrapper.AcceptanceTests
 {
@@ -9,6 +11,9 @@ namespace MMS.Common.ServiceBusWrapper.AcceptanceTests
     using System.Collections.ObjectModel;
     using System.Threading.Tasks;
     using NUnit.Framework;
+    using ServiceBus;
+    using ServiceBus.Pipeline;
+    using ServiceBus.Testing;
 
     [TestFixture]
     public class AbortingMessageHandling

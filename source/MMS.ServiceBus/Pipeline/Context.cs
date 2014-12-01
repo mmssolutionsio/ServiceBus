@@ -1,8 +1,14 @@
-using System;
-using System.Collections.Generic;
+//-------------------------------------------------------------------------------
+// <copyright file="Context.cs" company="MMS AG">
+//   Copyright (c) MMS AG, 2008-2015
+// </copyright>
+//-------------------------------------------------------------------------------
 
 namespace MMS.ServiceBus.Pipeline
 {
+    using System;
+    using System.Collections.Generic;
+
     public abstract class Context
     {
         private readonly IDictionary<string, object> stash = new Dictionary<string, object>();

@@ -1,4 +1,10 @@
-﻿namespace MMS.ServiceBus
+﻿//-------------------------------------------------------------------------------
+// <copyright file="Bus.cs" company="MMS AG">
+//   Copyright (c) MMS AG, 2008-2015
+// </copyright>
+//-------------------------------------------------------------------------------
+
+namespace MMS.ServiceBus
 {
     using System;
     using System.Collections.Generic;
@@ -20,8 +26,12 @@
 
         private readonly IncomingPipelineFactory incomingPipelineFactory;
 
-        public Bus(EndpointConfiguration configuration, DequeueStrategy strategy, LogicalMessageFactory factory, 
-            OutgoingPipelineFactory outgoingPipelineFactory, IncomingPipelineFactory incomingPipelineFactory, 
+        public Bus(
+            EndpointConfiguration configuration, 
+            DequeueStrategy strategy, 
+            LogicalMessageFactory factory,
+            OutgoingPipelineFactory outgoingPipelineFactory, 
+            IncomingPipelineFactory incomingPipelineFactory,
             MessageRouter router)
         {
             this.incomingPipelineFactory = incomingPipelineFactory;

@@ -1,17 +1,18 @@
 ﻿//-------------------------------------------------------------------------------
-// <copyright file="IBus.cs" company="MMS AG">
+// <copyright file="SendOptions.cs" company="MMS AG">
 //   Copyright (c) MMS AG, 2008-2015
 // </copyright>
 //-------------------------------------------------------------------------------
 
 namespace MMS.ServiceBus
 {
-    using System.Threading.Tasks;
-
-    public interface IBus
+    public class SendOptions : DeliveryOptions
     {
-        Task Send(object message, SendOptions options = null);
+        public SendOptions(Address address)
+        {
+            this.Destination = address;
+        }
 
-        void DoNotContinueDispatchingCurrentMessageToHandlers();
+        public Address Destination { get; private set; }
     }
 }

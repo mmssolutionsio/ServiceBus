@@ -1,3 +1,9 @@
+//-------------------------------------------------------------------------------
+// <copyright file="DequeueStrategy.cs" company="MMS AG">
+//   Copyright (c) MMS AG, 2008-2015
+// </copyright>
+//-------------------------------------------------------------------------------
+
 namespace MMS.ServiceBus
 {
     using System;
@@ -33,27 +39,20 @@ namespace MMS.ServiceBus
 
         private async Task OnMessageAsync(TransportMessage message)
         {
-            try
+            if (this.configuration.IsTransactional)
             {
-                if (this.configuration.IsTransactional)
+                using (var scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions() /*, TransactionScopeAsyncFlowOption.Enabled */))
                 {
-                    using (var scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions()/*, TransactionScopeAsyncFlowOption.Enabled */))
-                    {
-                        Transaction.Current.EnlistVolatile(new ReceiveResourceManager(message), EnlistmentOptions.None);
+                    Transaction.Current.EnlistVolatile(new ReceiveResourceManager(message), EnlistmentOptions.None);
 
-                        await this.onMessageAsync(message);
-
-                        scope.Complete();
-                    }
-                }
-                else
-                {
                     await this.onMessageAsync(message);
+
+                    scope.Complete();
                 }
             }
-            catch (Exception exception)
+            else
             {
-                throw;
+                await this.onMessageAsync(message);
             }
         }
     }

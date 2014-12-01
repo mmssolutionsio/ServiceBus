@@ -1,3 +1,9 @@
+//-------------------------------------------------------------------------------
+// <copyright file="QueueClientListenerCreator.cs" company="MMS AG">
+//   Copyright (c) MMS AG, 2008-2015
+// </copyright>
+//-------------------------------------------------------------------------------
+
 namespace MMS.ServiceBus
 {
     using System;
@@ -8,7 +14,7 @@ namespace MMS.ServiceBus
 
     public class QueueClientListenerCreator
     {
-        private static readonly ILog Logger = LogManager.GetLogger(typeof (QueueClientListenerCreator));
+        private static readonly ILog Logger = LogManager.GetLogger(typeof(QueueClientListenerCreator));
 
         private readonly MessagingFactory factory;
 
@@ -21,7 +27,8 @@ namespace MMS.ServiceBus
             this.factory = factory;
         }
 
-        public virtual async Task<AsyncClosable> StartAsync(EndpointConfiguration configuration, 
+        public virtual async Task<AsyncClosable> StartAsync(
+            EndpointConfiguration configuration, 
             Func<TransportMessage, Task> onMessage)
         {
             MessageReceiver client =
@@ -40,9 +47,8 @@ namespace MMS.ServiceBus
 
         private static void HandleExceptionReceived(object sender, ExceptionReceivedEventArgs e)
         {
-            var queue = (Queue) sender;
-            Logger.Info(string.Format(CultureInfo.InvariantCulture, "Exception occurred on queue {0}.", queue), 
-                e.Exception);
+            var queue = (Queue)sender;
+            Logger.Info(string.Format(CultureInfo.InvariantCulture, "Exception occurred on queue {0}.", queue), e.Exception);
         }
     }
 }

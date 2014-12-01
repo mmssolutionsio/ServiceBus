@@ -1,9 +1,15 @@
-﻿using System;
-using System.IO;
-using System.Threading.Tasks;
+﻿//-------------------------------------------------------------------------------
+// <copyright file="SerializeMessagePipelineStep.cs" company="MMS AG">
+//   Copyright (c) MMS AG, 2008-2015
+// </copyright>
+//-------------------------------------------------------------------------------
 
 namespace MMS.ServiceBus.Pipeline
 {
+    using System;
+    using System.IO;
+    using System.Threading.Tasks;
+
     public class SerializeMessagePipelineStep : IOutgoingTransportPipelineStep
     {
         private readonly IMessageSerializer serializer;

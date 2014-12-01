@@ -1,7 +1,13 @@
-using System.Threading.Tasks;
+//-------------------------------------------------------------------------------
+// <copyright file="SyncAsAsyncHandlerDecorator.cs" company="MMS AG">
+//   Copyright (c) MMS AG, 2008-2015
+// </copyright>
+//-------------------------------------------------------------------------------
 
 namespace MMS.ServiceBus.Pipeline
 {
+    using System.Threading.Tasks;
+
     public class SyncAsAsyncHandlerDecorator<TMessage> : IHandleMessageAsync<TMessage>
     {
         private readonly IHandleMessage<TMessage> handler;

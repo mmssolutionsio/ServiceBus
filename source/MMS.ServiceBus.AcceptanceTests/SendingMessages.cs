@@ -1,3 +1,9 @@
+//-------------------------------------------------------------------------------
+// <copyright file="SendingMessages.cs" company="Multimedia Solutions AG">
+//   Copyright (c) MMS AG 2011-2015
+// </copyright>
+//-------------------------------------------------------------------------------
+
 namespace MMS.ServiceBus
 {
     using System;
