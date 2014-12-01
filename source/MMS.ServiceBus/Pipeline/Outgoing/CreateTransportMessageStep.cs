@@ -1,15 +1,15 @@
 ﻿//-------------------------------------------------------------------------------
-// <copyright file="CreateTransportMessagePipelineStep.cs" company="MMS AG">
+// <copyright file="CreateTransportMessageStep.cs" company="MMS AG">
 //   Copyright (c) MMS AG, 2008-2015
 // </copyright>
 //-------------------------------------------------------------------------------
 
-namespace MMS.ServiceBus.Pipeline
+namespace MMS.ServiceBus.Pipeline.Outgoing
 {
     using System;
     using System.Threading.Tasks;
 
-    public class CreateTransportMessagePipelineStep : IOutgoingLogicalPipelineStep
+    public class CreateTransportMessageStep : IOutgoingLogicalStep
     {
         public async Task Invoke(OutgoingLogicalContext context, Func<Task> next)
         {

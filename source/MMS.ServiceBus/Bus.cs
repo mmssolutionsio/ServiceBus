@@ -9,6 +9,8 @@ namespace MMS.ServiceBus
     using System;
     using System.Threading.Tasks;
     using Pipeline;
+    using Pipeline.Incoming;
+    using Pipeline.Outgoing;
 
     public class Bus : IBus
     {

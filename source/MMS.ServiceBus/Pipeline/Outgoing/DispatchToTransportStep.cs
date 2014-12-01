@@ -1,20 +1,20 @@
 //-------------------------------------------------------------------------------
-// <copyright file="DispatchToTransportPipelineStep.cs" company="MMS AG">
+// <copyright file="DispatchToTransportStep.cs" company="MMS AG">
 //   Copyright (c) MMS AG, 2008-2015
 // </copyright>
 //-------------------------------------------------------------------------------
 
-namespace MMS.ServiceBus.Pipeline
+namespace MMS.ServiceBus.Pipeline.Outgoing
 {
     using System;
     using System.Threading.Tasks;
 
-    public class DispatchToTransportPipelineStep : IOutgoingTransportPipelineStep
+    public class DispatchToTransportStep : IOutgoingTransportStep
     {
         private readonly MessageSender sender;
         private readonly MessagePublisher publisher;
 
-        public DispatchToTransportPipelineStep(MessageSender sender, MessagePublisher publisher)
+        public DispatchToTransportStep(MessageSender sender, MessagePublisher publisher)
         {
             this.publisher = publisher;
             this.sender = sender;

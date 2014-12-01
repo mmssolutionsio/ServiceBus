@@ -4,7 +4,7 @@
 // </copyright>
 //-------------------------------------------------------------------------------
 
-namespace MMS.ServiceBus.Pipeline
+namespace MMS.ServiceBus.Pipeline.Incoming
 {
     public class IncomingLogicalContext : Context
     {

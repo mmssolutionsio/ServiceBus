@@ -1,19 +1,19 @@
 //-------------------------------------------------------------------------------
-// <copyright file="LoadMessageHandlers.cs" company="MMS AG">
+// <copyright file="LoadMessageHandlersStep.cs" company="MMS AG">
 //   Copyright (c) MMS AG, 2008-2015
 // </copyright>
 //-------------------------------------------------------------------------------
 
-namespace MMS.ServiceBus.Pipeline
+namespace MMS.ServiceBus.Pipeline.Incoming
 {
     using System;
     using System.Threading.Tasks;
 
-    public class LoadMessageHandlers : IIncomingLogicalPipelineStep
+    public class LoadMessageHandlersStep : IIncomingLogicalStep
     {
         private readonly HandlerRegistry registry;
 
-        public LoadMessageHandlers(HandlerRegistry registry)
+        public LoadMessageHandlersStep(HandlerRegistry registry)
         {
             this.registry = registry;
         }

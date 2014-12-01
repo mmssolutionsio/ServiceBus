@@ -5,6 +5,8 @@ namespace MMS.ServiceBus.Testing
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
+    using Pipeline.Incoming;
+    using Pipeline.Outgoing;
 
     public class MessageUnit : IBus
     {
@@ -171,11 +173,11 @@ namespace MMS.ServiceBus.Testing
             public OutgoingPipeline Create()
             {
                 var pipeline = new OutgoingPipeline();
-                var senderStep = new DispatchToTransportPipelineStep(new MessageSenderSimulator(this.onMessage), new MessagePublisher(null));
+                var senderStep = new DispatchToTransportStep(new MessageSenderSimulator(this.onMessage), new MessagePublisher(null));
                 return pipeline
-                    .RegisterStep(new CreateTransportMessagePipelineStep())
-                    .RegisterStep(new SerializeMessagePipelineStep(new DataContractMessageSerializer()))
-                    .RegisterStep(new DetermineDestinationPipelineStep(this.router))
+                    .RegisterStep(new CreateTransportMessageStep())
+                    .RegisterStep(new SerializeMessageStep(new DataContractMessageSerializer()))
+                    .RegisterStep(new DetermineDestinationStep(this.router))
                     .RegisterStep(new EnrichTransportMessageWithDestinationAddress())
                     .RegisterStep(senderStep)
                     .RegisterStep(new TraceOutgoingLogical(this.outgoing));
@@ -198,9 +200,9 @@ namespace MMS.ServiceBus.Testing
             {
                 var pipeline = new IncomingPipeline();
                 return pipeline
-                    .RegisterStep(new DeserializeTransportMessagePipelineStep(new DataContractMessageSerializer(), new LogicalMessageFactory()))
-                    .RegisterStep(new LoadMessageHandlers(this.registry))
-                    .RegisterStep(new InvokeHandlers())
+                    .RegisterStep(new DeserializeTransportMessageStep(new DataContractMessageSerializer(), new LogicalMessageFactory()))
+                    .RegisterStep(new LoadMessageHandlersStep(this.registry))
+                    .RegisterStep(new InvokeHandlersStep())
                     .RegisterStep(new TraceIncomingLogical(this.incoming));
             }
         }
@@ -249,7 +251,7 @@ namespace MMS.ServiceBus.Testing
             }
         }
 
-        private class TraceIncomingLogical : IIncomingLogicalPipelineStep
+        private class TraceIncomingLogical : IIncomingLogicalStep
         {
             private readonly ICollection<LogicalMessage> collector;
 
@@ -265,7 +267,7 @@ namespace MMS.ServiceBus.Testing
             }
         }
 
-        private class TraceOutgoingLogical : IOutgoingLogicalPipelineStep
+        private class TraceOutgoingLogical : IOutgoingLogicalStep
         {
             private readonly ICollection<LogicalMessage> collector;
 

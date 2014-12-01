@@ -1,15 +1,15 @@
 //-------------------------------------------------------------------------------
-// <copyright file="InvokeHandlers.cs" company="MMS AG">
+// <copyright file="InvokeHandlersStep.cs" company="MMS AG">
 //   Copyright (c) MMS AG, 2008-2015
 // </copyright>
 //-------------------------------------------------------------------------------
 
-namespace MMS.ServiceBus.Pipeline
+namespace MMS.ServiceBus.Pipeline.Incoming
 {
     using System;
     using System.Threading.Tasks;
 
-    public class InvokeHandlers : IIncomingLogicalPipelineStep
+    public class InvokeHandlersStep : IIncomingLogicalStep
     {
         public async Task Invoke(IncomingLogicalContext context, IBus bus, Func<Task> next)
         {

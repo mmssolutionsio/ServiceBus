@@ -3,7 +3,7 @@
 //   Copyright (c) MMS AG, 2008-2015
 // </copyright>
 //-------------------------------------------------------------------------------
-namespace MMS.ServiceBus.Pipeline
+namespace MMS.ServiceBus.Pipeline.Incoming
 {
     using System;
     using System.Threading.Tasks;

@@ -3,8 +3,9 @@ namespace MMS.ServiceBus.Testing
     using System;
     using System.Threading.Tasks;
     using Pipeline;
+    using Pipeline.Outgoing;
 
-    public class EnrichTransportMessageWithDestinationAddress : IOutgoingTransportPipelineStep
+    public class EnrichTransportMessageWithDestinationAddress : IOutgoingTransportStep
     {
         public async Task Invoke(OutgoingTransportContext context, Func<Task> next)
         {

@@ -1,14 +1,13 @@
-﻿//-------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------
 // <copyright file="OutgoingPipelineFactory.cs" company="MMS AG">
 //   Copyright (c) MMS AG, 2008-2015
 // </copyright>
 //-------------------------------------------------------------------------------
 
-namespace MMS.ServiceBus
+namespace MMS.ServiceBus.Pipeline.Outgoing
 {
     using Microsoft.ServiceBus.Messaging;
-    using Pipeline;
-    using MessageSender = Pipeline.MessageSender;
+    using MessageSender = Outgoing.MessageSender;
 
     public class OutgoingPipelineFactory : IOutgoingPipelineFactory
     {
@@ -21,15 +20,15 @@ namespace MMS.ServiceBus
             this.factory = factory;
         }
 
-        public virtual OutgoingPipeline Create()
+        public OutgoingPipeline Create()
         {
             var pipeline = new OutgoingPipeline();
 
             return pipeline
-                .RegisterStep(new CreateTransportMessagePipelineStep())
-                .RegisterStep(new SerializeMessagePipelineStep(new DataContractMessageSerializer()))
-                .RegisterStep(new DetermineDestinationPipelineStep(this.router))
-                .RegisterStep(new DispatchToTransportPipelineStep(new MessageSender(this.factory), new MessagePublisher(this.factory)));
+                .RegisterStep(new CreateTransportMessageStep())
+                .RegisterStep(new SerializeMessageStep(new DataContractMessageSerializer()))
+                .RegisterStep(new DetermineDestinationStep(this.router))
+                .RegisterStep(new DispatchToTransportStep(new Outgoing.MessageSender(this.factory), new MessagePublisher(this.factory)));
         }
     }
 }

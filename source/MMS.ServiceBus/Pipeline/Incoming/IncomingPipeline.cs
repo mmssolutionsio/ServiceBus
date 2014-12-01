@@ -4,7 +4,7 @@
 // </copyright>
 //-------------------------------------------------------------------------------
 
-namespace MMS.ServiceBus.Pipeline
+namespace MMS.ServiceBus.Pipeline.Incoming
 {
     using System;
     using System.Collections.Generic;
@@ -12,51 +12,51 @@ namespace MMS.ServiceBus.Pipeline
 
     public class IncomingPipeline : ISupportSnapshots
     {
-        private readonly Queue<IIncomingTransportPipelineStep> registeredTransportPipeline;
+        private readonly Queue<IIncomingTransportStep> registeredTransportPipeline;
 
-        private readonly Queue<IIncomingLogicalPipelineStep> registeredLogicalPipeline;
+        private readonly Queue<IIncomingLogicalStep> registeredLogicalPipeline;
 
-        private readonly Stack<Queue<IIncomingLogicalPipelineStep>> snapshotLogical;
+        private readonly Stack<Queue<IIncomingLogicalStep>> snapshotLogical;
 
-        private readonly Stack<Queue<IIncomingTransportPipelineStep>> snapshotTransport;
+        private readonly Stack<Queue<IIncomingTransportStep>> snapshotTransport;
 
-        private Queue<IIncomingTransportPipelineStep> executingTransportPipeline;
+        private Queue<IIncomingTransportStep> executingTransportPipeline;
 
-        private Queue<IIncomingLogicalPipelineStep> executingLogicalPipeline;
+        private Queue<IIncomingLogicalStep> executingLogicalPipeline;
 
         private IncomingLogicalContext currentContext;
 
         public IncomingPipeline()
         {
-            this.snapshotTransport = new Stack<Queue<IIncomingTransportPipelineStep>>();
-            this.snapshotLogical = new Stack<Queue<IIncomingLogicalPipelineStep>>();
+            this.snapshotTransport = new Stack<Queue<IIncomingTransportStep>>();
+            this.snapshotLogical = new Stack<Queue<IIncomingLogicalStep>>();
 
-            this.registeredLogicalPipeline = new Queue<IIncomingLogicalPipelineStep>();
-            this.registeredTransportPipeline = new Queue<IIncomingTransportPipelineStep>();
+            this.registeredLogicalPipeline = new Queue<IIncomingLogicalStep>();
+            this.registeredTransportPipeline = new Queue<IIncomingTransportStep>();
         }
 
-        public IncomingPipeline RegisterStep(IIncomingLogicalPipelineStep step)
+        public IncomingPipeline RegisterStep(IIncomingLogicalStep step)
         {
             this.registeredLogicalPipeline.Enqueue(step);
 
             return this;
         }
 
-        public IncomingPipeline RegisterStep(Func<IIncomingLogicalPipelineStep> stepFactory)
+        public IncomingPipeline RegisterStep(Func<IIncomingLogicalStep> stepFactory)
         {
             this.registeredLogicalPipeline.Enqueue(new LazyLogicalStep(stepFactory));
 
             return this;
         }
 
-        public IncomingPipeline RegisterStep(IIncomingTransportPipelineStep step)
+        public IncomingPipeline RegisterStep(IIncomingTransportStep step)
         {
             this.registeredTransportPipeline.Enqueue(step);
 
             return this;
         }
 
-        public IncomingPipeline RegisterStep(Func<IIncomingTransportPipelineStep> stepFactory)
+        public IncomingPipeline RegisterStep(Func<IIncomingTransportStep> stepFactory)
         {
             this.registeredTransportPipeline.Enqueue(new LazyTransportStep(stepFactory));
 
@@ -65,8 +65,8 @@ namespace MMS.ServiceBus.Pipeline
 
         public void TakeSnapshot()
         {
-            this.snapshotLogical.Push(new Queue<IIncomingLogicalPipelineStep>(this.executingLogicalPipeline));
-            this.snapshotTransport.Push(new Queue<IIncomingTransportPipelineStep>(this.executingTransportPipeline));
+            this.snapshotLogical.Push(new Queue<IIncomingLogicalStep>(this.executingLogicalPipeline));
+            this.snapshotTransport.Push(new Queue<IIncomingTransportStep>(this.executingTransportPipeline));
         }
 
         public void DeleteSnapshot()
@@ -75,9 +75,9 @@ namespace MMS.ServiceBus.Pipeline
             this.executingTransportPipeline = this.snapshotTransport.Pop();
         }
 
-        public virtual async Task Invoke(IBus bus, TransportMessage message)
+        public async Task Invoke(IBus bus, TransportMessage message)
         {
-            this.executingTransportPipeline = new Queue<IIncomingTransportPipelineStep>(this.registeredTransportPipeline);
+            this.executingTransportPipeline = new Queue<IIncomingTransportStep>(this.registeredTransportPipeline);
             var transportContext = new IncomingTransportContext(message);
             transportContext.SetChain(this);
             await this.InvokeTransport(transportContext, bus);
@@ -85,7 +85,7 @@ namespace MMS.ServiceBus.Pipeline
             // We assume that someone in the pipeline made logical message
             var logicalMessage = transportContext.Get<LogicalMessage>();
 
-            this.executingLogicalPipeline = new Queue<IIncomingLogicalPipelineStep>(this.registeredLogicalPipeline);
+            this.executingLogicalPipeline = new Queue<IIncomingLogicalStep>(this.registeredLogicalPipeline);
             var logicalContext = new IncomingLogicalContext(logicalMessage, message);
             logicalContext.SetChain(this);
             this.currentContext = logicalContext;
@@ -104,7 +104,7 @@ namespace MMS.ServiceBus.Pipeline
                 return;
             }
 
-            IIncomingLogicalPipelineStep step = this.executingLogicalPipeline.Dequeue();
+            IIncomingLogicalStep step = this.executingLogicalPipeline.Dequeue();
 
             await step.Invoke(context, bus, async () => await this.InvokeLogical(context, bus));
         }
@@ -116,16 +116,16 @@ namespace MMS.ServiceBus.Pipeline
                 return;
             }
 
-            IIncomingTransportPipelineStep step = this.executingTransportPipeline.Dequeue();
+            IIncomingTransportStep step = this.executingTransportPipeline.Dequeue();
 
             await step.Invoke(context, bus, async () => await this.InvokeTransport(context, bus));
         }
 
-        private class LazyLogicalStep : IIncomingLogicalPipelineStep
+        private class LazyLogicalStep : IIncomingLogicalStep
         {
-            private readonly Func<IIncomingLogicalPipelineStep> factory;
+            private readonly Func<IIncomingLogicalStep> factory;
 
-            public LazyLogicalStep(Func<IIncomingLogicalPipelineStep> factory)
+            public LazyLogicalStep(Func<IIncomingLogicalStep> factory)
             {
                 this.factory = factory;
             }
@@ -138,11 +138,11 @@ namespace MMS.ServiceBus.Pipeline
             }
         }
 
-        private class LazyTransportStep : IIncomingTransportPipelineStep
+        private class LazyTransportStep : IIncomingTransportStep
         {
-            private readonly Func<IIncomingTransportPipelineStep> factory;
+            private readonly Func<IIncomingTransportStep> factory;
 
-            public LazyTransportStep(Func<IIncomingTransportPipelineStep> factory)
+            public LazyTransportStep(Func<IIncomingTransportStep> factory)
             {
                 this.factory = factory;
             }

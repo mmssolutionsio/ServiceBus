@@ -1,26 +1,28 @@
 //-------------------------------------------------------------------------------
-// <copyright file="MessagePublisher.cs" company="MMS AG">
+// <copyright file="MessageSender.cs" company="MMS AG">
 //   Copyright (c) MMS AG, 2008-2015
 // </copyright>
 //-------------------------------------------------------------------------------
 
-namespace MMS.ServiceBus.Pipeline
+namespace MMS.ServiceBus.Pipeline.Outgoing
 {
     using System.Threading.Tasks;
     using Microsoft.ServiceBus.Messaging;
 
-    public class MessagePublisher
+    public class MessageSender
     {
         private readonly MessagingFactory factory;
 
-        public MessagePublisher(MessagingFactory factory)
+        public MessageSender(MessagingFactory factory)
         {
             this.factory = factory;
         }
 
-        public Task PublishAsync(TransportMessage message, PublishOptions options)
+        public virtual async Task SendAsync(TransportMessage message, SendOptions options)
         {
-            return null;
+            var sender = await this.factory.CreateMessageSenderAsync(options.Destination);
+
+            await sender.SendAsync(message.ToBrokeredMessage());
         }
     }
 }

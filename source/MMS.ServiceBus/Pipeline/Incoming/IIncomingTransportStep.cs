@@ -1,16 +1,16 @@
 //-------------------------------------------------------------------------------
-// <copyright file="IIncomingLogicalPipelineStep.cs" company="MMS AG">
+// <copyright file="IIncomingTransportStep.cs" company="MMS AG">
 //   Copyright (c) MMS AG, 2008-2015
 // </copyright>
 //-------------------------------------------------------------------------------
 
-namespace MMS.ServiceBus.Pipeline
+namespace MMS.ServiceBus.Pipeline.Incoming
 {
     using System;
     using System.Threading.Tasks;
 
-    public interface IIncomingLogicalPipelineStep
+    public interface IIncomingTransportStep
     {
-        Task Invoke(IncomingLogicalContext context, IBus bus, Func<Task> next);
+        Task Invoke(IncomingTransportContext context, IBus bus, Func<Task> next);
     }
 }

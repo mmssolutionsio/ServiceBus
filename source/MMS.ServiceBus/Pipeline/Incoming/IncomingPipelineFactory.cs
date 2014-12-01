@@ -4,10 +4,8 @@
 // </copyright>
 //-------------------------------------------------------------------------------
 
-namespace MMS.ServiceBus
+namespace MMS.ServiceBus.Pipeline.Incoming
 {
-    using Pipeline;
-
     public class IncomingPipelineFactory : IIncomingPipelineFactory
     {
         private readonly HandlerRegistry registry;
@@ -17,13 +15,13 @@ namespace MMS.ServiceBus
             this.registry = registry;
         }
 
-        public virtual IncomingPipeline Create()
+        public IncomingPipeline Create()
         {
             var pipeline = new IncomingPipeline();
             return pipeline
-                .RegisterStep(new DeserializeTransportMessagePipelineStep(new DataContractMessageSerializer(), new LogicalMessageFactory()))
-                .RegisterStep(new LoadMessageHandlers(this.registry))
-                .RegisterStep(new InvokeHandlers());
+                .RegisterStep(new DeserializeTransportMessageStep(new DataContractMessageSerializer(), new LogicalMessageFactory()))
+                .RegisterStep(new LoadMessageHandlersStep(this.registry))
+                .RegisterStep(new InvokeHandlersStep());
         }
     }
 }

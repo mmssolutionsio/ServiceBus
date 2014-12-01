@@ -1,22 +1,21 @@
 //-------------------------------------------------------------------------------
-// <copyright file="DetermineDestinationPipelineStep.cs" company="MMS AG">
+// <copyright file="DetermineDestinationStep.cs" company="MMS AG">
 //   Copyright (c) MMS AG, 2008-2015
 // </copyright>
 //-------------------------------------------------------------------------------
 
-namespace MMS.ServiceBus
+namespace MMS.ServiceBus.Pipeline.Outgoing
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
-    using Pipeline;
 
-    public class DetermineDestinationPipelineStep : IOutgoingTransportPipelineStep
+    public class DetermineDestinationStep : IOutgoingTransportStep
     {
         private readonly MessageRouter router;
 
-        public DetermineDestinationPipelineStep(MessageRouter router)
+        public DetermineDestinationStep(MessageRouter router)
         {
             this.router = router;
         }

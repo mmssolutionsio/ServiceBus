@@ -7,6 +7,7 @@
 namespace MMS.ServiceBus
 {
     using Pipeline;
+    using Pipeline.Incoming;
 
     public interface IIncomingPipelineFactory
     {

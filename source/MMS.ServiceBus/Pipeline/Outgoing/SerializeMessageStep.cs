@@ -1,20 +1,20 @@
-﻿//-------------------------------------------------------------------------------
-// <copyright file="SerializeMessagePipelineStep.cs" company="MMS AG">
+//-------------------------------------------------------------------------------
+// <copyright file="SerializeMessageStep.cs" company="MMS AG">
 //   Copyright (c) MMS AG, 2008-2015
 // </copyright>
 //-------------------------------------------------------------------------------
 
-namespace MMS.ServiceBus.Pipeline
+namespace MMS.ServiceBus.Pipeline.Outgoing
 {
     using System;
     using System.IO;
     using System.Threading.Tasks;
 
-    public class SerializeMessagePipelineStep : IOutgoingTransportPipelineStep
+    public class SerializeMessageStep : IOutgoingTransportStep
     {
         private readonly IMessageSerializer serializer;
 
-        public SerializeMessagePipelineStep(IMessageSerializer serializer)
+        public SerializeMessageStep(IMessageSerializer serializer)
         {
             this.serializer = serializer;
         }

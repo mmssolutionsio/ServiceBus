@@ -3,6 +3,8 @@ namespace MMS.ServiceBus
     using System.Threading.Tasks;
     using Microsoft.ServiceBus;
     using Microsoft.ServiceBus.Messaging;
+    using Pipeline.Incoming;
+    using Pipeline.Outgoing;
     using ServiceBus.Pipeline;
     using Testing;
 

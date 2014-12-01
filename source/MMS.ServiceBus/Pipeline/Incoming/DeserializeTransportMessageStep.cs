@@ -1,22 +1,22 @@
-﻿//-------------------------------------------------------------------------------
-// <copyright file="DeserializeTransportMessagePipelineStep.cs" company="MMS AG">
+//-------------------------------------------------------------------------------
+// <copyright file="DeserializeTransportMessageStep.cs" company="MMS AG">
 //   Copyright (c) MMS AG, 2008-2015
 // </copyright>
 //-------------------------------------------------------------------------------
 
-namespace MMS.ServiceBus.Pipeline
+namespace MMS.ServiceBus.Pipeline.Incoming
 {
     using System;
     using System.Runtime.Serialization;
     using System.Threading.Tasks;
 
-    public class DeserializeTransportMessagePipelineStep : IIncomingTransportPipelineStep
+    public class DeserializeTransportMessageStep : IIncomingTransportStep
     {
         private readonly IMessageSerializer serializer;
 
         private readonly LogicalMessageFactory factory;
 
-        public DeserializeTransportMessagePipelineStep(IMessageSerializer serializer, LogicalMessageFactory factory)
+        public DeserializeTransportMessageStep(IMessageSerializer serializer, LogicalMessageFactory factory)
         {
             this.factory = factory;
             this.serializer = serializer;

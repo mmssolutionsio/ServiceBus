@@ -7,6 +7,7 @@
 namespace MMS.ServiceBus
 {
     using System.Threading.Tasks;
+    using Pipeline;
 
     public interface IBus
     {
