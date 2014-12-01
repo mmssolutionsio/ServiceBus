@@ -7,8 +7,6 @@
 namespace MMS.ServiceBus
 {
     using System;
-    using System.Collections.Generic;
-    using System.Linq;
     using System.Threading.Tasks;
     using Pipeline;
 
@@ -20,24 +18,20 @@ namespace MMS.ServiceBus
 
         private readonly LogicalMessageFactory factory;
 
-        private readonly MessageRouter router;
+        private readonly IOutgoingPipelineFactory outgoingPipelineFactory;
 
-        private readonly OutgoingPipelineFactory outgoingPipelineFactory;
-
-        private readonly IncomingPipelineFactory incomingPipelineFactory;
+        private readonly IIncomingPipelineFactory incomingPipelineFactory;
 
         public Bus(
             EndpointConfiguration configuration, 
             DequeueStrategy strategy, 
             LogicalMessageFactory factory,
-            OutgoingPipelineFactory outgoingPipelineFactory, 
-            IncomingPipelineFactory incomingPipelineFactory,
-            MessageRouter router)
+            IOutgoingPipelineFactory outgoingPipelineFactory, 
+            IIncomingPipelineFactory incomingPipelineFactory)
         {
             this.incomingPipelineFactory = incomingPipelineFactory;
             this.outgoingPipelineFactory = outgoingPipelineFactory;
 
-            this.router = router;
             this.factory = factory;
             this.configuration = configuration;
             this.strategy = strategy;
@@ -55,10 +49,24 @@ namespace MMS.ServiceBus
                 throw new ArgumentNullException("message", "You cannot send null");
             }
 
-            var sendOptions = options ?? new SendOptions(this.GetDestinationForSend(message));
+            var sendOptions = options ?? new SendOptions();
             LogicalMessage msg = this.factory.Create(message, sendOptions.Headers);
 
             return this.SendMessage(msg, sendOptions);
+        }
+
+        public Task Publish(object message, PublishOptions options = null)
+        {
+            if (message == null)
+            {
+                throw new ArgumentNullException("message", "You cannot publish null");
+            }
+
+            var publishOptions = options ?? new PublishOptions();
+            LogicalMessage msg = this.factory.Create(message, publishOptions.Headers);
+            publishOptions.EventType = msg.MessageType;
+
+            return this.SendMessage(msg, publishOptions);
         }
 
         public void DoNotContinueDispatchingCurrentMessageToHandlers()
@@ -71,7 +79,7 @@ namespace MMS.ServiceBus
             await this.strategy.StopAsync();
         }
 
-        private async Task SendMessage(LogicalMessage message, SendOptions options)
+        private async Task SendMessage(LogicalMessage message, DeliveryOptions options)
         {
             if (options.ReplyToAddress == null)
             {
@@ -80,18 +88,6 @@ namespace MMS.ServiceBus
 
             OutgoingPipeline outgoingPipeline = this.outgoingPipelineFactory.Create();
             await outgoingPipeline.Invoke(message, options);
-        }
-
-        private Address GetDestinationForSend(object message)
-        {
-            IReadOnlyCollection<Address> destinations = this.router.GetDestinationFor(message.GetType());
-
-            if (destinations.Count > 1)
-            {
-                throw new InvalidOperationException("Sends can only target one address.");
-            }
-
-            return destinations.Single();
         }
 
         private Task OnMessageAsync(TransportMessage message)
@@ -115,6 +111,11 @@ namespace MMS.ServiceBus
             public Task Send(object message, SendOptions options = null)
             {
                 return this.bus.Send(message, options);
+            }
+
+            public Task Publish(object message, PublishOptions options = null)
+            {
+                return this.bus.Publish(message, options);
             }
 
             public void DoNotContinueDispatchingCurrentMessageToHandlers()

@@ -12,15 +12,27 @@ namespace MMS.ServiceBus.Pipeline
     public class DispatchToTransportPipelineStep : IOutgoingTransportPipelineStep
     {
         private readonly MessageSender sender;
+        private readonly MessagePublisher publisher;
 
-        public DispatchToTransportPipelineStep(MessageSender sender)
+        public DispatchToTransportPipelineStep(MessageSender sender, MessagePublisher publisher)
         {
+            this.publisher = publisher;
             this.sender = sender;
         }
 
         public async Task Invoke(OutgoingTransportContext context, Func<Task> next)
         {
-            await this.sender.SendAsync(context.TransportMessage, (SendOptions)context.Options);
+            var sendOptions = context.Options as SendOptions;
+            if (sendOptions != null)
+            {
+                await this.sender.SendAsync(context.TransportMessage, sendOptions);
+            }
+
+            var publishOptions = context.Options as PublishOptions;
+            if (publishOptions != null)
+            {
+                await this.publisher.PublishAsync(context.TransportMessage, publishOptions);
+            }
 
             await next();
         }

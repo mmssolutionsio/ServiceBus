@@ -93,8 +93,8 @@ namespace MMS.ServiceBus.Testing
         public async Task StartAsync()
         {
             this.simulator = new QueueListenerSimulator(this.incomingTransport);
-            OutgoingPipelineFactory outgoingFactory = this.CreateOutgoingPipelineFactory();
-            IncomingPipelineFactory incomingFactory = this.CreateIncomingPipelineFactory();
+            IOutgoingPipelineFactory outgoingFactory = this.CreateOutgoingPipelineFactory();
+            IIncomingPipelineFactory incomingFactory = this.CreateIncomingPipelineFactory();
 
             this.unit = this.CreateBus(this.simulator, outgoingFactory, incomingFactory);
             await this.unit.StartAsync();
@@ -129,65 +129,72 @@ namespace MMS.ServiceBus.Testing
             return this.unit.Send(message, options);
         }
 
+        public Task Publish(object message, PublishOptions options = null)
+        {
+            return this.unit.Publish(message, options);
+        }
+
         public void DoNotContinueDispatchingCurrentMessageToHandlers()
         {
             this.unit.DoNotContinueDispatchingCurrentMessageToHandlers();
         }
 
-        protected virtual IncomingPipelineFactory CreateIncomingPipelineFactory()
+        protected virtual IIncomingPipelineFactory CreateIncomingPipelineFactory()
         {
             return new UnitIncomingPipelineFactory(this.registry, this.IncomingLogical);
         }
 
-        protected virtual OutgoingPipelineFactory CreateOutgoingPipelineFactory()
+        protected virtual IOutgoingPipelineFactory CreateOutgoingPipelineFactory()
         {
-            return new UnitOutgoingPipelineFactory(this.outgoing, this.OutgoingLogical);
+            return new UnitOutgoingPipelineFactory(this.outgoing, this.OutgoingLogical, this.router);
         }
 
-        protected virtual Bus CreateBus(QueueClientListenerCreator creator, OutgoingPipelineFactory outgoingPipelineFactory, IncomingPipelineFactory incomingPipelineFactory)
+        protected virtual Bus CreateBus(QueueClientListenerCreator creator, IOutgoingPipelineFactory outgoingPipelineFactory, IIncomingPipelineFactory incomingPipelineFactory)
         {
-            return new Bus(this.configuration, new DequeueStrategy(this.configuration, creator), new LogicalMessageFactory(), outgoingPipelineFactory, incomingPipelineFactory, this.router);
+            return new Bus(this.configuration, new DequeueStrategy(this.configuration, creator), new LogicalMessageFactory(), outgoingPipelineFactory, incomingPipelineFactory);
         }
 
-        private class UnitOutgoingPipelineFactory : OutgoingPipelineFactory
+        private class UnitOutgoingPipelineFactory : IOutgoingPipelineFactory
         {
             private readonly ICollection<LogicalMessage> outgoing;
 
             private readonly Func<TransportMessage, Task> onMessage;
+            private readonly MessageRouter router;
 
-            public UnitOutgoingPipelineFactory(Func<TransportMessage, Task> onMessage, ICollection<LogicalMessage> outgoing)
+            public UnitOutgoingPipelineFactory(Func<TransportMessage, Task> onMessage, ICollection<LogicalMessage> outgoing, MessageRouter router)
             {
+                this.router = router;
                 this.onMessage = onMessage;
                 this.outgoing = outgoing;
             }
 
-            public override OutgoingPipeline Create()
+            public OutgoingPipeline Create()
             {
                 var pipeline = new OutgoingPipeline();
-                var senderStep = new DispatchToTransportPipelineStep(new MessageSenderSimulator(this.onMessage));
+                var senderStep = new DispatchToTransportPipelineStep(new MessageSenderSimulator(this.onMessage), new MessagePublisher(null));
                 return pipeline
                     .RegisterStep(new CreateTransportMessagePipelineStep())
                     .RegisterStep(new SerializeMessagePipelineStep(new DataContractMessageSerializer()))
+                    .RegisterStep(new DetermineDestinationPipelineStep(this.router))
                     .RegisterStep(new EnrichTransportMessageWithDestinationAddress())
                     .RegisterStep(senderStep)
                     .RegisterStep(new TraceOutgoingLogical(this.outgoing));
             }
         }
 
-        private class UnitIncomingPipelineFactory : IncomingPipelineFactory
+        private class UnitIncomingPipelineFactory : IIncomingPipelineFactory
         {
             private readonly HandlerRegistry registry;
 
             private readonly ICollection<LogicalMessage> incoming;
 
             public UnitIncomingPipelineFactory(HandlerRegistry registry, ICollection<LogicalMessage> incoming)
-                : base(registry)
             {
                 this.incoming = incoming;
                 this.registry = registry;
             }
 
-            public override IncomingPipeline Create()
+            public IncomingPipeline Create()
             {
                 var pipeline = new IncomingPipeline();
                 return pipeline

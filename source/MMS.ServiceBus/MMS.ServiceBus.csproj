@@ -57,17 +57,19 @@
     <Compile Include="Bus.cs" />
     <Compile Include="DeliveryOptions.cs" />
     <Compile Include="DequeueStrategy.cs" />
+    <Compile Include="DetermineDestinationPipelineStep.cs" />
     <Compile Include="EndpointConfiguration.cs" />
     <Compile Include="EndpointConfigurationExtensions.cs" />
     <Compile Include="HeaderKeys.cs" />
     <Compile Include="IBus.cs" />
     <Compile Include="IHandleMessage.cs" />
     <Compile Include="IHandleMessageAsync.cs" />
+    <Compile Include="IIncomingPipelineFactory.cs" />
     <Compile Include="IncomingPipelineFactory.cs" />
+    <Compile Include="IOutgoingPipelineFactory.cs" />
     <Compile Include="LogicalMessage.cs" />
     <Compile Include="LogicalMessageFactory.cs" />
     <Compile Include="MessageRouter.cs" />
-    <Compile Include="MessageSender.cs" />
     <Compile Include="OutgoingPipelineFactory.cs" />
     <Compile Include="Pipeline\Context.cs" />
     <Compile Include="Pipeline\CreateTransportMessagePipelineStep.cs" />
@@ -87,6 +89,8 @@
     <Compile Include="Pipeline\ISupportSnapshots.cs" />
     <Compile Include="Pipeline\LoadMessageHandlers.cs" />
     <Compile Include="Pipeline\MessageHandler.cs" />
+    <Compile Include="Pipeline\MessagePublisher.cs" />
+    <Compile Include="Pipeline\MessageSender.cs" />
     <Compile Include="Pipeline\OutgoingLogicalContext.cs" />
     <Compile Include="Pipeline\OutgoingPipeline.cs" />
     <Compile Include="Pipeline\OutgoingTransportContext.cs" />
@@ -95,10 +99,12 @@
     <Compile Include="Pipeline\SyncAsAsyncHandlerDecorator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\GlobalAssembly.cs" />
+    <Compile Include="PublishOptions.cs" />
     <Compile Include="Queue.cs" />
     <Compile Include="QueueClientListenerCreator.cs" />
     <Compile Include="ReceiveResourceManager.cs" />
     <Compile Include="SendOptions.cs" />
+    <Compile Include="Topic.cs" />
     <Compile Include="TransportMessage.cs" />
   </ItemGroup>
   <ItemGroup>

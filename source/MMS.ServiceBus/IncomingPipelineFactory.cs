@@ -8,7 +8,7 @@ namespace MMS.ServiceBus
 {
     using Pipeline;
 
-    public class IncomingPipelineFactory
+    public class IncomingPipelineFactory : IIncomingPipelineFactory
     {
         private readonly HandlerRegistry registry;
 

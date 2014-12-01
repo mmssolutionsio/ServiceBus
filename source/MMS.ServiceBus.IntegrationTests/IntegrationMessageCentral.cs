@@ -4,7 +4,7 @@ namespace MMS.ServiceBus
     using Microsoft.ServiceBus;
     using Microsoft.ServiceBus.Messaging;
     using ServiceBus.Pipeline;
-    using ServiceBus.Testing;
+    using Testing;
 
     internal class IntegrationMessageCentral
     {
@@ -27,14 +27,14 @@ namespace MMS.ServiceBus
                 .Endpoint(ReceiverEndpointName)
                 .Concurrency(1);
 
-            var senderOutgoingPipelineFactory = new OutgoingPipelineFactory(senderMessageFactory);
+            var senderOutgoingPipelineFactory = new OutgoingPipelineFactory(senderMessageFactory, new AlwaysRouteToDestination(new Queue(ReceiverEndpointName)));
             var senderIncomingPipelineFactory = new IncomingPipelineFactory(new HandlerRegistry());
 
-            this.Sender = new Bus(senderConfiguration, new DequeueStrategy(senderConfiguration, new QueueClientListenerCreator(senderMessageFactory)), new LogicalMessageFactory(), senderOutgoingPipelineFactory, senderIncomingPipelineFactory, new AlwaysRouteToDestination(new Queue(ReceiverEndpointName)));
+            this.Sender = new Bus(senderConfiguration, new DequeueStrategy(senderConfiguration, new QueueClientListenerCreator(senderMessageFactory)), new LogicalMessageFactory(), senderOutgoingPipelineFactory, senderIncomingPipelineFactory);
 
-            var receiverOutgoingPipelineFactory = new OutgoingPipelineFactory(receiverMessageFactory);
+            var receiverOutgoingPipelineFactory = new OutgoingPipelineFactory(receiverMessageFactory, new AlwaysRouteToDestination(new Queue(SenderEndpointName)));
             var receiverIncomingPipelineFactory = new IncomingPipelineFactory(handlerRegistry);
-            this.Receiver = new Bus(receiverConfiguration, new DequeueStrategy(receiverConfiguration, new QueueClientListenerCreator(receiverMessageFactory)), new LogicalMessageFactory(), receiverOutgoingPipelineFactory, receiverIncomingPipelineFactory, new AlwaysRouteToDestination(new Queue(SenderEndpointName)));
+            this.Receiver = new Bus(receiverConfiguration, new DequeueStrategy(receiverConfiguration, new QueueClientListenerCreator(receiverMessageFactory)), new LogicalMessageFactory(), receiverOutgoingPipelineFactory, receiverIncomingPipelineFactory);
         }
 
         private static void SetupNecessaryInfrastructureOnServiceBus()

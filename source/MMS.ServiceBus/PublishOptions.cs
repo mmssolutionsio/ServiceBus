@@ -1,13 +1,17 @@
 ﻿//-------------------------------------------------------------------------------
-// <copyright file="SendOptions.cs" company="MMS AG">
+// <copyright file="PublishOptions.cs" company="MMS AG">
 //   Copyright (c) MMS AG, 2008-2015
 // </copyright>
 //-------------------------------------------------------------------------------
 
 namespace MMS.ServiceBus
 {
-    public class SendOptions : DeliveryOptions
+    using System;
+
+    public class PublishOptions : DeliveryOptions
     {
-        public Queue Destination { get; internal set; }
+        public Type EventType { get; internal set; }
+
+        public Topic Destination { get; internal set; }
     }
 }

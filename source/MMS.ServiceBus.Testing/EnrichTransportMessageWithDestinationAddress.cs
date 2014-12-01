@@ -1,9 +1,8 @@
-using MMS.ServiceBus.Pipeline;
-
 namespace MMS.ServiceBus.Testing
 {
     using System;
     using System.Threading.Tasks;
+    using Pipeline;
 
     public class EnrichTransportMessageWithDestinationAddress : IOutgoingTransportPipelineStep
     {
@@ -14,6 +13,7 @@ namespace MMS.ServiceBus.Testing
             {
                 context.TransportMessage.Headers[AcceptanceTestHeaders.Destination] = sendOptions.Destination;
             }
+
             await next();
         }
     }

@@ -14,11 +14,26 @@ namespace MMS.ServiceBus
         private readonly IDictionary<string, string> headers;
 
         private readonly object message;
+        private readonly Type messageType;
+
+        public LogicalMessage(object message, IDictionary<string, string> headers)
+            : this(message.GetType(), message, headers)
+        {
+        }
 
         public LogicalMessage(Type messageType, object message, IDictionary<string, string> headers)
         {
+            this.messageType = messageType;
             this.message = message;
             this.headers = headers;
+        }
+
+        public Type MessageType
+        {
+            get
+            {
+                return this.messageType;
+            }
         }
 
         public object Instance
