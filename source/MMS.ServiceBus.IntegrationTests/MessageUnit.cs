@@ -63,6 +63,11 @@ namespace MMS.ServiceBus
             await this.unit.StopAsync();
         }
 
+        public Task SendLocal(object message)
+        {
+            return this.unit.SendLocal(message);
+        }
+
         public Task Send(object message, SendOptions options = null)
         {
             return this.unit.Send(message, options);

@@ -116,6 +116,11 @@ namespace MMS.ServiceBus.Testing
                 };
         }
 
+        public Task SendLocal(object message)
+        {
+            return this.unit.SendLocal(message);
+        }
+
         public async Task HandOver(TransportMessage message)
         {
             await this.simulator.HandOver(message);

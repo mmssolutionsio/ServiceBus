@@ -69,6 +69,7 @@
     <Compile Include="PublishingMessages.cs" />
     <Compile Include="RoutingMessages.cs" />
     <Compile Include="SendingMessages.cs" />
+    <Compile Include="SendingMessagesLocal.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config">

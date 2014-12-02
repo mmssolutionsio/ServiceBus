@@ -46,6 +46,11 @@ namespace MMS.ServiceBus
             await this.strategy.StartAsync(this.OnMessageAsync);
         }
 
+        public Task SendLocal(object message)
+        {
+            return this.Send(message, new SendOptions { Destination = this.configuration.EndpointQueue });
+        }
+
         public Task Send(object message, SendOptions options = null)
         {
             if (message == null)
@@ -110,6 +115,11 @@ namespace MMS.ServiceBus
             {
                 this.incomingPipeline = incomingPipeline;
                 this.bus = bus;
+            }
+
+            public Task SendLocal(object message)
+            {
+                return this.bus.SendLocal(message);
             }
 
             public Task Send(object message, SendOptions options = null)
