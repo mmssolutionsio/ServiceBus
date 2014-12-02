@@ -118,7 +118,7 @@ namespace MMS.ServiceBus
             public async Task Handle(Message message, IBus bus)
             {
                 this.context.AsyncHandlerCalled();
-                await Task.Delay(20);
+                await Task.Delay(0);
             }
         }
 
