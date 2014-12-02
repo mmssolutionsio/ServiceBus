@@ -11,5 +11,11 @@ namespace MMS.ServiceBus
         public const string ContentType = "ContentType";
 
         public const string MessageType = "MessageType";
+
+        public const string MessageId = "MessageId";
+
+        public const string CorrelationId = "CorrelationId";
+
+        public const string ReplyTo = "ReplyTo";
     }
 }

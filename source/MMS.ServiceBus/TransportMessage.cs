@@ -19,29 +19,57 @@ namespace MMS.ServiceBus
 
         public TransportMessage()
         {
-            this.Id = Guid.NewGuid().ToString();
-            this.CorrelationId = this.Id;
+            var id = Guid.NewGuid().ToString();
 
-            this.Headers = new Dictionary<string, string>();
+            this.Headers = new Dictionary<string, string>
+            {
+                { HeaderKeys.MessageId, id },
+                { HeaderKeys.CorrelationId, id },
+                { HeaderKeys.ContentType, null },
+                { HeaderKeys.ReplyTo, null },
+            };
         }
 
         public TransportMessage(BrokeredMessage message)
         {
-            this.Headers = new Dictionary<string, string>();
-            this.message = message;
+            this.Headers = new Dictionary<string, string>
+            {
+                { HeaderKeys.MessageId, message.MessageId },
+                { HeaderKeys.CorrelationId, message.CorrelationId },
+                { HeaderKeys.ContentType, message.ContentType },
+                { HeaderKeys.ReplyTo, message.ReplyTo }
+            };
 
-            this.Id = message.MessageId;
-            this.CorrelationId = message.CorrelationId;
+            this.message = message;
 
             foreach (var pair in message.Properties)
             {
-                this.Headers.Add(pair.Key, (string)pair.Value);
+                if (!this.Headers.ContainsKey(pair.Key))
+                {
+                    this.Headers.Add(pair.Key, (string)pair.Value);
+                }
             }
         }
 
-        public string Id { get; set; }
+        public string Id
+        {
+            get { return this.Headers[HeaderKeys.MessageId]; }
+        }
 
-        public string CorrelationId { get; set; }
+        public string CorrelationId
+        {
+            get { return this.Headers[HeaderKeys.CorrelationId]; }
+        }
+
+        public string ContentType
+        {
+            get { return this.Headers[HeaderKeys.ContentType]; }
+        }
+
+        public Address ReplyTo
+        {
+            get { return Address.Parse(this.Headers[HeaderKeys.ReplyTo]); }
+        }
 
         public IDictionary<string, string> Headers { get; private set; }
 
@@ -64,9 +92,10 @@ namespace MMS.ServiceBus
         {
             var brokeredMessage = new BrokeredMessage(this.body, false)
             {
-                ContentType = this.Headers[HeaderKeys.MessageType], 
+                ContentType = this.ContentType, 
                 MessageId = this.Id, 
-                CorrelationId = this.CorrelationId
+                CorrelationId = this.CorrelationId,
+                ReplyTo = this.ReplyTo,
             };
 
             foreach (KeyValuePair<string, string> pair in this.Headers)
@@ -77,12 +106,12 @@ namespace MMS.ServiceBus
             return brokeredMessage;
         }
 
-        public virtual void Complete()
+        public void Complete()
         {
             this.message.Complete();
         }
 
-        public virtual void Abandon()
+        public void Abandon()
         {
             this.message.Abandon();
         }
