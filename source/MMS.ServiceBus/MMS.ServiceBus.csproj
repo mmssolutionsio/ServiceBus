@@ -105,6 +105,7 @@
     <Compile Include="Queue.cs" />
     <Compile Include="MessageReceiverReceiver.cs" />
     <Compile Include="ReceiveResourceManager.cs" />
+    <Compile Include="SendResourceManager.cs" />
     <Compile Include="Topic.cs" />
     <Compile Include="TransportMessage.cs" />
   </ItemGroup>
