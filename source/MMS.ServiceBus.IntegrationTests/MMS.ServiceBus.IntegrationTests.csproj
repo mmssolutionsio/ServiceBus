@@ -61,6 +61,7 @@
     <Compile Include="AlwaysRouteToDestination.cs" />
     <Compile Include="MessageUnit.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="PublishingMessagesIntegration.cs" />
     <Compile Include="SendingMessagesIntegration.cs" />
   </ItemGroup>
   <ItemGroup>
