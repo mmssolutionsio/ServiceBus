@@ -9,7 +9,7 @@
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <description>MMS.ServiceBus contains the Service Bus Abstractions for Windows Service Bus.</description>
         <dependencies>
-			<dependency id="log4net" version="[2,3)" />
+			<dependency id="log4net" version="[2.0.0,3)" />
 			<dependency id="ServiceBus.v1_1" version="[1.0.4,2)" />
         </dependencies>
         <references>
