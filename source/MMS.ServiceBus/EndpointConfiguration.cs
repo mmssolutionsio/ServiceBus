@@ -6,8 +6,15 @@
 
 namespace MMS.ServiceBus
 {
+    using System;
+
     public class EndpointConfiguration
     {
+        public EndpointConfiguration()
+        {
+            this.Concurrency(Environment.ProcessorCount);
+        }
+
         public Queue EndpointQueue { get; private set; }
 
         internal bool IsTransactional { get; private set; }
@@ -33,6 +40,14 @@ namespace MMS.ServiceBus
         {
             this.IsTransactional = true;
             return this;
+        }
+
+        internal void Validate()
+        {
+            if (this.EndpointQueue == null)
+            {
+                throw new InvalidOperationException("The endpoint name must be set by calling configuration.Endpoint(\"EndpointName\").");
+            }
         }
     }
 }

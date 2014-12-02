@@ -41,6 +41,8 @@ namespace MMS.ServiceBus
 
         public async Task StartAsync()
         {
+            this.configuration.Validate();
+
             await this.strategy.StartAsync(this.OnMessageAsync);
         }
 
