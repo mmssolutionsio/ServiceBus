@@ -89,6 +89,7 @@
     <Compile Include="Pipeline\Outgoing\DispatchToTransportStep.cs" />
     <Compile Include="Pipeline\Outgoing\IOutgoingLogicalStep.cs" />
     <Compile Include="Pipeline\Outgoing\IOutgoingTransportStep.cs" />
+    <Compile Include="Pipeline\Outgoing\IPublishMessages.cs" />
     <Compile Include="Pipeline\Outgoing\ISendMessages.cs" />
     <Compile Include="Pipeline\Outgoing\MessagePublisher.cs" />
     <Compile Include="Pipeline\Outgoing\MessageSender.cs" />

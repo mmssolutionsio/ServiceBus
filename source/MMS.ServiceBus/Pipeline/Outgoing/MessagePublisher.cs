@@ -9,7 +9,7 @@ namespace MMS.ServiceBus.Pipeline.Outgoing
     using System.Threading.Tasks;
     using Microsoft.ServiceBus.Messaging;
 
-    public class MessagePublisher
+    public class MessagePublisher : IPublishMessages
     {
         private readonly MessagingFactory factory;
 

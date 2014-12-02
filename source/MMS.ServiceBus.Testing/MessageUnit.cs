@@ -207,17 +207,16 @@ namespace MMS.ServiceBus.Testing
             }
         }
 
-        private class MessageSenderSimulator : MessageSender
+        private class MessageSenderSimulator : ISendMessages
         {
             private readonly Func<TransportMessage, Task> onMessage;
 
             public MessageSenderSimulator(Func<TransportMessage, Task> onMessage)
-                : base(null)
             {
                 this.onMessage = onMessage;
             }
 
-            public override Task SendAsync(TransportMessage message, SendOptions options)
+            public Task SendAsync(TransportMessage message, SendOptions options)
             {
                 var brokeredMessage = message.ToBrokeredMessage();
                 var transportMessage = new TransportMessage(brokeredMessage);
