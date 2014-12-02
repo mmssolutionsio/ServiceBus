@@ -9,7 +9,7 @@ namespace MMS.ServiceBus.Pipeline.Outgoing
     using System.Threading.Tasks;
     using Microsoft.ServiceBus.Messaging;
 
-    public class MessageSender
+    public class MessageSender : ISendMessages
     {
         private readonly MessagingFactory factory;
 
@@ -18,7 +18,7 @@ namespace MMS.ServiceBus.Pipeline.Outgoing
             this.factory = factory;
         }
 
-        public virtual async Task SendAsync(TransportMessage message, SendOptions options)
+        public async Task SendAsync(TransportMessage message, SendOptions options)
         {
             var sender = await this.factory.CreateMessageSenderAsync(options.Destination);
 

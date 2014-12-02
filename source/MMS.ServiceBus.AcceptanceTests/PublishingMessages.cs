@@ -52,6 +52,7 @@ namespace MMS.ServiceBus
         }
 
         [Test]
+        [Ignore("Currently not yet implemented")]
         public async Task WhenOneMessagePublished_InvokesSynchronousAndAsynchronousHandlers()
         {
             await this.sender.Publish(new Event { Bar = 42 });
@@ -61,6 +62,7 @@ namespace MMS.ServiceBus
         }
 
         [Test]
+        [Ignore("Currently not yet implemented")]
         public async Task WhenMultipeMessagePublished_InvokesSynchronousAndAsynchronousHandlers()
         {
             await this.sender.Publish(new Event { Bar = 42 });

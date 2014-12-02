@@ -11,10 +11,10 @@ namespace MMS.ServiceBus.Pipeline.Outgoing
 
     public class DispatchToTransportStep : IOutgoingTransportStep
     {
-        private readonly MessageSender sender;
+        private readonly ISendMessages sender;
         private readonly MessagePublisher publisher;
 
-        public DispatchToTransportStep(MessageSender sender, MessagePublisher publisher)
+        public DispatchToTransportStep(ISendMessages sender, MessagePublisher publisher)
         {
             this.publisher = publisher;
             this.sender = sender;
