@@ -7,7 +7,6 @@
 namespace MMS.ServiceBus.Pipeline.Outgoing
 {
     using Microsoft.ServiceBus.Messaging;
-    using MessageSender = Outgoing.MessageSender;
 
     public class OutgoingPipelineFactory : IOutgoingPipelineFactory
     {
@@ -28,7 +27,7 @@ namespace MMS.ServiceBus.Pipeline.Outgoing
                 .RegisterStep(new CreateTransportMessageStep())
                 .RegisterStep(new SerializeMessageStep(new DataContractMessageSerializer()))
                 .RegisterStep(new DetermineDestinationStep(this.router))
-                .RegisterStep(new DispatchToTransportStep(new Outgoing.MessageSender(this.factory), new MessagePublisher(this.factory)));
+                .RegisterStep(new DispatchToTransportStep(new MessageSender(this.factory), new MessagePublisher(this.factory)));
         }
     }
 }

@@ -23,18 +23,32 @@ namespace MMS.ServiceBus.Pipeline.Outgoing
         public async Task Invoke(OutgoingTransportContext context, Func<Task> next)
         {
             var sendOptions = context.Options as SendOptions;
-            if (sendOptions != null)
+            if (ShouldDetermineSendDestination(sendOptions))
             {
+// ReSharper disable PossibleNullReferenceException
                 sendOptions.Destination = this.GetDestinationForSend(context.LogicalMessage.Instance);
+// ReSharper restore PossibleNullReferenceException
             }
 
             var publishOptions = context.Options as PublishOptions;
-            if (publishOptions != null)
+            if (ShouldDeterminePublishDestination(publishOptions))
             {
+// ReSharper disable PossibleNullReferenceException
                 publishOptions.Destination = this.GetDestinationForPublish(context.LogicalMessage.Instance);
+// ReSharper restore PossibleNullReferenceException
             }
 
             await next();
+        }
+
+        private static bool ShouldDeterminePublishDestination(PublishOptions publishOptions)
+        {
+            return publishOptions != null && publishOptions.Destination == null;
+        }
+
+        private static bool ShouldDetermineSendDestination(SendOptions sendOptions)
+        {
+            return sendOptions != null && sendOptions.Destination == null;
         }
 
         private Queue GetDestinationForSend(object message)

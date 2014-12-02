@@ -7,6 +7,7 @@
 namespace MMS.ServiceBus
 {
     using System;
+    using System.CodeDom;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Threading.Tasks;
@@ -35,7 +36,7 @@ namespace MMS.ServiceBus
 
             this.broker = new Broker();
             this.sender = new MessageUnit(new EndpointConfiguration().Endpoint("Publisher").Concurrency(1))
-                .Use(new AlwaysRouteToDestination(new Queue("Subscriber")));
+                .Use(new PublishMessageRouter(new AlwaysRouteToDestination(new Queue("Subscriber"))));
             this.receiver = new MessageUnit(new EndpointConfiguration().Endpoint("Subscriber")
                 .Concurrency(1)).Use(this.registry);
 
@@ -70,6 +71,26 @@ namespace MMS.ServiceBus
 
             Assert.AreEqual(2, this.context.FooAsyncHandlerCalled);
             Assert.AreEqual(2, this.context.FooHandlerCalled);
+        }
+
+        public class PublishMessageRouter : MessageRouter
+        {
+            private readonly MessageRouter fallback;
+
+            public PublishMessageRouter(MessageRouter fallback)
+            {
+                this.fallback = fallback;
+            }
+
+            public override IReadOnlyCollection<Address> GetDestinationFor(Type messageType)
+            {
+                if (messageType == typeof(Event))
+                {
+                    return new ReadOnlyCollection<Address>(new List<Address> { new Topic(typeof(Event).FullName) });
+                }
+
+                return this.fallback.GetDestinationFor(messageType);
+            }
         }
 
         public class HandlerRegistrySimulator : HandlerRegistry

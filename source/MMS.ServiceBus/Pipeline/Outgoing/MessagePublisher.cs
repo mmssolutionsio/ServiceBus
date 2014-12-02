@@ -18,9 +18,10 @@ namespace MMS.ServiceBus.Pipeline.Outgoing
             this.factory = factory;
         }
 
-        public Task PublishAsync(TransportMessage message, PublishOptions options)
+        public async Task PublishAsync(TransportMessage message, PublishOptions options)
         {
-            return null;
+            var publisher = await this.factory.CreateMessageSenderAsync(options.Destination);
+            await publisher.SendAsync(message.ToBrokeredMessage());
         }
     }
 }

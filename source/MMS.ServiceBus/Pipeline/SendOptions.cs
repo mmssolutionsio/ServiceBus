@@ -8,6 +8,6 @@ namespace MMS.ServiceBus.Pipeline
 {
     public class SendOptions : DeliveryOptions
     {
-        public Queue Destination { get; internal set; }
+        public Queue Destination { get; set; }
     }
 }

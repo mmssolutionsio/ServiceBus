@@ -107,11 +107,6 @@ namespace MMS.ServiceBus.Testing
             await this.unit.StopAsync();
         }
 
-        public IDisposable Scope()
-        {
-            return new Disposable(this);
-        }
-
         public void SetOutgoing(Func<TransportMessage, Task> outgoing)
         {
             this.outgoing = async msg =>
@@ -279,24 +274,6 @@ namespace MMS.ServiceBus.Testing
             {
                 this.collector.Add(context.LogicalMessage);
                 await next();
-            }
-        }
-
-        private class Disposable : IDisposable
-        {
-            private readonly MessageUnit unit;
-
-            public Disposable(MessageUnit unit)
-            {
-                this.unit = unit;
-            }
-
-            public void Dispose()
-            {
-                this.unit.OutgoingTransport.Clear();
-                this.unit.IncomingTransport.Clear();
-                this.unit.IncomingLogical.Clear();
-                this.unit.OutgoingLogical.Clear();
             }
         }
     }

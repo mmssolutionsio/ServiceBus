@@ -5,41 +5,45 @@ namespace MMS.ServiceBus
     using System.Collections.ObjectModel;
     using System.Threading;
     using System.Threading.Tasks;
+    using Microsoft.ServiceBus.Messaging;
     using NUnit.Framework;
     using ServiceBus.Pipeline;
+    using Testing;
 
     [TestFixture]
     public class SendingMessagesIntegration
     {
-        private IntegrationMessageCentral central;
-
         private Context context;
 
         private HandlerRegistrySimulator registry;
 
-        private IDisposable contextDispose;
-
-        [TestFixtureSetUp]
-        public void FixtureSetUp()
-        {
-            this.registry = new HandlerRegistrySimulator();
-
-            this.central = new IntegrationMessageCentral(this.registry);
-            this.central.StartAsync().Wait();
-        }
+        private MessageUnit sender;
+        private MessageUnit receiver;
 
         [SetUp]
         public void SetUp()
         {
             this.context = new Context();
 
-            this.contextDispose = this.registry.SetContext(this.context);
+            this.registry = new HandlerRegistrySimulator(this.context);
+
+            this.sender = new MessageUnit(new EndpointConfiguration().Endpoint("Sender").Concurrency(1))
+                .Use(MessagingFactory.Create())
+                .Use(new AlwaysRouteToDestination(new Queue("Receiver")))
+                .Use(this.registry);
+
+            this.receiver = new MessageUnit(new EndpointConfiguration().Endpoint("Receiver").Concurrency(1))
+                .Use(MessagingFactory.Create())
+                .Use(this.registry);
+
+            this.sender.StartAsync().Wait();
+            this.receiver.StartAsync().Wait();
         }
 
         [Test]
         public async Task WhenOneMessageSent_InvokesSynchronousAndAsynchronousHandlers()
         {
-            await this.central.Sender.Send(new Message { Bar = 42 });
+            await this.sender.Send(new Message { Bar = 42 });
 
             await Task.Delay(100);
 
@@ -52,10 +56,10 @@ namespace MMS.ServiceBus
         [Test]
         public async Task WhenMultipeMessageSent_InvokesSynchronousAndAsynchronousHandlers()
         {
-            await this.central.Sender.Send(new Message { Bar = 42 });
-            await this.central.Sender.Send(new Message { Bar = 43 });
-            await this.central.Sender.Send(new Message { Bar = 44 });
-            await this.central.Sender.Send(new Message { Bar = 45 });
+            await this.sender.Send(new Message { Bar = 42 });
+            await this.sender.Send(new Message { Bar = 43 });
+            await this.sender.Send(new Message { Bar = 44 });
+            await this.sender.Send(new Message { Bar = 45 });
 
             await Task.Delay(100);
 
@@ -65,21 +69,21 @@ namespace MMS.ServiceBus
             Assert.AreEqual(4, this.context.HandlerCalls);
         }
 
-        [TestFixtureTearDown]
-        public void FixtureTearDown()
-        {
-            this.central.StopAsync().Wait();
-        }
-
         [TearDown]
         public void TearDown()
         {
-            this.contextDispose.Dispose();
+            this.receiver.StopAsync().Wait();
+            this.sender.StopAsync().Wait();
         }
 
         public class HandlerRegistrySimulator : HandlerRegistry
         {
             private Context context;
+
+            public HandlerRegistrySimulator(Context context)
+            {
+                this.context = context;
+            }
 
             public override IReadOnlyCollection<object> GetHandlers(Type messageType)
             {
@@ -93,28 +97,6 @@ namespace MMS.ServiceBus
                 }
 
                 return new ReadOnlyCollection<object>(new List<object>());
-            }
-
-            public IDisposable SetContext(Context context)
-            {
-                this.context = context;
-
-                return new Disposable(this);
-            }
-
-            private class Disposable : IDisposable
-            {
-                private readonly HandlerRegistrySimulator registry;
-
-                public Disposable(HandlerRegistrySimulator registry)
-                {
-                    this.registry = registry;
-                }
-
-                public void Dispose()
-                {
-                    this.registry.context = new Context();
-                }
             }
         }
 

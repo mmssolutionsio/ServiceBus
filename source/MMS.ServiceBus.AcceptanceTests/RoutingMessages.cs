@@ -21,6 +21,8 @@ namespace MMS.ServiceBus
 
         private const string ReceiverTwoEndpointName = "Receiver2";
 
+        private const string ReceiverThreeEndpointName = "Receiver3";
+
         private Context context;
 
         private HandlerRegistrySimulator registry;
@@ -32,6 +34,8 @@ namespace MMS.ServiceBus
         private MessageUnit receiverOne;
 
         private MessageUnit receiverTwo;
+
+        private MessageUnit receiverThree;
 
         private Router router;
 
@@ -49,10 +53,13 @@ namespace MMS.ServiceBus
                 .Concurrency(1)).Use(this.registry);
             this.receiverTwo = new MessageUnit(new EndpointConfiguration().Endpoint(ReceiverTwoEndpointName)
                 .Concurrency(1)).Use(this.registry);
+            this.receiverThree = new MessageUnit(new EndpointConfiguration().Endpoint(ReceiverThreeEndpointName)
+                .Concurrency(1)).Use(this.registry);
 
             this.broker.Register(this.sender)
                        .Register(this.receiverOne)
-                       .Register(this.receiverTwo);
+                       .Register(this.receiverTwo)
+                       .Register(this.receiverThree);
 
             this.broker.Start();
         }
@@ -93,6 +100,22 @@ namespace MMS.ServiceBus
             Assert.AreEqual(1, this.context.SyncReceiverTwoCalled);
         }
 
+        [Test]
+        public async Task WhenSendingMessages_WithSpecificSendDestination_MessagesAreRoutedByUserInput()
+        {
+            var sendOptions = new SendOptions { Destination = new Queue(ReceiverThreeEndpointName) };
+
+            await this.sender.Send(new MessageForReceiverThree { Bar = 42 }, sendOptions);
+
+            Assert.AreEqual(0, this.context.AsyncReceiverOneCalled);
+            Assert.AreEqual(0, this.context.SyncReceiverOneCalled);
+            Assert.AreEqual(0, this.context.AsyncReceiverTwoCalled);
+            Assert.AreEqual(0, this.context.SyncReceiverTwoCalled);
+
+            Assert.AreEqual(1, this.context.AsyncReceiverThreeCalled);
+            Assert.AreEqual(1, this.context.SyncReceiverThreeCalled);
+        }
+
         public class HandlerRegistrySimulator : HandlerRegistry
         {
             private readonly Context context;
@@ -123,6 +146,17 @@ namespace MMS.ServiceBus
                                 {
                                     new AsyncMessageHandlerReceiverTwo(this.context),
                                     new SyncAsAsyncHandlerDecorator<MessageForReceiverTwo>(new MessageHandlerReceiverTwo(this.context)),
+                                });
+                }
+
+                if (messageType == typeof(MessageForReceiverThree))
+                {
+                    return
+                        new ReadOnlyCollection<object>(
+                            new List<object>
+                                {
+                                    new AsyncMessageHandlerReceiverThree(this.context),
+                                    new SyncAsAsyncHandlerDecorator<MessageForReceiverThree>(new MessageHandlerReceiverThree(this.context)),
                                 });
                 }
 
@@ -192,12 +226,48 @@ namespace MMS.ServiceBus
             }
         }
 
+        public class AsyncMessageHandlerReceiverThree : IHandleMessageAsync<MessageForReceiverThree>
+        {
+            private readonly Context context;
+
+            public AsyncMessageHandlerReceiverThree(Context context)
+            {
+                this.context = context;
+            }
+
+            public Task Handle(MessageForReceiverThree message, IBus bus)
+            {
+                this.context.AsyncReceiverThreeCalled += 1;
+                return Task.FromResult(0);
+            }
+        }
+
+        public class MessageHandlerReceiverThree : IHandleMessage<MessageForReceiverThree>
+        {
+            private readonly Context context;
+
+            public MessageHandlerReceiverThree(Context context)
+            {
+                this.context = context;
+            }
+
+            public void Handle(MessageForReceiverThree message, IBus bus)
+            {
+                this.context.SyncReceiverThreeCalled += 1;
+            }
+        }
+
         public class MessageForReceiverOne
         {
             public int Bar { get; set; }
         }
 
         public class MessageForReceiverTwo
+        {
+            public int Bar { get; set; }
+        }
+
+        public class MessageForReceiverThree
         {
             public int Bar { get; set; }
         }
@@ -211,6 +281,10 @@ namespace MMS.ServiceBus
             public int AsyncReceiverTwoCalled { get; set; }
 
             public int SyncReceiverTwoCalled { get; set; }
+
+            public int AsyncReceiverThreeCalled { get; set; }
+
+            public int SyncReceiverThreeCalled { get; set; }
         }
     }
 }

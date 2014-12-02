@@ -58,7 +58,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="IntegrationMessageCentral.cs" />
+    <Compile Include="AlwaysRouteToDestination.cs" />
+    <Compile Include="MessageUnit.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SendingMessagesIntegration.cs" />
   </ItemGroup>
@@ -67,10 +68,6 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\MMS.ServiceBus.Testing\MMS.ServiceBus.Testing.csproj">
-      <Project>{68b409d3-d636-4c4e-a813-7b4fdb3b1964}</Project>
-      <Name>MMS.ServiceBus.Testing</Name>
-    </ProjectReference>
     <ProjectReference Include="..\MMS.ServiceBus\MMS.ServiceBus.csproj">
       <Project>{e7bc96f6-0365-4734-9d16-0dc816b5fe88}</Project>
       <Name>MMS.ServiceBus</Name>
