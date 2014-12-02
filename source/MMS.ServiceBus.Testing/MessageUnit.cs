@@ -26,7 +26,7 @@ namespace MMS.ServiceBus.Testing
 
         protected MessageRouter router;
 
-        private QueueListenerSimulator simulator;
+        private MessageReceiverSimulator simulator;
 
         private Func<TransportMessage, Task> outgoing;
 
@@ -94,7 +94,7 @@ namespace MMS.ServiceBus.Testing
 
         public async Task StartAsync()
         {
-            this.simulator = new QueueListenerSimulator(this.incomingTransport);
+            this.simulator = new MessageReceiverSimulator(this.incomingTransport);
             IOutgoingPipelineFactory outgoingFactory = this.CreateOutgoingPipelineFactory();
             IIncomingPipelineFactory incomingFactory = this.CreateIncomingPipelineFactory();
 
@@ -151,9 +151,9 @@ namespace MMS.ServiceBus.Testing
             return new UnitOutgoingPipelineFactory(this.outgoing, this.OutgoingLogical, this.router);
         }
 
-        protected virtual Bus CreateBus(QueueClientListenerCreator creator, IOutgoingPipelineFactory outgoingPipelineFactory, IIncomingPipelineFactory incomingPipelineFactory)
+        protected virtual Bus CreateBus(IReceiveMessages receiver, IOutgoingPipelineFactory outgoingPipelineFactory, IIncomingPipelineFactory incomingPipelineFactory)
         {
-            return new Bus(this.configuration, new DequeueStrategy(this.configuration, creator), new LogicalMessageFactory(), outgoingPipelineFactory, incomingPipelineFactory);
+            return new Bus(this.configuration, new DequeueStrategy(this.configuration, receiver), new LogicalMessageFactory(), outgoingPipelineFactory, incomingPipelineFactory);
         }
 
         private class UnitOutgoingPipelineFactory : IOutgoingPipelineFactory
@@ -226,18 +226,18 @@ namespace MMS.ServiceBus.Testing
             }
         }
 
-        private class QueueListenerSimulator : QueueClientListenerCreator
+        private class MessageReceiverSimulator : IReceiveMessages
         {
             private readonly ICollection<TransportMessage> collector;
 
             private Func<TransportMessage, Task> onMessage;
 
-            public QueueListenerSimulator(ICollection<TransportMessage> collector)
+            public MessageReceiverSimulator(ICollection<TransportMessage> collector)
             {
                 this.collector = collector;
             }
 
-            public override Task<AsyncClosable> StartAsync(EndpointConfiguration configuration, Func<TransportMessage, Task> onMessage)
+            public Task<AsyncClosable> StartAsync(EndpointConfiguration configuration, Func<TransportMessage, Task> onMessage)
             {
                 this.onMessage = onMessage;
 

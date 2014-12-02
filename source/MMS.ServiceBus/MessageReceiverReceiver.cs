@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------------
-// <copyright file="QueueClientListenerCreator.cs" company="MMS AG">
+// <copyright file="MessageReceiverReceiver.cs" company="MMS AG">
 //   Copyright (c) MMS AG, 2008-2015
 // </copyright>
 //-------------------------------------------------------------------------------
@@ -12,22 +12,18 @@ namespace MMS.ServiceBus
     using log4net;
     using Microsoft.ServiceBus.Messaging;
 
-    public class QueueClientListenerCreator
+    public class MessageReceiverReceiver : IReceiveMessages
     {
-        private static readonly ILog Logger = LogManager.GetLogger(typeof(QueueClientListenerCreator));
+        private static readonly ILog Logger = LogManager.GetLogger(typeof(MessageReceiverReceiver));
 
         private readonly MessagingFactory factory;
 
-        public QueueClientListenerCreator()
-        {
-        }
-
-        public QueueClientListenerCreator(MessagingFactory factory)
+        public MessageReceiverReceiver(MessagingFactory factory)
         {
             this.factory = factory;
         }
 
-        public virtual async Task<AsyncClosable> StartAsync(
+        public async Task<AsyncClosable> StartAsync(
             EndpointConfiguration configuration, 
             Func<TransportMessage, Task> onMessage)
         {

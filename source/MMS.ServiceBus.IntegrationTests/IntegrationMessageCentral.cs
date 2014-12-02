@@ -32,11 +32,11 @@ namespace MMS.ServiceBus
             var senderOutgoingPipelineFactory = new OutgoingPipelineFactory(senderMessageFactory, new AlwaysRouteToDestination(new Queue(ReceiverEndpointName)));
             var senderIncomingPipelineFactory = new IncomingPipelineFactory(new HandlerRegistry());
 
-            this.Sender = new Bus(senderConfiguration, new DequeueStrategy(senderConfiguration, new QueueClientListenerCreator(senderMessageFactory)), new LogicalMessageFactory(), senderOutgoingPipelineFactory, senderIncomingPipelineFactory);
+            this.Sender = new Bus(senderConfiguration, new DequeueStrategy(senderConfiguration, new MessageReceiverReceiver(senderMessageFactory)), new LogicalMessageFactory(), senderOutgoingPipelineFactory, senderIncomingPipelineFactory);
 
             var receiverOutgoingPipelineFactory = new OutgoingPipelineFactory(receiverMessageFactory, new AlwaysRouteToDestination(new Queue(SenderEndpointName)));
             var receiverIncomingPipelineFactory = new IncomingPipelineFactory(handlerRegistry);
-            this.Receiver = new Bus(receiverConfiguration, new DequeueStrategy(receiverConfiguration, new QueueClientListenerCreator(receiverMessageFactory)), new LogicalMessageFactory(), receiverOutgoingPipelineFactory, receiverIncomingPipelineFactory);
+            this.Receiver = new Bus(receiverConfiguration, new DequeueStrategy(receiverConfiguration, new MessageReceiverReceiver(receiverMessageFactory)), new LogicalMessageFactory(), receiverOutgoingPipelineFactory, receiverIncomingPipelineFactory);
         }
 
         private static void SetupNecessaryInfrastructureOnServiceBus()

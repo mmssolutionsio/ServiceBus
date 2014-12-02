@@ -14,27 +14,27 @@ namespace MMS.ServiceBus
     {
         private readonly EndpointConfiguration configuration;
 
-        private readonly QueueClientListenerCreator clientListenerCreator;
+        private readonly IReceiveMessages receiveMessages;
 
-        private AsyncClosable queueClient;
+        private AsyncClosable receiver;
 
         private Func<TransportMessage, Task> onMessageAsync;
 
-        public DequeueStrategy(EndpointConfiguration configuration, QueueClientListenerCreator clientListenerCreator)
+        public DequeueStrategy(EndpointConfiguration configuration, IReceiveMessages receiveMessages)
         {
-            this.clientListenerCreator = clientListenerCreator;
+            this.receiveMessages = receiveMessages;
             this.configuration = configuration;
         }
 
-        public async Task StartAsync(Func<TransportMessage, Task> onMessageAsync)
+        public async Task StartAsync(Func<TransportMessage, Task> onMessage)
         {
-            this.onMessageAsync = onMessageAsync;
-            this.queueClient = await this.clientListenerCreator.StartAsync(this.configuration, this.OnMessageAsync);
+            this.onMessageAsync = onMessage;
+            this.receiver = await this.receiveMessages.StartAsync(this.configuration, this.OnMessageAsync);
         }
 
         public Task StopAsync()
         {
-            return this.queueClient.CloseAsync();
+            return this.receiver.CloseAsync();
         }
 
         private async Task OnMessageAsync(TransportMessage message)
