@@ -48,10 +48,40 @@ namespace MMS.ServiceBus
 
         public Task SendLocal(object message)
         {
-            return this.Send(message, new SendOptions { Destination = this.configuration.EndpointQueue });
+            return this.SendLocal(message, incoming: null);
         }
 
         public Task Send(object message, SendOptions options = null)
+        {
+            return this.Send(message, options, incoming: null);
+        }
+
+        public Task Publish(object message, PublishOptions options = null)
+        {
+            return this.Publish(message, options, incoming: null);
+        }
+
+        public Task Reply(object message)
+        {
+            throw new InvalidOperationException("You can only reply in a handler context!");
+        }
+
+        public void DoNotContinueDispatchingCurrentMessageToHandlers()
+        {
+            throw new InvalidOperationException("You can only abort the pipeline in a handler context!");
+        }
+
+        public async Task StopAsync()
+        {
+            await this.strategy.StopAsync();
+        }
+
+        private Task SendLocal(object message, TransportMessage incoming)
+        {
+            return this.Send(message, new SendOptions { Destination = this.configuration.EndpointQueue }, incoming);
+        }
+
+        private Task Send(object message, SendOptions options, TransportMessage incoming)
         {
             if (message == null)
             {
@@ -61,10 +91,10 @@ namespace MMS.ServiceBus
             var sendOptions = options ?? new SendOptions();
             LogicalMessage msg = this.factory.Create(message, sendOptions.Headers);
 
-            return this.SendMessage(msg, sendOptions);
+            return this.SendMessage(msg, sendOptions, incoming);
         }
 
-        public Task Publish(object message, PublishOptions options = null)
+        private Task Publish(object message, PublishOptions options, TransportMessage incoming)
         {
             if (message == null)
             {
@@ -75,20 +105,10 @@ namespace MMS.ServiceBus
             LogicalMessage msg = this.factory.Create(message, publishOptions.Headers);
             publishOptions.EventType = msg.MessageType;
 
-            return this.SendMessage(msg, publishOptions);
+            return this.SendMessage(msg, publishOptions, incoming);
         }
 
-        public void DoNotContinueDispatchingCurrentMessageToHandlers()
-        {
-            // This has only an effect when called in an incoming pipeline.
-        }
-
-        public async Task StopAsync()
-        {
-            await this.strategy.StopAsync();
-        }
-
-        private async Task SendMessage(LogicalMessage message, DeliveryOptions options)
+        private async Task SendMessage(LogicalMessage outgoingLogicalMessage, DeliveryOptions options, TransportMessage incoming)
         {
             if (options.ReplyToAddress == null)
             {
@@ -96,45 +116,64 @@ namespace MMS.ServiceBus
             }
 
             OutgoingPipeline outgoingPipeline = this.outgoingPipelineFactory.Create();
-            await outgoingPipeline.Invoke(message, options);
+            await outgoingPipeline.Invoke(outgoingLogicalMessage, options, incoming);
         }
 
         private Task OnMessageAsync(TransportMessage message)
         {
             IncomingPipeline incomingPipeline = this.incomingPipelineFactory.Create();
-            return incomingPipeline.Invoke(new IncomingBusDecorator(this, incomingPipeline), message);
+            return incomingPipeline.Invoke(new IncomingBusDecorator(this, incomingPipeline, message), message);
         }
 
         private class IncomingBusDecorator : IBus
         {
-            private readonly IBus bus;
+            private readonly Bus bus;
 
             private readonly IncomingPipeline incomingPipeline;
+            private readonly TransportMessage incoming;
 
-            public IncomingBusDecorator(IBus bus, IncomingPipeline incomingPipeline)
+            public IncomingBusDecorator(Bus bus, IncomingPipeline incomingPipeline, TransportMessage incoming)
             {
+                this.incoming = incoming;
                 this.incomingPipeline = incomingPipeline;
                 this.bus = bus;
             }
 
             public Task SendLocal(object message)
             {
-                return this.bus.SendLocal(message);
+                return this.bus.SendLocal(message, this.incoming);
             }
 
             public Task Send(object message, SendOptions options = null)
             {
-                return this.bus.Send(message, options);
+                return this.bus.Send(message, options, this.incoming);
             }
 
             public Task Publish(object message, PublishOptions options = null)
             {
-                return this.bus.Publish(message, options);
+                return this.bus.Publish(message, options, this.incoming);
+            }
+
+            public Task Reply(object message)
+            {
+                ReplyOptions replyOptions = CreateReplyOptions(this.incoming);
+                return this.bus.Send(message, replyOptions, this.incoming);
             }
 
             public void DoNotContinueDispatchingCurrentMessageToHandlers()
             {
                 this.incomingPipeline.DoNotInvokeAnyMoreHandlers();
+            }
+
+            private static ReplyOptions CreateReplyOptions(TransportMessage incoming)
+            {
+                Queue destination = incoming.ReplyTo;
+
+                string correlationId = !string.IsNullOrEmpty(incoming.CorrelationId)
+                    ? incoming.CorrelationId
+                    : incoming.Id;
+
+                return new ReplyOptions(destination, correlationId);
             }
         }
     }

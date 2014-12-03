@@ -11,6 +11,7 @@ namespace MMS.ServiceBus
     using System.Collections.ObjectModel;
     using System.Threading;
     using System.Threading.Tasks;
+    using Microsoft.ServiceBus;
     using Microsoft.ServiceBus.Messaging;
     using NUnit.Framework;
     using Pipeline;
@@ -19,6 +20,11 @@ namespace MMS.ServiceBus
     [TestFixture]
     public class PublishingMessagesIntegration
     {
+        private const string PublisherEndpointName = "Publisher";
+        private const string SubscriberEndpointName = "Subscriber";
+        private const string Topic = "MMS.ServiceBus.PublishingMessagesIntegration.Event";
+        private const string SubscriptionName = "subscriber";
+
         private Context context;
 
         private HandlerRegistrySimulator registry;
@@ -33,14 +39,16 @@ namespace MMS.ServiceBus
 
             this.registry = new HandlerRegistrySimulator(this.context);
 
-            this.sender = new MessageUnit(new EndpointConfiguration().Endpoint("Publisher").Concurrency(1))
+            this.sender = new MessageUnit(new EndpointConfiguration().Endpoint(PublisherEndpointName).Concurrency(1))
                 .Use(MessagingFactory.Create())
-                .Use(new AlwaysRouteToDestination(new Topic("MMS.ServiceBus.PublishingMessagesIntegration.Event")))
+                .Use(new AlwaysRouteToDestination(new Topic(Topic)))
                 .Use(this.registry);
 
-            this.receiver = new MessageUnit(new EndpointConfiguration().Endpoint("Subscriber").Concurrency(1))
+            this.receiver = new MessageUnit(new EndpointConfiguration().Endpoint(SubscriberEndpointName).Concurrency(1))
                 .Use(MessagingFactory.Create())
                 .Use(this.registry);
+
+            this.SetUpNecessaryInfrastructure();
 
             this.sender.StartAsync().Wait();
             this.receiver.StartAsync().Wait();
@@ -80,6 +88,42 @@ namespace MMS.ServiceBus
         {
             this.receiver.StopAsync().Wait();
             this.sender.StopAsync().Wait();
+        }
+
+        private void SetUpNecessaryInfrastructure()
+        {
+            var manager = NamespaceManager.Create();
+            if (manager.QueueExists(PublisherEndpointName))
+            {
+                manager.DeleteQueue(PublisherEndpointName);
+            }
+
+            manager.CreateQueue(PublisherEndpointName);
+
+            if (manager.QueueExists(SubscriberEndpointName))
+            {
+                manager.DeleteQueue(SubscriberEndpointName);
+            }
+
+            manager.CreateQueue(SubscriberEndpointName);
+
+            if (manager.TopicExists(Topic))
+            {
+                manager.DeleteTopic(Topic);
+            }
+
+            manager.CreateTopic(Topic);
+
+            if (manager.SubscriptionExists(Topic, SubscriptionName))
+            {
+                manager.DeleteSubscription(Topic, SubscriptionName);
+            }
+
+            manager.CreateSubscription(new SubscriptionDescription(
+                Topic, SubscriptionName)
+            {
+                ForwardTo = SubscriberEndpointName
+            });
         }
 
         public class HandlerRegistrySimulator : HandlerRegistry

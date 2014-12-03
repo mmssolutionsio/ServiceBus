@@ -9,5 +9,7 @@ namespace MMS.ServiceBus.Pipeline
     public class SendOptions : DeliveryOptions
     {
         public Queue Destination { get; set; }
+
+        public string CorrelationId { get; set; }
     }
 }

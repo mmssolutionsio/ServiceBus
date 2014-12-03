@@ -11,6 +11,7 @@ namespace MMS.ServiceBus
     using System.Collections.ObjectModel;
     using System.Threading;
     using System.Threading.Tasks;
+    using Microsoft.ServiceBus;
     using Microsoft.ServiceBus.Messaging;
     using NUnit.Framework;
     using Pipeline;
@@ -19,6 +20,9 @@ namespace MMS.ServiceBus
     [TestFixture]
     public class SendingMessagesLocalIntegration
     {
+        private const string SenderEndpointName = "Sender";
+        private const string ReceiverEndpointName = "Receiver";
+
         private Context context;
 
         private HandlerRegistrySimulator registry;
@@ -32,10 +36,12 @@ namespace MMS.ServiceBus
 
             this.registry = new HandlerRegistrySimulator(this.context);
 
-            this.sender = new MessageUnit(new EndpointConfiguration().Endpoint("Sender").Concurrency(1))
+            this.sender = new MessageUnit(new EndpointConfiguration().Endpoint(SenderEndpointName).Concurrency(1))
                 .Use(MessagingFactory.Create())
-                .Use(new AlwaysRouteToDestination(new Queue("Receiver")))
+                .Use(new AlwaysRouteToDestination(new Queue(ReceiverEndpointName)))
                 .Use(this.registry);
+
+            this.SetUpNecessaryInfrastructure();
 
             this.sender.StartAsync().Wait();
         }
@@ -73,6 +79,24 @@ namespace MMS.ServiceBus
         public void TearDown()
         {
             this.sender.StopAsync().Wait();
+        }
+
+        private void SetUpNecessaryInfrastructure()
+        {
+            var manager = NamespaceManager.Create();
+            if (manager.QueueExists(SenderEndpointName))
+            {
+                manager.DeleteQueue(SenderEndpointName);
+            }
+
+            manager.CreateQueue(SenderEndpointName);
+
+            if (manager.QueueExists(ReceiverEndpointName))
+            {
+                manager.DeleteQueue(ReceiverEndpointName);
+            }
+
+            manager.CreateQueue(ReceiverEndpointName);
         }
 
         public class HandlerRegistrySimulator : HandlerRegistry

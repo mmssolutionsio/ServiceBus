@@ -8,10 +8,14 @@ namespace MMS.ServiceBus.Pipeline.Outgoing
 {
     public class OutgoingTransportContext : Context
     {
-        public OutgoingTransportContext(LogicalMessage message, TransportMessage transportMessage, DeliveryOptions options)
+        private const string OutgoingTransportMessageKey = "OutgoingTransportMessage";
+        private const string IncomingTransportMessageKey = "IncomingTransportMessage";
+
+        public OutgoingTransportContext(LogicalMessage message, TransportMessage outgoingTransportMessage, DeliveryOptions options, TransportMessage incomingTransportMessage = null)
         {
             this.Set(message);
-            this.Set(transportMessage);
+            this.Set(OutgoingTransportMessageKey, outgoingTransportMessage);
+            this.Set(IncomingTransportMessageKey, incomingTransportMessage);
             this.Set(options);
         }
 
@@ -23,11 +27,19 @@ namespace MMS.ServiceBus.Pipeline.Outgoing
             }
         }
 
-        public TransportMessage TransportMessage
+        public TransportMessage OutgoingTransportMessage
         {
             get
             {
-                return this.Get<TransportMessage>();
+                return this.Get<TransportMessage>(OutgoingTransportMessageKey);
+            }
+        }
+
+        public TransportMessage IncomingTransportMessage
+        {
+            get
+            {
+                return this.Get<TransportMessage>(IncomingTransportMessageKey);
             }
         }
 

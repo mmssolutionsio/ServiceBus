@@ -1,10 +1,17 @@
-﻿namespace MMS.ServiceBus
+﻿//-------------------------------------------------------------------------------
+// <copyright file="ReplyingToMessagesIntegration.cs" company="MMS AG">
+//   Copyright (c) MMS AG, 2008-2015
+// </copyright>
+//-------------------------------------------------------------------------------
+
+namespace MMS.ServiceBus
 {
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Threading;
     using System.Threading.Tasks;
+    using Microsoft.ServiceBus;
     using Microsoft.ServiceBus.Messaging;
     using NUnit.Framework;
     using Pipeline;
@@ -13,6 +20,8 @@
     [TestFixture]
     public class ReplyingToMessagesIntegration
     {
+        private const string SenderEndpointName = "Sender";
+        private const string ReceiverEndpointName = "Receiver";
         private Context context;
 
         private HandlerRegistrySimulator registry;
@@ -27,18 +36,22 @@
 
             this.registry = new HandlerRegistrySimulator(this.context);
 
-            this.sender = new MessageUnit(new EndpointConfiguration().Endpoint("Sender").Concurrency(1))
+            this.sender = new MessageUnit(new EndpointConfiguration().Endpoint(SenderEndpointName).Concurrency(1))
                 .Use(MessagingFactory.Create())
-                .Use(new AlwaysRouteToDestination(new Queue("Receiver")))
+                .Use(new AlwaysRouteToDestination(new Queue(ReceiverEndpointName)))
                 .Use(this.registry);
 
-            this.receiver = new MessageUnit(new EndpointConfiguration().Endpoint("Receiver").Concurrency(1))
+            this.receiver = new MessageUnit(new EndpointConfiguration().Endpoint(ReceiverEndpointName).Concurrency(1))
+                .Use(new AlwaysRouteToDestination(new Queue(SenderEndpointName)))
                 .Use(MessagingFactory.Create())
                 .Use(this.registry);
+
+            this.SetUpNecessaryInfrastructure();
 
             this.sender.StartAsync().Wait();
             this.receiver.StartAsync().Wait();
         }
+
 
         [Test]
         public async Task WhenOneMessageSent_InvokesSynchronousAndAsynchronousHandlers()
@@ -47,10 +60,11 @@
 
             await Task.Delay(100);
 
-            await this.context.Wait(1);
+            await this.context.Wait(1, 1, 2);
 
             Assert.AreEqual(1, this.context.AsyncHandlerCalls);
             Assert.AreEqual(1, this.context.HandlerCalls);
+            Assert.AreEqual(2, this.context.ReplyHandlerCalls);
         }
 
         [Test]
@@ -63,10 +77,11 @@
 
             await Task.Delay(100);
 
-            await this.context.Wait(4);
+            await this.context.Wait(4, 4, 8);
 
             Assert.AreEqual(4, this.context.AsyncHandlerCalls);
             Assert.AreEqual(4, this.context.HandlerCalls);
+            Assert.AreEqual(8, this.context.ReplyHandlerCalls);
         }
 
         [TearDown]
@@ -74,6 +89,24 @@
         {
             this.receiver.StopAsync().Wait();
             this.sender.StopAsync().Wait();
+        }
+
+        private void SetUpNecessaryInfrastructure()
+        {
+            var manager = NamespaceManager.Create();
+            if (manager.QueueExists(SenderEndpointName))
+            {
+                manager.DeleteQueue(SenderEndpointName);
+            }
+
+            manager.CreateQueue(SenderEndpointName);
+
+            if (manager.QueueExists(ReceiverEndpointName))
+            {
+                manager.DeleteQueue(ReceiverEndpointName);
+            }
+
+            manager.CreateQueue(ReceiverEndpointName);
         }
 
         public class HandlerRegistrySimulator : HandlerRegistry
@@ -96,7 +129,31 @@
                         });
                 }
 
+                if (messageType == typeof(ReplyMessage))
+                {
+                    return new ReadOnlyCollection<object>(new List<object>
+                    {
+                        new ReplyMessageHandler(this.context),
+                    });
+                }
+
                 return new ReadOnlyCollection<object>(new List<object>());
+            }
+        }
+
+        public class ReplyMessageHandler : IHandleMessageAsync<ReplyMessage>
+        {
+            private readonly Context context;
+
+            public ReplyMessageHandler(Context context)
+            {
+                this.context = context;
+            }
+
+            public Task Handle(ReplyMessage message, IBus bus)
+            {
+                this.context.ReplyHandlerCalled();
+                return Task.Delay(0);
             }
         }
 
@@ -112,7 +169,7 @@
             public async Task Handle(Message message, IBus bus)
             {
                 this.context.AsyncHandlerCalled();
-                await Task.Delay(0);
+                await bus.Reply(new ReplyMessage { Answer = "AsyncMessageHandler" });
             }
         }
 
@@ -128,6 +185,7 @@
             public void Handle(Message message, IBus bus)
             {
                 this.context.HandlerCalled();
+                bus.Reply(new ReplyMessage { Answer = "MessageHandler" }).Wait();
             }
         }
 
@@ -136,10 +194,16 @@
             public int Bar { get; set; }
         }
 
+        public class ReplyMessage
+        {
+            public string Answer { get; set; }
+        }
+
         public class Context
         {
             private long asyncHandlerCalled;
             private long handlerCalled;
+            private long replyHandlerCalled;
 
             public int AsyncHandlerCalls
             {
@@ -157,6 +221,14 @@
                 }
             }
 
+            public int ReplyHandlerCalls
+            {
+                get
+                {
+                    return (int)Interlocked.Read(ref this.replyHandlerCalled);
+                }
+            }
+
             public void AsyncHandlerCalled()
             {
                 Interlocked.Increment(ref this.asyncHandlerCalled);
@@ -167,10 +239,15 @@
                 Interlocked.Increment(ref this.handlerCalled);
             }
 
-            public async Task Wait(int numberOfCalls)
+            public void ReplyHandlerCalled()
+            {
+                Interlocked.Increment(ref this.replyHandlerCalled);
+            }
+
+            public async Task Wait(int asyncHandlerCalls, int handlersCalls, int replyHandlerCalls)
             {
                 await Task.Run(
-                        () => SpinWait.SpinUntil(() => this.AsyncHandlerCalls >= numberOfCalls && this.HandlerCalls >= numberOfCalls))
+                        () => SpinWait.SpinUntil(() => this.AsyncHandlerCalls >= asyncHandlerCalls && this.HandlerCalls >= handlersCalls && this.ReplyHandlerCalls >= replyHandlerCalls))
                         .ConfigureAwait(false);
             }
         }

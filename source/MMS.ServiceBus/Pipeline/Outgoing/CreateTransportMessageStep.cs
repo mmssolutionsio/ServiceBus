@@ -13,9 +13,28 @@ namespace MMS.ServiceBus.Pipeline.Outgoing
     {
         public async Task Invoke(OutgoingLogicalContext context, Func<Task> next)
         {
-            var message = new TransportMessage();
+            DeliveryOptions options = context.Options;
 
-            context.Set(message);
+            var toSend = new TransportMessage { MessageIntent = MessageIntent.Publish };
+            var sendOptions = options as SendOptions;
+
+            if (sendOptions != null)
+            {
+                toSend.MessageIntent = sendOptions is ReplyOptions ? MessageIntent.Reply : MessageIntent.Send;
+                toSend.ReplyTo = sendOptions.ReplyToAddress;
+
+                if (sendOptions.CorrelationId != null)
+                {
+                    toSend.CorrelationId = sendOptions.CorrelationId;
+                }
+            }
+
+            foreach (var headerEntry in context.LogicalMessage.Headers)
+            {
+                toSend.Headers[headerEntry.Key] = headerEntry.Value;
+            }
+
+            context.Set(toSend);
 
             await next();
         }

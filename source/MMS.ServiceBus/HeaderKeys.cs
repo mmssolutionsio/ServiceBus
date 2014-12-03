@@ -8,14 +8,16 @@ namespace MMS.ServiceBus
 {
     public static class HeaderKeys
     {
-        public const string ContentType = "ContentType";
+        public const string ContentType = "MMS.ServiceBus.ContentType";
 
-        public const string MessageType = "MessageType";
+        public const string MessageType = "MMS.ServiceBus.MessageType";
 
-        public const string MessageId = "MessageId";
+        public const string MessageId = "MMS.ServiceBus.MessageId";
 
-        public const string CorrelationId = "CorrelationId";
+        public const string CorrelationId = "MMS.ServiceBus.CorrelationId";
 
-        public const string ReplyTo = "ReplyTo";
+        public const string ReplyTo = "MMS.ServiceBus.ReplyTo";
+
+        public const string MessageIntent = "MMS.ServiceBus.MessageIntent";
     }
 }

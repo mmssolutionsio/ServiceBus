@@ -27,6 +27,8 @@ namespace MMS.ServiceBus
                 { HeaderKeys.CorrelationId, id },
                 { HeaderKeys.ContentType, null },
                 { HeaderKeys.ReplyTo, null },
+                { HeaderKeys.MessageType, null },
+                { HeaderKeys.MessageIntent, default(MessageIntent).ToString() },
             };
         }
 
@@ -59,16 +61,41 @@ namespace MMS.ServiceBus
         public string CorrelationId
         {
             get { return this.Headers[HeaderKeys.CorrelationId]; }
+            set { this.Headers[HeaderKeys.CorrelationId] = value; }
         }
 
         public string ContentType
         {
             get { return this.Headers[HeaderKeys.ContentType]; }
+            set { this.Headers[HeaderKeys.ContentType] = value; }
         }
 
-        public Address ReplyTo
+        public Type MessageType
         {
-            get { return Address.Parse(this.Headers[HeaderKeys.ReplyTo]); }
+            get { return Type.GetType(this.Headers[HeaderKeys.MessageType], true); }
+            set { this.Headers[HeaderKeys.MessageType] = value.AssemblyQualifiedName; }
+        }
+
+        public MessageIntent MessageIntent
+        {
+            get
+            {
+                MessageIntent messageIntent;
+                string messageIntentString = this.Headers[HeaderKeys.MessageIntent];
+                Enum.TryParse(messageIntentString, true, out messageIntent);
+                return messageIntent;
+            }
+
+            set
+            {
+                this.Headers[HeaderKeys.MessageIntent] = value.ToString();
+            }
+        }
+
+        public Queue ReplyTo
+        {
+            get { return (Queue)Address.Parse(this.Headers[HeaderKeys.ReplyTo]); }
+            set { this.Headers[HeaderKeys.ReplyTo] = value; }
         }
 
         public IDictionary<string, string> Headers { get; private set; }
@@ -92,8 +119,8 @@ namespace MMS.ServiceBus
         {
             var brokeredMessage = new BrokeredMessage(this.body, false)
             {
-                ContentType = this.ContentType, 
-                MessageId = this.Id, 
+                ContentType = this.ContentType,
+                MessageId = this.Id,
                 CorrelationId = this.CorrelationId,
                 ReplyTo = this.ReplyTo,
             };

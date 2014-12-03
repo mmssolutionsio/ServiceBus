@@ -17,6 +17,6 @@ namespace MMS.ServiceBus.Pipeline
 
         public IDictionary<string, string> Headers { get; private set; }
 
-        public Address ReplyToAddress { get; set; }
+        public Queue ReplyToAddress { get; set; }
     }
 }

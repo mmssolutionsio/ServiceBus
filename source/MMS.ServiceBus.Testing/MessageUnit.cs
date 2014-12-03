@@ -136,6 +136,11 @@ namespace MMS.ServiceBus.Testing
             return this.unit.Publish(message, options);
         }
 
+        public Task Reply(object message)
+        {
+            return this.unit.Reply(message);
+        }
+
         public void DoNotContinueDispatchingCurrentMessageToHandlers()
         {
             this.unit.DoNotContinueDispatchingCurrentMessageToHandlers();

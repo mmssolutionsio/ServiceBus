@@ -25,13 +25,13 @@ namespace MMS.ServiceBus.Pipeline.Outgoing
             var sendOptions = context.Options as SendOptions;
             if (sendOptions != null)
             {
-                await this.sender.SendAsync(context.TransportMessage, sendOptions);
+                await this.sender.SendAsync(context.OutgoingTransportMessage, sendOptions);
             }
 
             var publishOptions = context.Options as PublishOptions;
             if (publishOptions != null)
             {
-                await this.publisher.PublishAsync(context.TransportMessage, publishOptions);
+                await this.publisher.PublishAsync(context.OutgoingTransportMessage, publishOptions);
             }
 
             await next();

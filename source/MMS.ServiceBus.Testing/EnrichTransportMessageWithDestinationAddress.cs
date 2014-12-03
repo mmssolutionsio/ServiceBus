@@ -12,7 +12,7 @@ namespace MMS.ServiceBus.Testing
             var sendOptions = context.Options as SendOptions;
             if (sendOptions != null)
             {
-                context.TransportMessage.Headers[AcceptanceTestHeaders.Destination] = sendOptions.Destination;
+                context.OutgoingTransportMessage.Headers[AcceptanceTestHeaders.Destination] = sendOptions.Destination;
             }
 
             await next();

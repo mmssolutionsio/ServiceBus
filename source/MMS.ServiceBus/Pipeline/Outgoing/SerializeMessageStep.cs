@@ -25,15 +25,10 @@ namespace MMS.ServiceBus.Pipeline.Outgoing
             {
                 this.serializer.Serialize(context.LogicalMessage.Instance, ms);
 
-                context.TransportMessage.Headers[HeaderKeys.ContentType] = this.serializer.ContentType;
-                context.TransportMessage.Headers[HeaderKeys.MessageType] = context.LogicalMessage.Instance.GetType().AssemblyQualifiedName;
+                context.OutgoingTransportMessage.ContentType = this.serializer.ContentType;
+                context.OutgoingTransportMessage.MessageType = context.LogicalMessage.Instance.GetType();
 
-                context.TransportMessage.SetBody(ms);
-
-                foreach (var headerEntry in context.LogicalMessage.Headers)
-                {
-                    context.TransportMessage.Headers[headerEntry.Key] = headerEntry.Value;
-                }
+                context.OutgoingTransportMessage.SetBody(ms);
 
                 await next();
             }

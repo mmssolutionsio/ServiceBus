@@ -73,18 +73,18 @@ namespace MMS.ServiceBus.Pipeline.Outgoing
             this.executingTransportPipeline = this.snapshotTransport.Pop();
         }
 
-        public virtual async Task Invoke(LogicalMessage message, DeliveryOptions options)
+        public virtual async Task Invoke(LogicalMessage outgoingLogicalMessage, DeliveryOptions options, TransportMessage incomingTransportMessage = null)
         {
             this.executingLogicalPipeline = new Queue<IOutgoingLogicalStep>(this.registeredlogicalPipelineSteps);
-            var logicalContext = new OutgoingLogicalContext(message, options);
+            var logicalContext = new OutgoingLogicalContext(outgoingLogicalMessage, options);
             logicalContext.SetChain(this);
             await this.InvokeLogical(logicalContext);
 
             // We assume that someone in the pipeline made transport message
-            var transportMessage = logicalContext.Get<TransportMessage>();
+            var outgoingTransportMessage = logicalContext.Get<TransportMessage>();
 
             this.executingTransportPipeline = new Queue<IOutgoingTransportStep>(this.registeredTransportPipelineSteps);
-            var transportContext = new OutgoingTransportContext(message, transportMessage, options);
+            var transportContext = new OutgoingTransportContext(outgoingLogicalMessage, outgoingTransportMessage, options, incomingTransportMessage);
             transportContext.SetChain(this);
             await this.InvokeTransport(transportContext);
         }

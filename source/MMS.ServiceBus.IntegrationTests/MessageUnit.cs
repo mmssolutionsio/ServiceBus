@@ -54,7 +54,6 @@ namespace MMS.ServiceBus
             IIncomingPipelineFactory incomingFactory = this.CreateIncomingPipelineFactory();
 
             this.unit = this.CreateBus(outgoingFactory, incomingFactory);
-            this.SetupNecessaryInfrastructure();
             await this.unit.StartAsync();
         }
 
@@ -78,6 +77,11 @@ namespace MMS.ServiceBus
             return this.unit.Publish(message, options);
         }
 
+        public Task Reply(object message)
+        {
+            return this.unit.Reply(message);
+        }
+
         public void DoNotContinueDispatchingCurrentMessageToHandlers()
         {
             this.unit.DoNotContinueDispatchingCurrentMessageToHandlers();
@@ -96,15 +100,6 @@ namespace MMS.ServiceBus
         protected virtual Bus CreateBus(IOutgoingPipelineFactory outgoingPipelineFactory, IIncomingPipelineFactory incomingPipelineFactory)
         {
             return new Bus(this.configuration, new DequeueStrategy(this.configuration, new MessageReceiverReceiver(this.factory)), new LogicalMessageFactory(), outgoingPipelineFactory, incomingPipelineFactory);
-        }
-
-        protected virtual void SetupNecessaryInfrastructure()
-        {
-            var manager = NamespaceManager.Create();
-            if (!manager.QueueExists(this.configuration.EndpointQueue))
-            {
-                manager.CreateQueue(this.configuration.EndpointQueue);
-            }
         }
     }
 }

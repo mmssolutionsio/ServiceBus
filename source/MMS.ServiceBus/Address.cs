@@ -77,5 +77,10 @@ namespace MMS.ServiceBus
         {
             return this.address.GetHashCode();
         }
+
+        public override string ToString()
+        {
+            return this.address;
+        }
     }
 }

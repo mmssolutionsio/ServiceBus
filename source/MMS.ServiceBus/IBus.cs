@@ -21,6 +21,8 @@ namespace MMS.ServiceBus
 
         Task Publish(object message, PublishOptions options = null);
 
+        Task Reply(object message);
+
         void DoNotContinueDispatchingCurrentMessageToHandlers();
     }
 }
