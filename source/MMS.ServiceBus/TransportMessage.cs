@@ -19,7 +19,7 @@ namespace MMS.ServiceBus
 
         public TransportMessage()
         {
-            var id = Guid.NewGuid().ToString();
+            var id = CombGuid.Generate().ToString();
 
             this.Headers = new Dictionary<string, string>
             {
@@ -28,7 +28,7 @@ namespace MMS.ServiceBus
                 { HeaderKeys.ContentType, null },
                 { HeaderKeys.ReplyTo, null },
                 { HeaderKeys.MessageType, null },
-                { HeaderKeys.MessageIntent, default(MessageIntent).ToString() },
+                { HeaderKeys.MessageIntent, null },
             };
         }
 
@@ -38,7 +38,7 @@ namespace MMS.ServiceBus
             {
                 { HeaderKeys.MessageId, message.MessageId },
                 { HeaderKeys.CorrelationId, message.CorrelationId },
-                { HeaderKeys.ContentType, message.ContentType },
+                { HeaderKeys.MessageType, message.ContentType },
                 { HeaderKeys.ReplyTo, message.ReplyTo }
             };
 
@@ -70,10 +70,10 @@ namespace MMS.ServiceBus
             set { this.Headers[HeaderKeys.ContentType] = value; }
         }
 
-        public Type MessageType
+        public string MessageType
         {
-            get { return Type.GetType(this.Headers[HeaderKeys.MessageType], true); }
-            set { this.Headers[HeaderKeys.MessageType] = value.AssemblyQualifiedName; }
+            get { return this.Headers[HeaderKeys.MessageType]; }
+            set { this.Headers[HeaderKeys.MessageType] = value; }
         }
 
         public MessageIntent MessageIntent
@@ -119,7 +119,7 @@ namespace MMS.ServiceBus
         {
             var brokeredMessage = new BrokeredMessage(this.body, false)
             {
-                ContentType = this.ContentType,
+                ContentType = this.MessageType,
                 MessageId = this.Id,
                 CorrelationId = this.CorrelationId,
                 ReplyTo = this.ReplyTo,

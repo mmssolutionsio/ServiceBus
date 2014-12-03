@@ -56,6 +56,7 @@
     <Compile Include="Address.cs" />
     <Compile Include="AsyncClosable.cs" />
     <Compile Include="Bus.cs" />
+    <Compile Include="CombGuid.cs" />
     <Compile Include="DequeueStrategy.cs" />
     <Compile Include="EndpointConfiguration.cs" />
     <Compile Include="EndpointConfigurationExtensions.cs" />

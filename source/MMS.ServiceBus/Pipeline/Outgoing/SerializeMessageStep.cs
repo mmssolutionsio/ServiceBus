@@ -26,7 +26,7 @@ namespace MMS.ServiceBus.Pipeline.Outgoing
                 this.serializer.Serialize(context.LogicalMessage.Instance, ms);
 
                 context.OutgoingTransportMessage.ContentType = this.serializer.ContentType;
-                context.OutgoingTransportMessage.MessageType = context.LogicalMessage.Instance.GetType();
+                context.OutgoingTransportMessage.MessageType = context.LogicalMessage.Instance.GetType().AssemblyQualifiedName;
 
                 context.OutgoingTransportMessage.SetBody(ms);
 

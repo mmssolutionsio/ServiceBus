@@ -40,7 +40,7 @@ namespace MMS.ServiceBus.Pipeline.Incoming
 
         private LogicalMessage Extract(TransportMessage transportMessage)
         {
-            Type messageType = transportMessage.MessageType;
+            Type messageType = Type.GetType(transportMessage.MessageType, true, true);
 
             object message = this.serializer.Deserialize(transportMessage.Body, messageType);
 
