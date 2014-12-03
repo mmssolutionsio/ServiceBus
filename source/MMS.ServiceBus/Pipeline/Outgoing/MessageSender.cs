@@ -20,9 +20,14 @@ namespace MMS.ServiceBus.Pipeline.Outgoing
 
         public async Task SendAsync(TransportMessage message, SendOptions options)
         {
-            var sender = await this.factory.CreateMessageSenderAsync(options.Destination);
+            var sender = await this.factory.CreateMessageSenderAsync(options.Destination)
+                .ConfigureAwait(false);
 
-            await sender.SendAsync(message.ToBrokeredMessage());
+            await sender.SendAsync(message.ToBrokeredMessage())
+                .ConfigureAwait(false);
+
+            await sender.CloseAsync()
+                .ConfigureAwait(false);
         }
     }
 }

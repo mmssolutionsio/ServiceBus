@@ -58,8 +58,6 @@ namespace MMS.ServiceBus
         {
             await this.sender.Send(new Message { Bar = 42 });
 
-            await Task.Delay(100);
-
             await this.context.Wait(1, 1, 2);
 
             Assert.AreEqual(1, this.context.AsyncHandlerCalls);
@@ -74,8 +72,6 @@ namespace MMS.ServiceBus
             await this.sender.Send(new Message { Bar = 43 });
             await this.sender.Send(new Message { Bar = 44 });
             await this.sender.Send(new Message { Bar = 45 });
-
-            await Task.Delay(100);
 
             await this.context.Wait(4, 4, 8);
 
@@ -244,13 +240,11 @@ namespace MMS.ServiceBus
                 Interlocked.Increment(ref this.replyHandlerCalled);
             }
 
-            public async Task Wait(int asyncHandlerCalls, int handlersCalls, int replyHandlerCalls)
+            public Task Wait(int asyncHandlerCalls, int handlersCalls, int replyHandlerCalls)
             {
-                await Task.Run(
-                        () => SpinWait.SpinUntil(() => this.AsyncHandlerCalls >= asyncHandlerCalls && this.HandlerCalls >= handlersCalls && this.ReplyHandlerCalls >= replyHandlerCalls))
-                        .ConfigureAwait(false);
+                return Task.Run(
+                        () => SpinWait.SpinUntil(() => this.AsyncHandlerCalls >= asyncHandlerCalls && this.HandlerCalls >= handlersCalls && this.ReplyHandlerCalls >= replyHandlerCalls));
             }
         }
- 
     }
 }

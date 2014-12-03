@@ -48,18 +48,18 @@ namespace MMS.ServiceBus
             return this;
         }
 
-        public async Task StartAsync()
+        public Task StartAsync()
         {
             IOutgoingPipelineFactory outgoingFactory = this.CreateOutgoingPipelineFactory();
             IIncomingPipelineFactory incomingFactory = this.CreateIncomingPipelineFactory();
 
             this.unit = this.CreateBus(outgoingFactory, incomingFactory);
-            await this.unit.StartAsync();
+            return this.unit.StartAsync();
         }
 
-        public async Task StopAsync()
+        public Task StopAsync()
         {
-            await this.unit.StopAsync();
+            return this.unit.StopAsync();
         }
 
         public Task SendLocal(object message)

@@ -15,9 +15,11 @@ namespace MMS.ServiceBus.Pipeline.Incoming
         {
             var messageHandler = context.Handler;
 
-            await messageHandler.Invocation(messageHandler.Instance, context.LogicalMessage.Instance);
+            await messageHandler.Invocation(messageHandler.Instance, context.LogicalMessage.Instance)
+                .ConfigureAwait(false);
 
-            await next();
+            await next()
+                .ConfigureAwait(false);
         }
     }
 }

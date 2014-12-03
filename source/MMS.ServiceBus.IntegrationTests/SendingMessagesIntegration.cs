@@ -11,6 +11,7 @@ namespace MMS.ServiceBus
     using System.Collections.ObjectModel;
     using System.Threading;
     using System.Threading.Tasks;
+    using Microsoft.ServiceBus;
     using Microsoft.ServiceBus.Messaging;
     using NUnit.Framework;
     using ServiceBus.Pipeline;
@@ -19,12 +20,17 @@ namespace MMS.ServiceBus
     [TestFixture]
     public class SendingMessagesIntegration
     {
+        private const string SenderEndpointName = "Sender";
+        private const string ReceiverEndpointName = "Receiver";
+
         private Context context;
 
         private HandlerRegistrySimulator registry;
 
         private MessageUnit sender;
         private MessageUnit receiver;
+        private MessagingFactory senderMessagingFactory;
+        private MessagingFactory receiverMessagingFactory;
 
         [SetUp]
         public void SetUp()
@@ -33,14 +39,20 @@ namespace MMS.ServiceBus
 
             this.registry = new HandlerRegistrySimulator(this.context);
 
-            this.sender = new MessageUnit(new EndpointConfiguration().Endpoint("Sender").Concurrency(1))
-                .Use(MessagingFactory.Create())
-                .Use(new AlwaysRouteToDestination(new Queue("Receiver")))
+            this.senderMessagingFactory = MessagingFactory.Create();
+
+            this.sender = new MessageUnit(new EndpointConfiguration().Endpoint(SenderEndpointName).Concurrency(1))
+                .Use(this.senderMessagingFactory)
+                .Use(new AlwaysRouteToDestination(new Queue(ReceiverEndpointName)))
                 .Use(this.registry);
 
-            this.receiver = new MessageUnit(new EndpointConfiguration().Endpoint("Receiver").Concurrency(1))
-                .Use(MessagingFactory.Create())
+            this.receiverMessagingFactory = MessagingFactory.Create();
+
+            this.receiver = new MessageUnit(new EndpointConfiguration().Endpoint(ReceiverEndpointName).Concurrency(1))
+                .Use(this.receiverMessagingFactory)
                 .Use(this.registry);
+
+            this.SetUpNecessaryInfrastructure();
 
             this.sender.StartAsync().Wait();
             this.receiver.StartAsync().Wait();
@@ -50,8 +62,6 @@ namespace MMS.ServiceBus
         public async Task WhenOneMessageSent_InvokesSynchronousAndAsynchronousHandlers()
         {
             await this.sender.Send(new Message { Bar = 42 });
-
-            await Task.Delay(100);
 
             await this.context.Wait(1);
 
@@ -67,8 +77,6 @@ namespace MMS.ServiceBus
             await this.sender.Send(new Message { Bar = 44 });
             await this.sender.Send(new Message { Bar = 45 });
 
-            await Task.Delay(100);
-
             await this.context.Wait(4);
 
             Assert.AreEqual(4, this.context.AsyncHandlerCalls);
@@ -80,6 +88,27 @@ namespace MMS.ServiceBus
         {
             this.receiver.StopAsync().Wait();
             this.sender.StopAsync().Wait();
+
+            this.receiverMessagingFactory.Close();
+            this.senderMessagingFactory.Close();
+        }
+
+        private void SetUpNecessaryInfrastructure()
+        {
+            var manager = NamespaceManager.Create();
+            if (manager.QueueExists(SenderEndpointName))
+            {
+                manager.DeleteQueue(SenderEndpointName);
+            }
+
+            manager.CreateQueue(SenderEndpointName);
+
+            if (manager.QueueExists(ReceiverEndpointName))
+            {
+                manager.DeleteQueue(ReceiverEndpointName);
+            }
+
+            manager.CreateQueue(ReceiverEndpointName);
         }
 
         public class HandlerRegistrySimulator : HandlerRegistry
@@ -115,10 +144,10 @@ namespace MMS.ServiceBus
                 this.context = context;
             }
 
-            public async Task Handle(Message message, IBus bus)
+            public Task Handle(Message message, IBus bus)
             {
                 this.context.AsyncHandlerCalled();
-                await Task.Delay(0);
+                return Task.FromResult(0);
             }
         }
 
@@ -173,11 +202,9 @@ namespace MMS.ServiceBus
                 Interlocked.Increment(ref this.handlerCalled);
             }
 
-            public async Task Wait(int numberOfCalls)
+            public Task Wait(int numberOfCalls)
             {
-                await Task.Run(
-                        () => SpinWait.SpinUntil(() => this.AsyncHandlerCalls >= numberOfCalls && this.HandlerCalls >= numberOfCalls))
-                        .ConfigureAwait(false);
+                return Task.Run(() => SpinWait.SpinUntil(() => this.AsyncHandlerCalls >= numberOfCalls && this.HandlerCalls >= numberOfCalls));
             }
         }
     }

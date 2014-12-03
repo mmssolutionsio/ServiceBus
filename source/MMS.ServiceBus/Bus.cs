@@ -39,11 +39,11 @@ namespace MMS.ServiceBus
             this.strategy = strategy;
         }
 
-        public async Task StartAsync()
+        public Task StartAsync()
         {
             this.configuration.Validate();
 
-            await this.strategy.StartAsync(this.OnMessageAsync);
+            return this.strategy.StartAsync(this.OnMessageAsync);
         }
 
         public Task SendLocal(object message)
@@ -71,9 +71,9 @@ namespace MMS.ServiceBus
             throw new InvalidOperationException("You can only abort the pipeline in a handler context!");
         }
 
-        public async Task StopAsync()
+        public Task StopAsync()
         {
-            await this.strategy.StopAsync();
+            return this.strategy.StopAsync();
         }
 
         private Task SendLocal(object message, TransportMessage incoming)
@@ -108,7 +108,7 @@ namespace MMS.ServiceBus
             return this.SendMessage(msg, publishOptions, incoming);
         }
 
-        private async Task SendMessage(LogicalMessage outgoingLogicalMessage, DeliveryOptions options, TransportMessage incoming)
+        private Task SendMessage(LogicalMessage outgoingLogicalMessage, DeliveryOptions options, TransportMessage incoming)
         {
             if (options.ReplyToAddress == null)
             {
@@ -116,7 +116,7 @@ namespace MMS.ServiceBus
             }
 
             OutgoingPipeline outgoingPipeline = this.outgoingPipelineFactory.Create();
-            await outgoingPipeline.Invoke(outgoingLogicalMessage, options, incoming);
+            return outgoingPipeline.Invoke(outgoingLogicalMessage, options, incoming);
         }
 
         private Task OnMessageAsync(TransportMessage message)

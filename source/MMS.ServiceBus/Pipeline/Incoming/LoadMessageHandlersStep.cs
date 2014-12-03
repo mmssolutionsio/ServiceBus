@@ -31,14 +31,13 @@ namespace MMS.ServiceBus.Pipeline.Incoming
                     var messageHandler = new MessageHandler
                         {
                             Instance = handler,
-                            Invocation =
-                                async (handlerInstance, message) =>
-                                await this.registry.InvokeHandle(handlerInstance, message, bus)
+                            Invocation = (handlerInstance, message) => this.registry.InvokeHandle(handlerInstance, message, bus)
                         };
 
                     context.Handler = messageHandler;
 
-                    await next();
+                    await next()
+                        .ConfigureAwait(false);
 
                     if (context.HandlerInvocationAborted)
                     {

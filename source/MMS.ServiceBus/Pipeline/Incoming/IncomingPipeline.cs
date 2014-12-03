@@ -80,7 +80,8 @@ namespace MMS.ServiceBus.Pipeline.Incoming
             this.executingTransportPipeline = new Queue<IIncomingTransportStep>(this.registeredTransportPipeline);
             var transportContext = new IncomingTransportContext(message);
             transportContext.SetChain(this);
-            await this.InvokeTransport(transportContext, bus);
+            await this.InvokeTransport(transportContext, bus)
+                .ConfigureAwait(false);
 
             // We assume that someone in the pipeline made logical message
             var logicalMessage = transportContext.Get<LogicalMessage>();
@@ -89,7 +90,8 @@ namespace MMS.ServiceBus.Pipeline.Incoming
             var logicalContext = new IncomingLogicalContext(logicalMessage, message);
             logicalContext.SetChain(this);
             this.currentContext = logicalContext;
-            await this.InvokeLogical(logicalContext, bus);
+            await this.InvokeLogical(logicalContext, bus)
+                .ConfigureAwait(false);
         }
 
         public void DoNotInvokeAnyMoreHandlers()
@@ -97,28 +99,28 @@ namespace MMS.ServiceBus.Pipeline.Incoming
             this.currentContext.HandlerInvocationAborted = true;
         }
 
-        private async Task InvokeLogical(IncomingLogicalContext context, IBus bus)
+        private Task InvokeLogical(IncomingLogicalContext context, IBus bus)
         {
             if (this.executingLogicalPipeline.Count == 0)
             {
-                return;
+                return Task.FromResult(0);
             }
 
             IIncomingLogicalStep step = this.executingLogicalPipeline.Dequeue();
 
-            await step.Invoke(context, bus, async () => await this.InvokeLogical(context, bus));
+            return step.Invoke(context, bus, () => this.InvokeLogical(context, bus));
         }
 
-        private async Task InvokeTransport(IncomingTransportContext context, IBus bus)
+        private Task InvokeTransport(IncomingTransportContext context, IBus bus)
         {
             if (this.executingTransportPipeline.Count == 0)
             {
-                return;
+                return Task.FromResult(0);
             }
 
             IIncomingTransportStep step = this.executingTransportPipeline.Dequeue();
 
-            await step.Invoke(context, bus, async () => await this.InvokeTransport(context, bus));
+            return step.Invoke(context, bus, () => this.InvokeTransport(context, bus));
         }
 
         private class LazyLogicalStep : IIncomingLogicalStep
@@ -130,11 +132,11 @@ namespace MMS.ServiceBus.Pipeline.Incoming
                 this.factory = factory;
             }
 
-            public async Task Invoke(IncomingLogicalContext context, IBus bus, Func<Task> next)
+            public Task Invoke(IncomingLogicalContext context, IBus bus, Func<Task> next)
             {
                 var step = this.factory();
 
-                await step.Invoke(context, bus, next);
+                return step.Invoke(context, bus, next);
             }
         }
 
@@ -147,11 +149,11 @@ namespace MMS.ServiceBus.Pipeline.Incoming
                 this.factory = factory;
             }
 
-            public async Task Invoke(IncomingTransportContext context, IBus bus, Func<Task> next)
+            public Task Invoke(IncomingTransportContext context, IBus bus, Func<Task> next)
             {
                 var step = this.factory();
 
-                await step.Invoke(context, bus, next);
+                return step.Invoke(context, bus, next);
             }
         }
     }

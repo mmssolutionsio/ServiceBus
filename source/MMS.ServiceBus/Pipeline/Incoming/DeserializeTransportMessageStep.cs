@@ -22,7 +22,7 @@ namespace MMS.ServiceBus.Pipeline.Incoming
             this.serializer = serializer;
         }
 
-        public async Task Invoke(IncomingTransportContext context, IBus bus, Func<Task> next)
+        public Task Invoke(IncomingTransportContext context, IBus bus, Func<Task> next)
         {
             var transportMessage = context.TransportMessage;
 
@@ -35,7 +35,7 @@ namespace MMS.ServiceBus.Pipeline.Incoming
                 throw new SerializationException(string.Format("An error occurred while attempting to extract logical messages from transport message {0}", transportMessage), exception);
             }
 
-            await next();
+            return next();
         }
 
         private LogicalMessage Extract(TransportMessage transportMessage)

@@ -59,8 +59,6 @@ namespace MMS.ServiceBus
         {
             await this.sender.Publish(new Event { Bar = 42 });
 
-            await Task.Delay(100);
-
             await this.context.Wait(1);
 
             Assert.AreEqual(1, this.context.AsyncHandlerCalls);
@@ -74,8 +72,6 @@ namespace MMS.ServiceBus
             await this.sender.Publish(new Event { Bar = 43 });
             await this.sender.Publish(new Event { Bar = 44 });
             await this.sender.Publish(new Event { Bar = 45 });
-
-            await Task.Delay(100);
 
             await this.context.Wait(4);
 
@@ -159,10 +155,10 @@ namespace MMS.ServiceBus
                 this.context = context;
             }
 
-            public async Task Handle(Event message, IBus bus)
+            public Task Handle(Event message, IBus bus)
             {
                 this.context.AsyncHandlerCalled();
-                await Task.Delay(0);
+                return Task.FromResult(0);
             }
         }
 
@@ -217,11 +213,9 @@ namespace MMS.ServiceBus
                 Interlocked.Increment(ref this.handlerCalled);
             }
 
-            public async Task Wait(int numberOfCalls)
+            public Task Wait(int numberOfCalls)
             {
-                await Task.Run(
-                        () => SpinWait.SpinUntil(() => this.AsyncHandlerCalls >= numberOfCalls && this.HandlerCalls >= numberOfCalls))
-                        .ConfigureAwait(false);
+                return Task.Run(() => SpinWait.SpinUntil(() => this.AsyncHandlerCalls >= numberOfCalls && this.HandlerCalls >= numberOfCalls));
             }
         }
     }

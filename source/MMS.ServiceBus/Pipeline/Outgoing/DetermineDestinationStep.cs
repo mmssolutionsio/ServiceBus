@@ -20,7 +20,7 @@ namespace MMS.ServiceBus.Pipeline.Outgoing
             this.router = router;
         }
 
-        public async Task Invoke(OutgoingTransportContext context, Func<Task> next)
+        public Task Invoke(OutgoingTransportContext context, Func<Task> next)
         {
             var sendOptions = context.Options as SendOptions;
             if (ShouldDetermineSendDestination(sendOptions))
@@ -38,7 +38,7 @@ namespace MMS.ServiceBus.Pipeline.Outgoing
 // ReSharper restore PossibleNullReferenceException
             }
 
-            await next();
+            return next();
         }
 
         private static bool ShouldDeterminePublishDestination(PublishOptions publishOptions)

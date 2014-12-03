@@ -20,8 +20,14 @@ namespace MMS.ServiceBus.Pipeline.Outgoing
 
         public async Task PublishAsync(TransportMessage message, PublishOptions options)
         {
-            var publisher = await this.factory.CreateMessageSenderAsync(options.Destination);
-            await publisher.SendAsync(message.ToBrokeredMessage());
+            var publisher = await this.factory.CreateMessageSenderAsync(options.Destination)
+                .ConfigureAwait(false);
+
+            await publisher.SendAsync(message.ToBrokeredMessage())
+                .ConfigureAwait(false);
+
+            await publisher.CloseAsync()
+                .ConfigureAwait(false);
         }
     }
 }

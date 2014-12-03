@@ -17,9 +17,9 @@ namespace MMS.ServiceBus.Pipeline
             this.handler = handler;
         }
 
-        public async Task Handle(TMessage message, IBus bus)
+        public Task Handle(TMessage message, IBus bus)
         {
-            await Task.Run(() => this.handler.Handle(message, bus)).ConfigureAwait(false);
+            return Task.Run(() => this.handler.Handle(message, bus));
         }
     }
 }

@@ -30,7 +30,8 @@ namespace MMS.ServiceBus.Testing
         {
             foreach (MessageUnit unit in this.units.SelectMany(x => x.Value))
             {
-                await unit.StartAsync();
+                await unit.StartAsync()
+                    .ConfigureAwait(false);
             }
         }
 
@@ -38,7 +39,8 @@ namespace MMS.ServiceBus.Testing
         {
             foreach (MessageUnit unit in this.units.SelectMany(x => x.Value).Reverse())
             {
-                await unit.StopAsync();
+                await unit.StopAsync()
+                    .ConfigureAwait(false);
             }
         }
 
@@ -54,7 +56,8 @@ namespace MMS.ServiceBus.Testing
 
             foreach (MessageUnit unit in destinations)
             {
-                await unit.HandOver(message);
+                await unit.HandOver(message)
+                    .ConfigureAwait(false);
             }
         }
     }

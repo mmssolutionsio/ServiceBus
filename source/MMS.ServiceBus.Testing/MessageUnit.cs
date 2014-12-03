@@ -92,27 +92,27 @@ namespace MMS.ServiceBus.Testing
             return this;
         }
 
-        public async Task StartAsync()
+        public Task StartAsync()
         {
             this.simulator = new MessageReceiverSimulator(this.incomingTransport);
             IOutgoingPipelineFactory outgoingFactory = this.CreateOutgoingPipelineFactory();
             IIncomingPipelineFactory incomingFactory = this.CreateIncomingPipelineFactory();
 
             this.unit = this.CreateBus(this.simulator, outgoingFactory, incomingFactory);
-            await this.unit.StartAsync();
+            return this.unit.StartAsync();
         }
 
-        public async Task StopAsync()
+        public Task StopAsync()
         {
-            await this.unit.StopAsync();
+            return this.unit.StopAsync();
         }
 
         public void SetOutgoing(Func<TransportMessage, Task> outgoing)
         {
-            this.outgoing = async msg =>
+            this.outgoing = msg =>
                 {
                     this.outgoingTransport.Add(msg);
-                    await outgoing(msg);
+                    return outgoing(msg);
                 };
         }
 
@@ -121,9 +121,9 @@ namespace MMS.ServiceBus.Testing
             return this.unit.SendLocal(message);
         }
 
-        public async Task HandOver(TransportMessage message)
+        public Task HandOver(TransportMessage message)
         {
-            await this.simulator.HandOver(message);
+            return this.simulator.HandOver(message);
         }
 
         public Task Send(object message, SendOptions options = null)
@@ -248,10 +248,10 @@ namespace MMS.ServiceBus.Testing
                 return Task.FromResult(new AsyncClosable(() => Task.FromResult(0)));
             }
 
-            public async Task HandOver(TransportMessage message)
+            public Task HandOver(TransportMessage message)
             {
                 this.collector.Add(message);
-                await this.onMessage(message);
+                return this.onMessage(message);
             }
         }
 
@@ -264,10 +264,10 @@ namespace MMS.ServiceBus.Testing
                 this.collector = collector;
             }
 
-            public async Task Invoke(IncomingLogicalContext context, IBus bus, Func<Task> next)
+            public Task Invoke(IncomingLogicalContext context, IBus bus, Func<Task> next)
             {
                 this.collector.Add(context.LogicalMessage);
-                await next();
+                return next();
             }
         }
 
@@ -280,10 +280,10 @@ namespace MMS.ServiceBus.Testing
                 this.collector = collector;
             }
 
-            public async Task Invoke(OutgoingLogicalContext context, Func<Task> next)
+            public Task Invoke(OutgoingLogicalContext context, Func<Task> next)
             {
                 this.collector.Add(context.LogicalMessage);
-                await next();
+                return next();
             }
         }
     }

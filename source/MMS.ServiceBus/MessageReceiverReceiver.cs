@@ -28,23 +28,24 @@ namespace MMS.ServiceBus
             Func<TransportMessage, Task> onMessage)
         {
             MessageReceiver client =
-                await this.factory.CreateMessageReceiverAsync(configuration.EndpointQueue, ReceiveMode.PeekLock);
+                await this.factory.CreateMessageReceiverAsync(configuration.EndpointQueue, ReceiveMode.PeekLock)
+                    .ConfigureAwait(false);
 
             OnMessageOptions options = configuration.Options();
             options.ExceptionReceived += (sender, args) => HandleExceptionReceived(configuration.EndpointQueue, args);
 
-            configuration.Configure(client)
-                .OnMessageAsync(
-                    async brokeredMessage => await onMessage(new TransportMessage(brokeredMessage)), 
-                    options);
+            configuration.Configure(client).OnMessageAsync(brokeredMessage => onMessage(new TransportMessage(brokeredMessage)), options);
 
             return new AsyncClosable(client.CloseAsync);
         }
 
         private static void HandleExceptionReceived(object sender, ExceptionReceivedEventArgs e)
         {
-            var queue = (Queue)sender;
-            Logger.Info(string.Format(CultureInfo.InvariantCulture, "Exception occurred on queue {0}.", queue), e.Exception);
+            if (e != null && e.Exception != null)
+            {
+                var queue = (Queue)sender;
+                Logger.Info(string.Format(CultureInfo.InvariantCulture, "Exception occurred on queue {0}.", queue), e.Exception);
+            }
         }
     }
 }

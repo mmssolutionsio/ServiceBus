@@ -19,11 +19,11 @@ namespace MMS.ServiceBus.Pipeline
             return new ReadOnlyCollection<object>(new List<object>());
         }
 
-        public virtual async Task InvokeHandle(object handler, object message, IBus bus)
+        public virtual Task InvokeHandle(object handler, object message, IBus bus)
         {
             dynamic h = handler;
             dynamic m = message;
-            await h.Handle(m, bus);
+            return h.Handle(m, bus);
         }
     }
 }

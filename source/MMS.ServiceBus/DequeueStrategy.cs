@@ -29,7 +29,8 @@ namespace MMS.ServiceBus
         public async Task StartAsync(Func<TransportMessage, Task> onMessage)
         {
             this.onMessageAsync = onMessage;
-            this.receiver = await this.receiveMessages.StartAsync(this.configuration, this.OnMessageAsync);
+            this.receiver = await this.receiveMessages.StartAsync(this.configuration, this.OnMessageAsync)
+                .ConfigureAwait(false);
         }
 
         public Task StopAsync()
@@ -45,14 +46,16 @@ namespace MMS.ServiceBus
                 {
                     Transaction.Current.EnlistVolatile(new ReceiveResourceManager(message), EnlistmentOptions.None);
 
-                    await this.onMessageAsync(message);
+                    await this.onMessageAsync(message)
+                        .ConfigureAwait(false);
 
                     scope.Complete();
                 }
             }
             else
             {
-                await this.onMessageAsync(message);
+                await this.onMessageAsync(message)
+                    .ConfigureAwait(false);
             }
         }
     }

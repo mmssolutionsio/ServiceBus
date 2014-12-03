@@ -11,7 +11,7 @@ namespace MMS.ServiceBus.Pipeline.Outgoing
 
     public class CreateTransportMessageStep : IOutgoingLogicalStep
     {
-        public async Task Invoke(OutgoingLogicalContext context, Func<Task> next)
+        public Task Invoke(OutgoingLogicalContext context, Func<Task> next)
         {
             DeliveryOptions options = context.Options;
 
@@ -36,7 +36,7 @@ namespace MMS.ServiceBus.Pipeline.Outgoing
 
             context.Set(toSend);
 
-            await next();
+            return next();
         }
     }
 }

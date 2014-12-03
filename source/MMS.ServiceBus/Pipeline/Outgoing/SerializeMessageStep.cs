@@ -30,7 +30,8 @@ namespace MMS.ServiceBus.Pipeline.Outgoing
 
                 context.OutgoingTransportMessage.SetBody(ms);
 
-                await next();
+                await next()
+                    .ConfigureAwait(false);
             }
         }
     }
