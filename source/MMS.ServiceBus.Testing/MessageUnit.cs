@@ -207,7 +207,7 @@ namespace MMS.ServiceBus.Testing
                 return pipeline
                     .RegisterStep(new DeserializeTransportMessageStep(new DataContractMessageSerializer(), new LogicalMessageFactory()))
                     .RegisterStep(new LoadMessageHandlersStep(this.registry))
-                    .RegisterStep(new InvokeHandlersStep())
+                    .RegisterStep(new InvokeHandlerStep())
                     .RegisterStep(new TraceIncomingLogical(this.incoming));
             }
         }

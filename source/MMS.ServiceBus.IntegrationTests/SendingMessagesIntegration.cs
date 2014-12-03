@@ -29,8 +29,6 @@ namespace MMS.ServiceBus
 
         private MessageUnit sender;
         private MessageUnit receiver;
-        private MessagingFactory senderMessagingFactory;
-        private MessagingFactory receiverMessagingFactory;
 
         [SetUp]
         public void SetUp()
@@ -39,17 +37,13 @@ namespace MMS.ServiceBus
 
             this.registry = new HandlerRegistrySimulator(this.context);
 
-            this.senderMessagingFactory = MessagingFactory.Create();
-
             this.sender = new MessageUnit(new EndpointConfiguration().Endpoint(SenderEndpointName).Concurrency(1))
-                .Use(this.senderMessagingFactory)
+                .Use(MessagingFactory.Create())
                 .Use(new AlwaysRouteToDestination(new Queue(ReceiverEndpointName)))
                 .Use(this.registry);
 
-            this.receiverMessagingFactory = MessagingFactory.Create();
-
             this.receiver = new MessageUnit(new EndpointConfiguration().Endpoint(ReceiverEndpointName).Concurrency(1))
-                .Use(this.receiverMessagingFactory)
+                .Use(MessagingFactory.Create())
                 .Use(this.registry);
 
             this.SetUpNecessaryInfrastructure();
@@ -88,9 +82,6 @@ namespace MMS.ServiceBus
         {
             this.receiver.StopAsync().Wait();
             this.sender.StopAsync().Wait();
-
-            this.receiverMessagingFactory.Close();
-            this.senderMessagingFactory.Close();
         }
 
         private void SetUpNecessaryInfrastructure()
@@ -204,7 +195,10 @@ namespace MMS.ServiceBus
 
             public Task Wait(int numberOfCalls)
             {
-                return Task.Run(() => SpinWait.SpinUntil(() => this.AsyncHandlerCalls >= numberOfCalls && this.HandlerCalls >= numberOfCalls));
+                var task1 = Task.Run(() => SpinWait.SpinUntil(() => this.AsyncHandlerCalls >= numberOfCalls && this.HandlerCalls >= numberOfCalls));
+                var task2 = Task.Delay(TimeSpan.FromSeconds(30));
+
+                return Task.WhenAny(task1, task2);
             }
         }
     }

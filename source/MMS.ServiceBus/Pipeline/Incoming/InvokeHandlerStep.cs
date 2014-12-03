@@ -9,7 +9,7 @@ namespace MMS.ServiceBus.Pipeline.Incoming
     using System;
     using System.Threading.Tasks;
 
-    public class InvokeHandlersStep : IIncomingLogicalStep
+    public class InvokeHandlerStep : IIncomingLogicalStep
     {
         public async Task Invoke(IncomingLogicalContext context, IBus bus, Func<Task> next)
         {

@@ -82,7 +82,7 @@
     <Compile Include="Pipeline\Incoming\IncomingPipeline.cs" />
     <Compile Include="Pipeline\Incoming\IncomingPipelineFactory.cs" />
     <Compile Include="Pipeline\Incoming\IncomingTransportContext.cs" />
-    <Compile Include="Pipeline\Incoming\InvokeHandlersStep.cs" />
+    <Compile Include="Pipeline\Incoming\InvokeHandlerStep.cs" />
     <Compile Include="Pipeline\Incoming\LoadMessageHandlersStep.cs" />
     <Compile Include="Pipeline\Incoming\MessageHandler.cs" />
     <Compile Include="Pipeline\ISupportSnapshots.cs" />
