@@ -76,6 +76,7 @@
     <Compile Include="Pipeline\DeliveryOptions.cs" />
     <Compile Include="Pipeline\HandlerRegistry.cs" />
     <Compile Include="Pipeline\IMessageSerializer.cs" />
+    <Compile Include="Pipeline\Incoming\DeadLetterMessagesWhichCantBeDeserializedStep.cs" />
     <Compile Include="Pipeline\Incoming\DeserializeTransportMessageStep.cs" />
     <Compile Include="Pipeline\Incoming\IIncomingLogicalStep.cs" />
     <Compile Include="Pipeline\Incoming\IIncomingTransportStep.cs" />

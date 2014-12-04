@@ -10,11 +10,6 @@ namespace MMS.ServiceBus
 
     internal static class EndpointConfigurationExtensions
     {
-        public static QueueDescription Configure(this EndpointConfiguration configuration, Queue queue)
-        {
-            return new QueueDescription(queue);
-        }
-
         public static MessageReceiver Configure(this EndpointConfiguration configuration, MessageReceiver receiver)
         {
             receiver.PrefetchCount = configuration.PrefetchCount;

@@ -9,6 +9,7 @@ namespace MMS.ServiceBus
     using System;
     using System.Collections.Generic;
     using System.IO;
+    using System.Linq;
     using Microsoft.ServiceBus.Messaging;
 
     public class TransportMessage
@@ -141,6 +142,15 @@ namespace MMS.ServiceBus
         public void Abandon()
         {
             this.message.Abandon();
+        }
+
+        public void DeadLetter()
+        {
+            var deadLetterHeaders = this.Headers.Where(x => x.Key.StartsWith("MMS.ServiceBus.DeadLetter"))
+                .Select(x => x)
+                .ToDictionary(x => x.Key, x => (object)x.Value);
+
+            this.message.DeadLetter(deadLetterHeaders);
         }
     }
 }

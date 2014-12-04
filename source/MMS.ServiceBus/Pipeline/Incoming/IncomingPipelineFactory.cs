@@ -19,6 +19,7 @@ namespace MMS.ServiceBus.Pipeline.Incoming
         {
             var pipeline = new IncomingPipeline();
             return pipeline
+                .RegisterStep(new DeadLetterMessagesWhichCantBeDeserializedStep())
                 .RegisterStep(new DeserializeTransportMessageStep(new DataContractMessageSerializer(), new LogicalMessageFactory()))
                 .RegisterStep(new LoadMessageHandlersStep(this.registry))
                 .RegisterStep(new InvokeHandlerStep());

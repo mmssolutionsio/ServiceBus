@@ -19,5 +19,9 @@ namespace MMS.ServiceBus
         public const string ReplyTo = "MMS.ServiceBus.ReplyTo";
 
         public const string MessageIntent = "MMS.ServiceBus.MessageIntent";
+
+        public const string DeadLetterReason = "MMS.ServiceBus.DeadLetterReason";
+
+        public const string DeadLetterDescription = "MMS.ServiceBus.DeadLetterDescription";
     }
 }
