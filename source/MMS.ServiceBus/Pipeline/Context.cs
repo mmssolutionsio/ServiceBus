@@ -9,6 +9,11 @@ namespace MMS.ServiceBus.Pipeline
     using System;
     using System.Collections.Generic;
 
+    /// <summary>
+    /// The context is a key value bag which allows typed retrieval of values.
+    /// </summary>
+    /// <remarks>I'm not sure if having a dictionary internally is really justified. In theory this allows to snapshot also values internally 
+    /// in the context without putting the burden into the caller.</remarks>
     public abstract class Context
     {
         private readonly IDictionary<string, object> stash = new Dictionary<string, object>();

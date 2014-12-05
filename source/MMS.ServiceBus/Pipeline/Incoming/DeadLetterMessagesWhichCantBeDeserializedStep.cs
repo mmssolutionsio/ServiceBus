@@ -7,6 +7,7 @@
 namespace MMS.ServiceBus.Pipeline.Incoming
 {
     using System;
+    using System.Runtime.ExceptionServices;
     using System.Runtime.Serialization;
     using System.Threading.Tasks;
 
@@ -14,7 +15,7 @@ namespace MMS.ServiceBus.Pipeline.Incoming
     {
         public async Task Invoke(IncomingTransportContext context, IBus bus, Func<Task> next)
         {
-            SerializationException serializationException = null;
+            ExceptionDispatchInfo serializationException = null;
             try
             {
                 await next()
@@ -23,21 +24,25 @@ namespace MMS.ServiceBus.Pipeline.Incoming
             catch (SerializationException exception)
             {
                 // We can't do async in a catch block, therefore we have to capture the exception!
-                serializationException = exception;
+                serializationException = ExceptionDispatchInfo.Capture(exception);
             }
 
             if (SerializationExceptionHasBeenCaught(serializationException))
             {
                 var message = context.TransportMessage;
 
-                message.SetFailureHeaders(serializationException, "Messages which can't be deserialized are deadlettered immediately");
-
+// ReSharper disable PossibleNullReferenceException
+                message.SetFailureHeaders(serializationException.SourceException, "Messages which can't be deserialized are deadlettered immediately");
+// ReSharper restore PossibleNullReferenceException
                 await message.DeadLetterAsync()
                     .ConfigureAwait(false);
+
+                // Because we instructed the message to deadletter it is safe to rethrow. The broker will not redeliver.
+                serializationException.Throw();
             }
         }
 
-        private static bool SerializationExceptionHasBeenCaught(SerializationException serializationException)
+        private static bool SerializationExceptionHasBeenCaught(ExceptionDispatchInfo serializationException)
         {
             return serializationException != null;
         }

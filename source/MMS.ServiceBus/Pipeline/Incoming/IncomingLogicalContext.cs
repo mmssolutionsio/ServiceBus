@@ -8,14 +8,14 @@ namespace MMS.ServiceBus.Pipeline.Incoming
 {
     public class IncomingLogicalContext : Context
     {
-        private const string HandlerInvocationAbortedKey = "HandlerInvocationAborted";
+        private const string HandlerInvocationAbortPendingKey = "HandlerInvocationAbortPending";
 
         public IncomingLogicalContext(LogicalMessage logicalMessage, TransportMessage message, EndpointConfiguration.ReadOnly configuration)
             : base(configuration)
         {
             this.Set(logicalMessage);
             this.Set(message);
-            this.Set(HandlerInvocationAbortedKey, false);
+            this.Set(HandlerInvocationAbortPendingKey, false);
         }
 
         public LogicalMessage LogicalMessage
@@ -47,17 +47,17 @@ namespace MMS.ServiceBus.Pipeline.Incoming
             }
         }
 
-        public bool HandlerInvocationAborted
+        public bool HandlerInvocationAbortPending
         {
             get
             {
-                return this.Get<bool>(HandlerInvocationAbortedKey);
+                return this.Get<bool>(HandlerInvocationAbortPendingKey);
             }
+        }
 
-            set
-            {
-                this.Set<bool>(HandlerInvocationAbortedKey, value);
-            }
+        public void AbortHandlerInvocation()
+        {
+            this.Set(HandlerInvocationAbortPendingKey, true);
         }
     }
 }

@@ -39,7 +39,7 @@ namespace MMS.ServiceBus.Pipeline.Incoming
                     await next()
                         .ConfigureAwait(false);
 
-                    if (context.HandlerInvocationAborted)
+                    if (context.HandlerInvocationAbortPending)
                     {
                         break;
                     } 

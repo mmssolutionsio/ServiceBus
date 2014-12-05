@@ -96,7 +96,7 @@ namespace MMS.ServiceBus.Pipeline.Incoming
 
         public void DoNotInvokeAnyMoreHandlers()
         {
-            this.currentContext.HandlerInvocationAborted = true;
+            this.currentContext.AbortHandlerInvocation();
         }
 
         private Task InvokeLogical(IncomingLogicalContext context, IBus bus)
