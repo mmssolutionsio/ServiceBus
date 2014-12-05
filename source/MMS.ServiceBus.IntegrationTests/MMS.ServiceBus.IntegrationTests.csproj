@@ -61,6 +61,7 @@
     <Compile Include="..\MMS.ServiceBus.AcceptanceTests\NumericAssertionExtensions.cs">
       <Link>NumericAssertionExtensions.cs</Link>
     </Compile>
+    <Compile Include="AbortingMessageHandlingIntegration.cs" />
     <Compile Include="AlwaysRouteToDestination.cs" />
     <Compile Include="DeadLetterMessagesIntegration.cs" />
     <Compile Include="MessageUnit.cs" />
