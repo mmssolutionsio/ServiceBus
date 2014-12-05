@@ -1,10 +1,15 @@
-using MMS.ServiceBus.Pipeline;
+//-------------------------------------------------------------------------------
+// <copyright file="MessageUnit.cs" company="MMS AG">
+//   Copyright (c) MMS AG, 2008-2015
+// </copyright>
+//-------------------------------------------------------------------------------
 
 namespace MMS.ServiceBus.Testing
 {
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
+    using Pipeline;
     using Pipeline.Incoming;
     using Pipeline.Outgoing;
 
@@ -158,7 +163,7 @@ namespace MMS.ServiceBus.Testing
 
         protected virtual Bus CreateBus(IReceiveMessages receiver, IOutgoingPipelineFactory outgoingPipelineFactory, IIncomingPipelineFactory incomingPipelineFactory)
         {
-            return new Bus(this.configuration, new DequeueStrategy(this.configuration, receiver), new LogicalMessageFactory(), outgoingPipelineFactory, incomingPipelineFactory);
+            return new Bus(this.configuration, new DequeueStrategy(receiver), outgoingPipelineFactory, incomingPipelineFactory);
         }
 
         private class UnitOutgoingPipelineFactory : IOutgoingPipelineFactory
@@ -205,7 +210,8 @@ namespace MMS.ServiceBus.Testing
             {
                 var pipeline = new IncomingPipeline();
                 return pipeline
-                    .RegisterStep(new DeserializeTransportMessageStep(new DataContractMessageSerializer(), new LogicalMessageFactory()))
+                    .RegisterStep(new DeadLetterMessagesWhichCantBeDeserializedStep())
+                    .RegisterStep(new DeserializeTransportMessageStep(new DataContractMessageSerializer()))
                     .RegisterStep(new LoadMessageHandlersStep(this.registry))
                     .RegisterStep(new InvokeHandlerStep())
                     .RegisterStep(new TraceIncomingLogical(this.incoming));
@@ -241,7 +247,7 @@ namespace MMS.ServiceBus.Testing
                 this.collector = collector;
             }
 
-            public Task<AsyncClosable> StartAsync(EndpointConfiguration configuration, Func<TransportMessage, Task> onMessage)
+            public Task<AsyncClosable> StartAsync(EndpointConfiguration.ReadOnly configuration, Func<TransportMessage, Task> onMessage)
             {
                 this.onMessage = onMessage;
 

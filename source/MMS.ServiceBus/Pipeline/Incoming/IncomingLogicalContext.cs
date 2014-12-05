@@ -10,7 +10,8 @@ namespace MMS.ServiceBus.Pipeline.Incoming
     {
         private const string HandlerInvocationAbortedKey = "HandlerInvocationAborted";
 
-        public IncomingLogicalContext(LogicalMessage logicalMessage, TransportMessage message)
+        public IncomingLogicalContext(LogicalMessage logicalMessage, TransportMessage message, EndpointConfiguration.ReadOnly configuration)
+            : base(configuration)
         {
             this.Set(logicalMessage);
             this.Set(message);

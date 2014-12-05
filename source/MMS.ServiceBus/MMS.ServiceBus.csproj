@@ -59,16 +59,16 @@
     <Compile Include="CombGuid.cs" />
     <Compile Include="DequeueStrategy.cs" />
     <Compile Include="EndpointConfiguration.cs" />
-    <Compile Include="EndpointConfigurationExtensions.cs" />
+    <Compile Include="EndpointConfigurationReadonlyExtensions.cs" />
     <Compile Include="HeaderKeys.cs" />
     <Compile Include="IBus.cs" />
+    <Compile Include="IDequeueStrategy.cs" />
     <Compile Include="IHandleMessage.cs" />
     <Compile Include="IHandleMessageAsync.cs" />
     <Compile Include="IIncomingPipelineFactory.cs" />
     <Compile Include="IOutgoingPipelineFactory.cs" />
     <Compile Include="IReceiveMessages.cs" />
     <Compile Include="LogicalMessage.cs" />
-    <Compile Include="LogicalMessageFactory.cs" />
     <Compile Include="MessageIntent.cs" />
     <Compile Include="MessageRouter.cs" />
     <Compile Include="Pipeline\Context.cs" />
@@ -91,6 +91,7 @@
     <Compile Include="Pipeline\Incoming\LoadMessageHandlersStep.cs" />
     <Compile Include="Pipeline\Incoming\MessageHandler.cs" />
     <Compile Include="Pipeline\ISupportSnapshots.cs" />
+    <Compile Include="Pipeline\LogicalMessageFactory.cs" />
     <Compile Include="Pipeline\Outgoing\CreateTransportMessageStep.cs" />
     <Compile Include="Pipeline\Outgoing\DetermineDestinationStep.cs" />
     <Compile Include="Pipeline\Outgoing\DispatchToTransportStep.cs" />

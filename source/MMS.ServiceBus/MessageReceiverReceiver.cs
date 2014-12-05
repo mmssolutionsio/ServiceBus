@@ -24,7 +24,7 @@ namespace MMS.ServiceBus
         }
 
         public async Task<AsyncClosable> StartAsync(
-            EndpointConfiguration configuration, 
+            EndpointConfiguration.ReadOnly configuration, 
             Func<TransportMessage, Task> onMessage)
         {
             MessageReceiver client =

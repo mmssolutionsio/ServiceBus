@@ -10,24 +10,24 @@ namespace MMS.ServiceBus
     using System.Threading.Tasks;
     using System.Transactions;
 
-    public class DequeueStrategy
+    public class DequeueStrategy : IDequeueStrategy
     {
-        private readonly EndpointConfiguration configuration;
-
         private readonly IReceiveMessages receiveMessages;
+
+        private EndpointConfiguration.ReadOnly configuration;
 
         private AsyncClosable receiver;
 
         private Func<TransportMessage, Task> onMessageAsync;
 
-        public DequeueStrategy(EndpointConfiguration configuration, IReceiveMessages receiveMessages)
+        public DequeueStrategy(IReceiveMessages receiveMessages)
         {
             this.receiveMessages = receiveMessages;
-            this.configuration = configuration;
         }
 
-        public async Task StartAsync(Func<TransportMessage, Task> onMessage)
+        public async Task StartAsync(EndpointConfiguration.ReadOnly configuration, Func<TransportMessage, Task> onMessage)
         {
+            this.configuration = configuration;
             this.onMessageAsync = onMessage;
             this.receiver = await this.receiveMessages.StartAsync(this.configuration, this.OnMessageAsync)
                 .ConfigureAwait(false);

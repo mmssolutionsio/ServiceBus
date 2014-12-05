@@ -16,9 +16,9 @@ namespace MMS.ServiceBus.Pipeline.Incoming
 
         private readonly LogicalMessageFactory factory;
 
-        public DeserializeTransportMessageStep(IMessageSerializer serializer, LogicalMessageFactory factory)
+        public DeserializeTransportMessageStep(IMessageSerializer serializer)
         {
-            this.factory = factory;
+            this.factory = new LogicalMessageFactory();
             this.serializer = serializer;
         }
 

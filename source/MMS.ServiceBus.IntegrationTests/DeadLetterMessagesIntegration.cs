@@ -51,8 +51,8 @@ namespace MMS.ServiceBus
             var tm = new TransportMessage { MessageType = typeof(Message).AssemblyQualifiedName };
             tm.SetBody(stream);
 
-            MessageSender sender = await this.messagingFactory.CreateMessageSenderAsync(ReceiverEndpointName);
-            await sender.SendAsync(tm.ToBrokeredMessage());
+            MessageSender messageSender = await this.messagingFactory.CreateMessageSenderAsync(ReceiverEndpointName);
+            await messageSender.SendAsync(tm.ToBrokeredMessage());
 
             MessageReceiver deadLetterReceiver = await this.messagingFactory.CreateMessageReceiverAsync(QueueClient.FormatDeadLetterPath(ReceiverEndpointName), ReceiveMode.ReceiveAndDelete);
             IEnumerable<BrokeredMessage> deadLetteredMessages = await deadLetterReceiver.ReceiveBatchAsync(10);

@@ -15,6 +15,16 @@ namespace MMS.ServiceBus.Pipeline
 
         private ISupportSnapshots chain;
 
+        protected Context(EndpointConfiguration.ReadOnly configuration)
+        {
+            this.Set(configuration);
+        }
+
+        public EndpointConfiguration.ReadOnly Configuration
+        {
+            get { return this.Get<EndpointConfiguration.ReadOnly>(); }
+        }
+
         public T Get<T>()
         {
             return this.Get<T>(typeof(T).FullName);

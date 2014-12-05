@@ -42,12 +42,33 @@ namespace MMS.ServiceBus
             return this;
         }
 
-        internal void Validate()
+        internal ReadOnly Validate()
         {
             if (this.EndpointQueue == null)
             {
                 throw new InvalidOperationException("The endpoint name must be set by calling configuration.Endpoint(\"EndpointName\").");
             }
+
+            return new ReadOnly(this);
+        }
+
+        public class ReadOnly
+        {
+            protected internal ReadOnly(EndpointConfiguration configuration)
+            {
+                this.EndpointQueue = configuration.EndpointQueue;
+                this.IsTransactional = configuration.IsTransactional;
+                this.MaxConcurrency = configuration.MaxConcurrency;
+                this.PrefetchCount = configuration.PrefetchCount;
+            }
+
+            public Queue EndpointQueue { get; private set; }
+
+            public bool IsTransactional { get; private set; }
+
+            public int MaxConcurrency { get; private set; }
+
+            public int PrefetchCount { get; private set; }
         }
     }
 }

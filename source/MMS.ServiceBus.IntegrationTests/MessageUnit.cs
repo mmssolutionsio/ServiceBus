@@ -7,7 +7,6 @@
 namespace MMS.ServiceBus
 {
     using System.Threading.Tasks;
-    using Microsoft.ServiceBus;
     using Microsoft.ServiceBus.Messaging;
     using Pipeline;
     using Pipeline.Incoming;
@@ -99,7 +98,7 @@ namespace MMS.ServiceBus
 
         protected virtual Bus CreateBus(IOutgoingPipelineFactory outgoingPipelineFactory, IIncomingPipelineFactory incomingPipelineFactory)
         {
-            return new Bus(this.configuration, new DequeueStrategy(this.configuration, new MessageReceiverReceiver(this.factory)), new LogicalMessageFactory(), outgoingPipelineFactory, incomingPipelineFactory);
+            return new Bus(this.configuration, new DequeueStrategy(new MessageReceiverReceiver(this.factory)), outgoingPipelineFactory, incomingPipelineFactory);
         }
     }
 }

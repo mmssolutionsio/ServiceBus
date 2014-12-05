@@ -4,19 +4,19 @@
 // </copyright>
 //-------------------------------------------------------------------------------
 
-namespace MMS.ServiceBus
+namespace MMS.ServiceBus.Pipeline
 {
     using System;
     using System.Collections.Generic;
 
-    public class LogicalMessageFactory
+    internal class LogicalMessageFactory
     {
-        public virtual LogicalMessage Create(object message, IDictionary<string, string> headers)
+        public LogicalMessage Create(object message, IDictionary<string, string> headers)
         {
             return this.Create(message.GetType(), message, headers);
         }
 
-        public virtual LogicalMessage Create(Type messageType, object message, IDictionary<string, string> headers)
+        public LogicalMessage Create(Type messageType, object message, IDictionary<string, string> headers)
         {
             if (message == null)
             {

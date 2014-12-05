@@ -16,7 +16,7 @@ namespace MMS.ServiceBus
     {
         private readonly EndpointConfiguration configuration;
 
-        private readonly DequeueStrategy strategy;
+        private readonly IDequeueStrategy strategy;
 
         private readonly LogicalMessageFactory factory;
 
@@ -24,26 +24,27 @@ namespace MMS.ServiceBus
 
         private readonly IIncomingPipelineFactory incomingPipelineFactory;
 
+        private EndpointConfiguration.ReadOnly readOnlyConfiguration;
+
         public Bus(
             EndpointConfiguration configuration, 
-            DequeueStrategy strategy, 
-            LogicalMessageFactory factory,
+            IDequeueStrategy strategy, 
             IOutgoingPipelineFactory outgoingPipelineFactory, 
             IIncomingPipelineFactory incomingPipelineFactory)
         {
             this.incomingPipelineFactory = incomingPipelineFactory;
             this.outgoingPipelineFactory = outgoingPipelineFactory;
 
-            this.factory = factory;
+            this.factory = new LogicalMessageFactory();
             this.configuration = configuration;
             this.strategy = strategy;
         }
 
         public Task StartAsync()
         {
-            this.configuration.Validate();
+            this.readOnlyConfiguration = this.configuration.Validate();
 
-            return this.strategy.StartAsync(this.OnMessageAsync);
+            return this.strategy.StartAsync(this.readOnlyConfiguration, this.OnMessageAsync);
         }
 
         public Task SendLocal(object message)
@@ -78,7 +79,7 @@ namespace MMS.ServiceBus
 
         private Task SendLocal(object message, TransportMessage incoming)
         {
-            return this.Send(message, new SendOptions { Destination = this.configuration.EndpointQueue }, incoming);
+            return this.Send(message, new SendOptions { Destination = this.readOnlyConfiguration.EndpointQueue }, incoming);
         }
 
         private Task Send(object message, SendOptions options, TransportMessage incoming)
@@ -116,13 +117,13 @@ namespace MMS.ServiceBus
             }
 
             OutgoingPipeline outgoingPipeline = this.outgoingPipelineFactory.Create();
-            return outgoingPipeline.Invoke(outgoingLogicalMessage, options, incoming);
+            return outgoingPipeline.Invoke(outgoingLogicalMessage, options, this.readOnlyConfiguration, incoming);
         }
 
         private Task OnMessageAsync(TransportMessage message)
         {
             IncomingPipeline incomingPipeline = this.incomingPipelineFactory.Create();
-            return incomingPipeline.Invoke(new IncomingBusDecorator(this, incomingPipeline, message), message);
+            return incomingPipeline.Invoke(new IncomingBusDecorator(this, incomingPipeline, message), message, this.readOnlyConfiguration);
         }
 
         private class IncomingBusDecorator : IBus
