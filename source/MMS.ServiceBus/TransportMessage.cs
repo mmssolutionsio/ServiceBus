@@ -10,6 +10,7 @@ namespace MMS.ServiceBus
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
+    using System.Threading.Tasks;
     using Microsoft.ServiceBus.Messaging;
 
     public class TransportMessage
@@ -144,13 +145,18 @@ namespace MMS.ServiceBus
             this.message.Abandon();
         }
 
-        public void DeadLetter()
+        public Task DeadLetterAsync()
         {
-            var deadLetterHeaders = this.Headers.Where(x => x.Key.StartsWith("MMS.ServiceBus.DeadLetter"))
+            var deadLetterHeaders = this.Headers.Where(x => x.Key.StartsWith("MMS.ServiceBus.DeadLetter", StringComparison.InvariantCultureIgnoreCase))
                 .Select(x => x)
                 .ToDictionary(x => x.Key, x => (object)x.Value);
 
-            this.message.DeadLetter(deadLetterHeaders);
+            return this.DeadLetterAsyncInternal(deadLetterHeaders);
+        }
+
+        protected virtual Task DeadLetterAsyncInternal(IDictionary<string, object> deadLetterHeaders)
+        {
+            return this.message.DeadLetterAsync(deadLetterHeaders);
         }
     }
 }

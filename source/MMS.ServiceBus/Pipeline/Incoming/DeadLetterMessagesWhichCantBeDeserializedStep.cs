@@ -14,6 +14,7 @@ namespace MMS.ServiceBus.Pipeline.Incoming
     {
         public async Task Invoke(IncomingTransportContext context, IBus bus, Func<Task> next)
         {
+            SerializationException serializationException = null;
             try
             {
                 await next()
@@ -21,14 +22,27 @@ namespace MMS.ServiceBus.Pipeline.Incoming
             }
             catch (SerializationException exception)
             {
+                // We can't do async in a catch block, therefore we have to capture the exception!
+                serializationException = exception;
+            }
+
+            if (SerializationExceptionHasBeenCaught(serializationException))
+            {
                 var message = context.TransportMessage;
 
-                message.Headers[HeaderKeys.DeadLetterReason] = exception.Message;
+// ReSharper disable PossibleNullReferenceException
+                message.Headers[HeaderKeys.DeadLetterReason] = serializationException.Message;
+// ReSharper restore PossibleNullReferenceException
                 message.Headers[HeaderKeys.DeadLetterDescription] = "Messages which can't be deserialized are deadlettered immediately";
-                
-                // We can't do async in a catch block!
-                context.TransportMessage.DeadLetter();
+
+                await message.DeadLetterAsync()
+                    .ConfigureAwait(false);
             }
+        }
+
+        private static bool SerializationExceptionHasBeenCaught(SerializationException serializationException)
+        {
+            return serializationException != null;
         }
     }
 }

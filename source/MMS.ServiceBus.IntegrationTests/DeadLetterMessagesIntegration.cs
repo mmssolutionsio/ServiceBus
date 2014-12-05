@@ -38,7 +38,7 @@ namespace MMS.ServiceBus
         }
 
         [Test]
-        public async Task WhenMessageSentWithBodyWhichCannotBeDeserialized_MessagesIsDeadlettered()
+        public async Task WhenMessageSentWithBodyWhichCannotBeDeserialized_MessageIsDeadlettered()
         {
             var stream = new MemoryStream();
             var writer = new StreamWriter(stream);
