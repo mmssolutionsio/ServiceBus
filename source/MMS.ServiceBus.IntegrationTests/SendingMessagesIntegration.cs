@@ -11,6 +11,7 @@ namespace MMS.ServiceBus
     using System.Collections.ObjectModel;
     using System.Threading;
     using System.Threading.Tasks;
+    using FluentAssertions;
     using Microsoft.ServiceBus;
     using Microsoft.ServiceBus.Messaging;
     using NUnit.Framework;
@@ -57,10 +58,10 @@ namespace MMS.ServiceBus
         {
             await this.sender.Send(new Message { Bar = 42 });
 
-            await this.context.Wait(1);
+            await this.context.Wait(asyncHandlerCalls: 1, handlersCalls: 1);
 
-            Assert.AreEqual(1, this.context.AsyncHandlerCalls);
-            Assert.AreEqual(1, this.context.HandlerCalls);
+            this.context.AsyncHandlerCalls.Should().BeInvokedOnce();
+            this.context.HandlerCalls.Should().BeInvokedOnce();
         }
 
         [Test]
@@ -71,10 +72,10 @@ namespace MMS.ServiceBus
             await this.sender.Send(new Message { Bar = 44 });
             await this.sender.Send(new Message { Bar = 45 });
 
-            await this.context.Wait(4);
+            await this.context.Wait(asyncHandlerCalls: 4, handlersCalls: 4);
 
-            Assert.AreEqual(4, this.context.AsyncHandlerCalls);
-            Assert.AreEqual(4, this.context.HandlerCalls);
+            this.context.AsyncHandlerCalls.Should().BeInvoked(ntimes: 4);
+            this.context.HandlerCalls.Should().BeInvoked(ntimes: 4);
         }
 
         [TearDown]
@@ -193,10 +194,10 @@ namespace MMS.ServiceBus
                 Interlocked.Increment(ref this.handlerCalled);
             }
 
-            public Task Wait(int numberOfCalls)
+            public Task Wait(int asyncHandlerCalls, int handlersCalls)
             {
-                var task1 = Task.Run(() => SpinWait.SpinUntil(() => this.AsyncHandlerCalls >= numberOfCalls && this.HandlerCalls >= numberOfCalls));
-                var task2 = Task.Delay(TimeSpan.FromSeconds(30));
+                var task1 = Task.Run(() => SpinWait.SpinUntil(() => this.AsyncHandlerCalls >= asyncHandlerCalls && this.HandlerCalls >= handlersCalls));
+                var task2 = Task.Delay(TimeSpan.FromSeconds(60));
 
                 return Task.WhenAny(task1, task2);
             }

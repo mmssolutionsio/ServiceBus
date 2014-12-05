@@ -61,7 +61,7 @@ namespace MMS.ServiceBus
             deadLetteredMessages.Should().HaveCount(1);
             deadLetteredMessages.Single()
                 .Properties.Where(p => p.Key.StartsWith(HeaderKeys.FailurePrefix, StringComparison.InvariantCultureIgnoreCase))
-                .Should().HaveCount(8);
+                .Should().NotBeEmpty();
         }
 
         [TearDown]

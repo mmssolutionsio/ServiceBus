@@ -11,6 +11,7 @@ namespace MMS.ServiceBus
     using System.Collections.ObjectModel;
     using System.Threading;
     using System.Threading.Tasks;
+    using FluentAssertions;
     using Microsoft.ServiceBus;
     using Microsoft.ServiceBus.Messaging;
     using NUnit.Framework;
@@ -58,11 +59,11 @@ namespace MMS.ServiceBus
         {
             await this.sender.Send(new Message { Bar = 42 });
 
-            await this.context.Wait(1, 1, 2);
+            await this.context.Wait(asyncHandlerCalls: 1, handlersCalls: 1, replyHandlerCalls: 2);
 
-            Assert.AreEqual(1, this.context.AsyncHandlerCalls);
-            Assert.AreEqual(1, this.context.HandlerCalls);
-            Assert.AreEqual(2, this.context.ReplyHandlerCalls);
+            this.context.AsyncHandlerCalls.Should().BeInvokedOnce();
+            this.context.HandlerCalls.Should().BeInvokedOnce();
+            this.context.ReplyHandlerCalls.Should().BeInvokedTwice();
         }
 
         [Test]
@@ -73,11 +74,11 @@ namespace MMS.ServiceBus
             await this.sender.Send(new Message { Bar = 44 });
             await this.sender.Send(new Message { Bar = 45 });
 
-            await this.context.Wait(4, 4, 8);
+            await this.context.Wait(asyncHandlerCalls: 4, handlersCalls: 4, replyHandlerCalls: 8);
 
-            Assert.AreEqual(4, this.context.AsyncHandlerCalls);
-            Assert.AreEqual(4, this.context.HandlerCalls);
-            Assert.AreEqual(8, this.context.ReplyHandlerCalls);
+            this.context.AsyncHandlerCalls.Should().BeInvoked(ntimes: 4);
+            this.context.HandlerCalls.Should().BeInvoked(ntimes: 4);
+            this.context.ReplyHandlerCalls.Should().BeInvoked(ntimes: 8);
         }
 
         [TearDown]
@@ -149,7 +150,7 @@ namespace MMS.ServiceBus
             public Task Handle(ReplyMessage message, IBus bus)
             {
                 this.context.ReplyHandlerCalled();
-                return Task.Delay(0);
+                return Task.FromResult(0);
             }
         }
 
@@ -242,8 +243,10 @@ namespace MMS.ServiceBus
 
             public Task Wait(int asyncHandlerCalls, int handlersCalls, int replyHandlerCalls)
             {
-                return Task.Run(
-                        () => SpinWait.SpinUntil(() => this.AsyncHandlerCalls >= asyncHandlerCalls && this.HandlerCalls >= handlersCalls && this.ReplyHandlerCalls >= replyHandlerCalls));
+                var task1 = Task.Run(() => SpinWait.SpinUntil(() => this.AsyncHandlerCalls >= asyncHandlerCalls && this.HandlerCalls >= handlersCalls && this.ReplyHandlerCalls >= replyHandlerCalls));
+                var task2 = Task.Delay(TimeSpan.FromSeconds(60));
+
+                return Task.WhenAny(task1, task2);
             }
         }
     }

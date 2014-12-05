@@ -10,6 +10,11 @@ namespace MMS.ServiceBus
 
     public static class NumericAssertionExtensions
     {
+        public static void BeInvoked(this NumericAssertions<int> assertions, int ntimes)
+        {
+            assertions.Be(ntimes);
+        }
+
         public static void BeInvokedTwice(this NumericAssertions<int> assertions)
         {
             assertions.Be(2);
