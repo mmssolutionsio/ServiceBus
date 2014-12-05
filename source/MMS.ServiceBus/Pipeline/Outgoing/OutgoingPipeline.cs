@@ -10,7 +10,7 @@ namespace MMS.ServiceBus.Pipeline.Outgoing
     using System.Collections.Generic;
     using System.Threading.Tasks;
 
-    public class OutgoingPipeline : ISupportSnapshots
+    public class OutgoingPipeline : IOutgoingTransportStepRegisterer, IOutgoingLogicalStepRegisterer, ISupportSnapshots
     {
         private readonly Queue<IOutgoingTransportStep> registeredTransportPipelineSteps;
 
@@ -33,28 +33,38 @@ namespace MMS.ServiceBus.Pipeline.Outgoing
             this.registeredTransportPipelineSteps = new Queue<IOutgoingTransportStep>();
         }
 
-        public OutgoingPipeline RegisterStep(IOutgoingLogicalStep step)
+        public IOutgoingTransportStepRegisterer Transport
+        {
+            get { return this; }
+        }
+
+        public IOutgoingLogicalStepRegisterer Logical
+        {
+            get { return this; }
+        }
+
+        IOutgoingLogicalStepRegisterer IOutgoingLogicalStepRegisterer.Register(IOutgoingLogicalStep step)
         {
             this.registeredlogicalPipelineSteps.Enqueue(step);
 
             return this;
         }
 
-        public OutgoingPipeline RegisterStep(Func<IOutgoingLogicalStep> stepFactory)
+        IOutgoingLogicalStepRegisterer IOutgoingLogicalStepRegisterer.Register(Func<IOutgoingLogicalStep> stepFactory)
         {
             this.registeredlogicalPipelineSteps.Enqueue(new LazyLogicalStep(stepFactory));
 
             return this;
         }
 
-        public OutgoingPipeline RegisterStep(IOutgoingTransportStep step)
+        IOutgoingTransportStepRegisterer IOutgoingTransportStepRegisterer.Register(IOutgoingTransportStep step)
         {
             this.registeredTransportPipelineSteps.Enqueue(step);
 
             return this;
         }
 
-        public OutgoingPipeline RegisterStep(Func<IOutgoingTransportStep> stepFactory)
+        IOutgoingTransportStepRegisterer IOutgoingTransportStepRegisterer.Register(Func<IOutgoingTransportStep> stepFactory)
         {
             this.registeredTransportPipelineSteps.Enqueue(new LazyTransportStep(stepFactory));
 

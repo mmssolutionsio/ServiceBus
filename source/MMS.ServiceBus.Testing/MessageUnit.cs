@@ -184,13 +184,18 @@ namespace MMS.ServiceBus.Testing
             {
                 var pipeline = new OutgoingPipeline();
                 var senderStep = new DispatchToTransportStep(new MessageSenderSimulator(this.onMessage), new MessagePublisher(null));
-                return pipeline
-                    .RegisterStep(new CreateTransportMessageStep())
-                    .RegisterStep(new SerializeMessageStep(new DataContractMessageSerializer()))
-                    .RegisterStep(new DetermineDestinationStep(this.router))
-                    .RegisterStep(new EnrichTransportMessageWithDestinationAddress())
-                    .RegisterStep(senderStep)
-                    .RegisterStep(new TraceOutgoingLogical(this.outgoing));
+
+                pipeline.Logical
+                    .Register(new CreateTransportMessageStep())
+                    .Register(new TraceOutgoingLogical(this.outgoing));
+
+                pipeline.Transport
+                    .Register(new SerializeMessageStep(new DataContractMessageSerializer()))
+                    .Register(new DetermineDestinationStep(this.router))
+                    .Register(new EnrichTransportMessageWithDestinationAddress())
+                    .Register(senderStep);
+
+                return pipeline;
             }
         }
 
@@ -209,12 +214,17 @@ namespace MMS.ServiceBus.Testing
             public IncomingPipeline Create()
             {
                 var pipeline = new IncomingPipeline();
-                return pipeline
-                    .RegisterStep(new DeadLetterMessagesWhichCantBeDeserializedStep())
-                    .RegisterStep(new DeserializeTransportMessageStep(new DataContractMessageSerializer()))
-                    .RegisterStep(new LoadMessageHandlersStep(this.registry))
-                    .RegisterStep(new InvokeHandlerStep())
-                    .RegisterStep(new TraceIncomingLogical(this.incoming));
+
+                pipeline.Transport
+                    .Register(new DeadLetterMessagesWhichCantBeDeserializedStep())
+                    .Register(new DeserializeTransportMessageStep(new DataContractMessageSerializer()));
+
+                pipeline.Logical
+                    .Register(new LoadMessageHandlersStep(this.registry))
+                    .Register(new InvokeHandlerStep())
+                    .Register(new TraceIncomingLogical(this.incoming));
+
+                return pipeline;
             }
         }
 

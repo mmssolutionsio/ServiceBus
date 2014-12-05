@@ -23,11 +23,15 @@ namespace MMS.ServiceBus.Pipeline.Outgoing
         {
             var pipeline = new OutgoingPipeline();
 
-            return pipeline
-                .RegisterStep(new CreateTransportMessageStep())
-                .RegisterStep(new SerializeMessageStep(new DataContractMessageSerializer()))
-                .RegisterStep(new DetermineDestinationStep(this.router))
-                .RegisterStep(new DispatchToTransportStep(new MessageSender(this.factory), new MessagePublisher(this.factory)));
+            pipeline.Logical
+                .Register(new CreateTransportMessageStep());
+
+            pipeline.Transport
+                .Register(new SerializeMessageStep(new DataContractMessageSerializer()))
+                .Register(new DetermineDestinationStep(this.router))
+                .Register(new DispatchToTransportStep(new MessageSender(this.factory), new MessagePublisher(this.factory)));
+
+            return pipeline;
         }
     }
 }

@@ -10,7 +10,7 @@ namespace MMS.ServiceBus.Pipeline.Incoming
     using System.Collections.Generic;
     using System.Threading.Tasks;
 
-    public class IncomingPipeline : ISupportSnapshots
+    public class IncomingPipeline : IIncomingTransportStepRegisterer, IIncomingLogicalStepRegisterer, ISupportSnapshots
     {
         private readonly Queue<IIncomingTransportStep> registeredTransportPipeline;
 
@@ -35,28 +35,38 @@ namespace MMS.ServiceBus.Pipeline.Incoming
             this.registeredTransportPipeline = new Queue<IIncomingTransportStep>();
         }
 
-        public IncomingPipeline RegisterStep(IIncomingLogicalStep step)
+        public IIncomingTransportStepRegisterer Transport
+        {
+            get { return this; }
+        }
+
+        public IIncomingLogicalStepRegisterer Logical
+        {
+            get { return this; }
+        }
+
+        IIncomingLogicalStepRegisterer IIncomingLogicalStepRegisterer.Register(IIncomingLogicalStep step)
         {
             this.registeredLogicalPipeline.Enqueue(step);
 
             return this;
         }
 
-        public IncomingPipeline RegisterStep(Func<IIncomingLogicalStep> stepFactory)
+        IIncomingLogicalStepRegisterer IIncomingLogicalStepRegisterer.Register(Func<IIncomingLogicalStep> stepFactory)
         {
             this.registeredLogicalPipeline.Enqueue(new LazyLogicalStep(stepFactory));
 
             return this;
         }
 
-        public IncomingPipeline RegisterStep(IIncomingTransportStep step)
+        IIncomingTransportStepRegisterer IIncomingTransportStepRegisterer.Register(IIncomingTransportStep step)
         {
             this.registeredTransportPipeline.Enqueue(step);
 
             return this;
         }
 
-        public IncomingPipeline RegisterStep(Func<IIncomingTransportStep> stepFactory)
+        IIncomingTransportStepRegisterer IIncomingTransportStepRegisterer.Register(Func<IIncomingTransportStep> stepFactory)
         {
             this.registeredTransportPipeline.Enqueue(new LazyTransportStep(stepFactory));
 

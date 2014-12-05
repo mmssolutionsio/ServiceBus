@@ -74,7 +74,9 @@ namespace MMS.ServiceBus
         [Test]
         public async Task Send1000Messages_InvokesSynchronousAndAsynchronousHandlers()
         {
+// ReSharper disable CSharpWarnings::CS4014
             Task.Run(async () =>
+// ReSharper restore CSharpWarnings::CS4014
             {
                 for (int i = 0; i < 1000; i++)
                 {

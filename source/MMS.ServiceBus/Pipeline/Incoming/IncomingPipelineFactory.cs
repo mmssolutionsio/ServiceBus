@@ -18,11 +18,16 @@ namespace MMS.ServiceBus.Pipeline.Incoming
         public IncomingPipeline Create()
         {
             var pipeline = new IncomingPipeline();
-            return pipeline
-                .RegisterStep(new DeadLetterMessagesWhichCantBeDeserializedStep())
-                .RegisterStep(new DeserializeTransportMessageStep(new DataContractMessageSerializer()))
-                .RegisterStep(new LoadMessageHandlersStep(this.registry))
-                .RegisterStep(new InvokeHandlerStep());
+
+            pipeline.Transport
+                .Register(new DeadLetterMessagesWhichCantBeDeserializedStep())
+                .Register(new DeserializeTransportMessageStep(new DataContractMessageSerializer()));
+
+            pipeline.Logical
+                .Register(new LoadMessageHandlersStep(this.registry))
+                .Register(new InvokeHandlerStep());
+
+            return pipeline;
         }
     }
 }
