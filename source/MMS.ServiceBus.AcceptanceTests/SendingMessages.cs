@@ -11,6 +11,7 @@ namespace MMS.ServiceBus
     using System.Collections.ObjectModel;
     using System.Threading.Tasks;
     using System.Transactions;
+    using FluentAssertions;
     using NUnit.Framework;
     using ServiceBus.Pipeline;
     using ServiceBus.Testing;
@@ -63,8 +64,8 @@ namespace MMS.ServiceBus
                 // Dispose means rollback
             }
 
-            Assert.AreEqual(0, this.context.FooAsyncHandlerCalled);
-            Assert.AreEqual(0, this.context.FooHandlerCalled);
+            this.context.FooAsyncHandlerCalled.Should().NotBeInvoked();
+            this.context.FooHandlerCalled.Should().NotBeInvoked();
         }
 
         [Test]
@@ -72,8 +73,8 @@ namespace MMS.ServiceBus
         {
             await this.sender.Send(new Message { Bar = 42 });
 
-            Assert.AreEqual(1, this.context.FooAsyncHandlerCalled);
-            Assert.AreEqual(1, this.context.FooHandlerCalled);
+            this.context.FooAsyncHandlerCalled.Should().BeInvokedOnce();
+            this.context.FooHandlerCalled.Should().BeInvokedOnce();
         }
 
         [Test]
@@ -82,8 +83,8 @@ namespace MMS.ServiceBus
             await this.sender.Send(new Message { Bar = 42 });
             await this.sender.Send(new Message { Bar = 43 });
 
-            Assert.AreEqual(2, this.context.FooAsyncHandlerCalled);
-            Assert.AreEqual(2, this.context.FooHandlerCalled);
+            this.context.FooAsyncHandlerCalled.Should().BeInvokedTwice();
+            this.context.FooHandlerCalled.Should().BeInvokedTwice();
         }
 
         public class HandlerRegistrySimulator : HandlerRegistry

@@ -10,6 +10,7 @@ namespace MMS.ServiceBus
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Threading.Tasks;
+    using FluentAssertions;
     using NUnit.Framework;
     using ServiceBus.Pipeline;
     using ServiceBus.Testing;
@@ -57,8 +58,8 @@ namespace MMS.ServiceBus
         {
             await this.sender.Publish(new Event { Bar = 42 });
 
-            Assert.AreEqual(1, this.context.FooAsyncHandlerCalled);
-            Assert.AreEqual(1, this.context.FooHandlerCalled);
+            this.context.FooAsyncHandlerCalled.Should().BeInvokedOnce();
+            this.context.FooHandlerCalled.Should().BeInvokedOnce();
         }
 
         [Test]
@@ -68,8 +69,8 @@ namespace MMS.ServiceBus
             await this.sender.Publish(new Event { Bar = 42 });
             await this.sender.Publish(new Event { Bar = 43 });
 
-            Assert.AreEqual(2, this.context.FooAsyncHandlerCalled);
-            Assert.AreEqual(2, this.context.FooHandlerCalled);
+            this.context.FooAsyncHandlerCalled.Should().BeInvokedTwice();
+            this.context.FooHandlerCalled.Should().BeInvokedTwice();
         }
 
         public class PublishMessageRouter : MessageRouter

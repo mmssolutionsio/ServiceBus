@@ -4,14 +4,14 @@
 // </copyright>
 //-------------------------------------------------------------------------------
 
-namespace MMS.Common.ServiceBusWrapper.AcceptanceTests
+namespace MMS.ServiceBus
 {
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Threading.Tasks;
+    using FluentAssertions;
     using NUnit.Framework;
-    using ServiceBus;
     using ServiceBus.Pipeline;
     using ServiceBus.Testing;
 
@@ -57,9 +57,9 @@ namespace MMS.Common.ServiceBusWrapper.AcceptanceTests
         {
             await this.sender.Send(new Message { AbortAsync = true, AbortSync = false, Bar = 42 });
 
-            Assert.AreEqual(1, this.context.AsyncHandlerCalled);
-            Assert.AreEqual(0, this.context.HandlerCalled);
-            Assert.AreEqual(0, this.context.LastHandlerCalled);
+            this.context.AsyncHandlerCalled.Should().BeInvokedOnce();
+            this.context.HandlerCalled.Should().NotBeInvoked();
+            this.context.LastHandlerCalled.Should().NotBeInvoked();
         }
 
         [Test]
@@ -67,9 +67,9 @@ namespace MMS.Common.ServiceBusWrapper.AcceptanceTests
         {
             await this.sender.Send(new Message { AbortAsync = false, AbortSync = true, Bar = 42 });
 
-            Assert.AreEqual(1, this.context.AsyncHandlerCalled);
-            Assert.AreEqual(1, this.context.HandlerCalled);
-            Assert.AreEqual(0, this.context.LastHandlerCalled);
+            this.context.AsyncHandlerCalled.Should().BeInvokedOnce();
+            this.context.HandlerCalled.Should().BeInvokedOnce();
+            this.context.LastHandlerCalled.Should().NotBeInvoked();
         }
 
         [Test]
@@ -77,9 +77,9 @@ namespace MMS.Common.ServiceBusWrapper.AcceptanceTests
         {
             await this.sender.Send(new Message { AbortAsync = false, AbortSync = false, Bar = 42 });
 
-            Assert.AreEqual(1, this.context.AsyncHandlerCalled);
-            Assert.AreEqual(1, this.context.HandlerCalled);
-            Assert.AreEqual(1, this.context.LastHandlerCalled);
+            this.context.AsyncHandlerCalled.Should().BeInvokedOnce();
+            this.context.HandlerCalled.Should().BeInvokedOnce();
+            this.context.LastHandlerCalled.Should().BeInvokedOnce();
         }
 
         public class HandlerRegistrySimulator : HandlerRegistry

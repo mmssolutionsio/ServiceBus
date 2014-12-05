@@ -10,6 +10,7 @@ namespace MMS.ServiceBus
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Threading.Tasks;
+    using FluentAssertions;
     using NUnit.Framework;
     using ServiceBus.Pipeline;
     using ServiceBus.Testing;
@@ -94,10 +95,10 @@ namespace MMS.ServiceBus
             await this.sender.Send(new MessageForReceiverOne { Bar = 42 });
             await this.sender.Send(new MessageForReceiverTwo { Bar = 42 });
 
-            Assert.AreEqual(1, this.context.AsyncReceiverOneCalled);
-            Assert.AreEqual(1, this.context.SyncReceiverOneCalled);
-            Assert.AreEqual(1, this.context.AsyncReceiverTwoCalled);
-            Assert.AreEqual(1, this.context.SyncReceiverTwoCalled);
+            this.context.AsyncReceiverOneCalled.Should().BeInvokedOnce();
+            this.context.SyncReceiverOneCalled.Should().BeInvokedOnce();
+            this.context.AsyncReceiverTwoCalled.Should().BeInvokedOnce();
+            this.context.SyncReceiverTwoCalled.Should().BeInvokedOnce();
         }
 
         [Test]
@@ -107,13 +108,13 @@ namespace MMS.ServiceBus
 
             await this.sender.Send(new MessageForReceiverThree { Bar = 42 }, sendOptions);
 
-            Assert.AreEqual(0, this.context.AsyncReceiverOneCalled);
-            Assert.AreEqual(0, this.context.SyncReceiverOneCalled);
-            Assert.AreEqual(0, this.context.AsyncReceiverTwoCalled);
-            Assert.AreEqual(0, this.context.SyncReceiverTwoCalled);
+            this.context.AsyncReceiverOneCalled.Should().NotBeInvoked();
+            this.context.SyncReceiverOneCalled.Should().NotBeInvoked();
+            this.context.AsyncReceiverTwoCalled.Should().NotBeInvoked();
+            this.context.SyncReceiverTwoCalled.Should().NotBeInvoked();
 
-            Assert.AreEqual(1, this.context.AsyncReceiverThreeCalled);
-            Assert.AreEqual(1, this.context.SyncReceiverThreeCalled);
+            this.context.AsyncReceiverThreeCalled.Should().BeInvokedOnce();
+            this.context.SyncReceiverThreeCalled.Should().BeInvokedOnce();
         }
 
         public class HandlerRegistrySimulator : HandlerRegistry
