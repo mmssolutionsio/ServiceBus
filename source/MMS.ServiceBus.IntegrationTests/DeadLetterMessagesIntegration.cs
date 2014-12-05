@@ -6,8 +6,10 @@
 
 namespace MMS.ServiceBus
 {
+    using System;
     using System.Collections.Generic;
     using System.IO;
+    using System.Linq;
     using System.Threading.Tasks;
     using FluentAssertions;
     using Microsoft.ServiceBus;
@@ -54,10 +56,12 @@ namespace MMS.ServiceBus
 
             MessageReceiver deadLetterReceiver = await this.messagingFactory.CreateMessageReceiverAsync(QueueClient.FormatDeadLetterPath(ReceiverEndpointName), ReceiveMode.ReceiveAndDelete);
             IEnumerable<BrokeredMessage> deadLetteredMessages = await deadLetterReceiver.ReceiveBatchAsync(10);
-            
-            deadLetteredMessages.Should()
-                .HaveCount(1)
-                .And.ContainSingle(x => x.Properties.ContainsKey(HeaderKeys.DeadLetterDescription) && x.Properties.ContainsKey(HeaderKeys.DeadLetterReason));
+
+            // That's not really a good assertion here. But how far should I compare exception, stacktrace etc.
+            deadLetteredMessages.Should().HaveCount(1);
+            deadLetteredMessages.Single()
+                .Properties.Where(p => p.Key.StartsWith(HeaderKeys.FailurePrefix, StringComparison.InvariantCultureIgnoreCase))
+                .Should().HaveCount(8);
         }
 
         [TearDown]

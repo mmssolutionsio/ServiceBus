@@ -20,8 +20,16 @@ namespace MMS.ServiceBus
 
         public const string MessageIntent = "MMS.ServiceBus.MessageIntent";
 
-        public const string DeadLetterReason = "MMS.ServiceBus.DeadLetterReason";
+        public const string FailurePrefix = "MMS.ServiceBus.Failure.";
 
-        public const string DeadLetterDescription = "MMS.ServiceBus.DeadLetterDescription";
+        public const string DeadLetterReason = FailurePrefix + "Reason";
+        public const string ExceptionReason = FailurePrefix + "Exception.Reason";
+        public const string ExceptionType = FailurePrefix + "Exception.ExceptionType";
+        public const string InnerExceptionType = FailurePrefix + "Exception.InnerExceptionType";
+        public const string ExceptionHelpLink = FailurePrefix + "Exception.HelpLink";
+        public const string ExceptionMessage = FailurePrefix + "Exception.Message";
+        public const string ExceptionSource = FailurePrefix + "Exception.Source";
+        public const string ExceptionStacktrace = FailurePrefix + "Exception.StackTrace";
+        public const string TimeOfFailure = FailurePrefix + "TimeOfFailure";
     }
 }

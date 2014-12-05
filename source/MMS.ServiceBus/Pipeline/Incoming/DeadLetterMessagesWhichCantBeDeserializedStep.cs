@@ -30,10 +30,7 @@ namespace MMS.ServiceBus.Pipeline.Incoming
             {
                 var message = context.TransportMessage;
 
-// ReSharper disable PossibleNullReferenceException
-                message.Headers[HeaderKeys.DeadLetterReason] = serializationException.Message;
-// ReSharper restore PossibleNullReferenceException
-                message.Headers[HeaderKeys.DeadLetterDescription] = "Messages which can't be deserialized are deadlettered immediately";
+                message.SetFailureHeaders(serializationException, "Messages which can't be deserialized are deadlettered immediately");
 
                 await message.DeadLetterAsync()
                     .ConfigureAwait(false);

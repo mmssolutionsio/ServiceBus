@@ -147,7 +147,7 @@ namespace MMS.ServiceBus
 
         public Task DeadLetterAsync()
         {
-            var deadLetterHeaders = this.Headers.Where(x => x.Key.StartsWith("MMS.ServiceBus.DeadLetter", StringComparison.InvariantCultureIgnoreCase))
+            var deadLetterHeaders = this.Headers.Where(x => x.Key.StartsWith(HeaderKeys.FailurePrefix, StringComparison.InvariantCultureIgnoreCase))
                 .Select(x => x)
                 .ToDictionary(x => x.Key, x => (object)x.Value);
 
