@@ -62,7 +62,7 @@ namespace MMS.ServiceBus.Testing
 
         private async Task Outgoing(TransportMessage message)
         {
-            var address = Address.Parse(message.Headers[AcceptanceTestHeaders.Destination]);
+            var address = message.Headers[AcceptanceTestHeaders.Destination].Parse();
 
             IList<MessageUnit> destinations;
             if (!this.units.TryGetValue(address, out destinations))

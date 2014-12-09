@@ -54,17 +54,17 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Address.cs" />
-    <Compile Include="AsyncClosable.cs" />
     <Compile Include="Bus.cs" />
     <Compile Include="CombGuid.cs" />
     <Compile Include="DeliveryOptions.cs" />
+    <Compile Include="Dequeuing\AsyncClosable.cs" />
     <Compile Include="Dequeuing\DequeueStrategy.cs" />
+    <Compile Include="Dequeuing\MessageReceiverEndpointConfigurationReadonlyExtensions.cs" />
     <Compile Include="Dequeuing\IDequeueStrategy.cs" />
     <Compile Include="Dequeuing\IReceiveMessages.cs" />
     <Compile Include="Dequeuing\MessageReceiverReceiver.cs" />
     <Compile Include="Dequeuing\ReceiveResourceManager.cs" />
     <Compile Include="EndpointConfiguration.cs" />
-    <Compile Include="EndpointConfigurationReadonlyExtensions.cs" />
     <Compile Include="HeaderKeys.cs" />
     <Compile Include="IBus.cs" />
     <Compile Include="IHandleMessage.cs" />
@@ -106,14 +106,14 @@
     <Compile Include="Pipeline\Outgoing\IPublishMessages.cs" />
     <Compile Include="Pipeline\Outgoing\ISendMessages.cs" />
     <Compile Include="Pipeline\Outgoing\MessagePublisher.cs" />
+    <Compile Include="Pipeline\Outgoing\MessagePublisherPublishOptionsExtensions.cs" />
     <Compile Include="Pipeline\Outgoing\MessageSender.cs" />
+    <Compile Include="Pipeline\Outgoing\MessageSenderSendOptionsExtensions.cs" />
     <Compile Include="Pipeline\Outgoing\OutgoingLogicalContext.cs" />
     <Compile Include="Pipeline\Outgoing\OutgoingPipeline.cs" />
     <Compile Include="Pipeline\Outgoing\OutgoingPipelineFactory.cs" />
     <Compile Include="Pipeline\Outgoing\OutgoingTransportContext.cs" />
     <Compile Include="Pipeline\Outgoing\SerializeMessageStep.cs" />
-    <Compile Include="Pipeline\PublishOptionsExtensions.cs" />
-    <Compile Include="Pipeline\SendOptionsExtensions.cs" />
     <Compile Include="Pipeline\SnapshotRegion.cs" />
     <Compile Include="Pipeline\SyncAsAsyncHandlerDecorator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -123,6 +123,7 @@
     <Compile Include="ReplyOptions.cs" />
     <Compile Include="SendOptions.cs" />
     <Compile Include="SendResourceManager.cs" />
+    <Compile Include="StringToAddressExtensions.cs" />
     <Compile Include="Topic.cs" />
     <Compile Include="TransportMessage.cs" />
   </ItemGroup>

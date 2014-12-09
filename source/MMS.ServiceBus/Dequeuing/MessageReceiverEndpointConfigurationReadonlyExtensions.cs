@@ -1,14 +1,14 @@
 //-------------------------------------------------------------------------------
-// <copyright file="EndpointConfigurationReadonlyExtensions.cs" company="MMS AG">
+// <copyright file="MessageReceiverEndpointConfigurationReadonlyExtensions.cs" company="MMS AG">
 //   Copyright (c) MMS AG, 2008-2015
 // </copyright>
 //-------------------------------------------------------------------------------
 
-namespace MMS.ServiceBus
+namespace MMS.ServiceBus.Dequeuing
 {
     using Microsoft.ServiceBus.Messaging;
 
-    internal static class EndpointConfigurationReadonlyExtensions
+    internal static class MessageReceiverEndpointConfigurationReadonlyExtensions
     {
         public static MessageReceiver Configure(this EndpointConfiguration.ReadOnly configuration, MessageReceiver receiver)
         {

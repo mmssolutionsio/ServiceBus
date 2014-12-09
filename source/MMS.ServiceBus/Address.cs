@@ -24,23 +24,6 @@ namespace MMS.ServiceBus
             get { return this.address.Replace(this.schema, string.Empty); }
         }
 
-        public static Address Parse(string address)
-        {
-            Queue queue;
-            if (Queue.TryParse(address, out queue))
-            {
-                return queue;
-            }
-
-            Topic topic;
-            if (Topic.TryParse(address, out topic))
-            {
-                return topic;
-            }
-
-            return null;
-        }
-
         public static bool operator ==(Address left, Address right)
         {
             return object.Equals(left, right);

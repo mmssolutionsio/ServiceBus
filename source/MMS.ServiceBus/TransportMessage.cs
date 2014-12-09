@@ -96,7 +96,7 @@ namespace MMS.ServiceBus
 
         public Queue ReplyTo
         {
-            get { return (Queue)Address.Parse(this.Headers[HeaderKeys.ReplyTo]); }
+            get { return (Queue)this.Headers[HeaderKeys.ReplyTo].Parse(); }
             set { this.Headers[HeaderKeys.ReplyTo] = value.ToString(); }
         }
 
