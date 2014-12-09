@@ -10,9 +10,9 @@ namespace MMS.ServiceBus.Pipeline.Incoming
 
     public class IncomingPipelineFactory : IIncomingPipelineFactory
     {
-        private readonly HandlerRegistry registry;
+        private readonly IHandlerRegistry registry;
 
-        public IncomingPipelineFactory(HandlerRegistry registry)
+        public IncomingPipelineFactory(IHandlerRegistry registry)
         {
             this.registry = registry;
         }

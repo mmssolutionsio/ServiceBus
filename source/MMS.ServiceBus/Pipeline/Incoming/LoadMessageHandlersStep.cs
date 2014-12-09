@@ -11,9 +11,9 @@ namespace MMS.ServiceBus.Pipeline.Incoming
 
     public class LoadMessageHandlersStep : IIncomingLogicalStep
     {
-        private readonly HandlerRegistry registry;
+        private readonly IHandlerRegistry registry;
 
-        public LoadMessageHandlersStep(HandlerRegistry registry)
+        public LoadMessageHandlersStep(IHandlerRegistry registry)
         {
             this.registry = registry;
         }

@@ -28,7 +28,7 @@ namespace MMS.ServiceBus.Testing
 
         private Bus unit;
 
-        protected HandlerRegistry registry;
+        protected IHandlerRegistry registry;
 
         protected IMessageRouter router;
 
@@ -202,11 +202,11 @@ namespace MMS.ServiceBus.Testing
 
         private class UnitIncomingPipelineFactory : IIncomingPipelineFactory
         {
-            private readonly HandlerRegistry registry;
+            private readonly IHandlerRegistry registry;
 
             private readonly ICollection<LogicalMessage> incoming;
 
-            public UnitIncomingPipelineFactory(HandlerRegistry registry, ICollection<LogicalMessage> incoming)
+            public UnitIncomingPipelineFactory(IHandlerRegistry registry, ICollection<LogicalMessage> incoming)
             {
                 this.incoming = incoming;
                 this.registry = registry;

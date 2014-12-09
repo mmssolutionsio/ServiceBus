@@ -20,7 +20,7 @@ namespace MMS.ServiceBus
 
         private Bus unit;
 
-        protected HandlerRegistry registry;
+        protected IHandlerRegistry registry;
 
         protected IMessageRouter router;
 
@@ -31,7 +31,7 @@ namespace MMS.ServiceBus
             this.configuration = configuration;
         }
 
-        public MessageUnit Use(HandlerRegistry registry)
+        public MessageUnit Use(IHandlerRegistry registry)
         {
             this.registry = registry;
             return this;
