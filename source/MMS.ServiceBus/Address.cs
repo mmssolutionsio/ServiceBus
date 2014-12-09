@@ -11,16 +11,34 @@ namespace MMS.ServiceBus
     public class Address : IEquatable<Address>
     {
         private readonly string address;
+        private readonly string schema;
 
-        protected Address(string address)
+        protected Address(string address, string schema)
         {
+            this.schema = schema;
             this.address = address;
         }
 
-        // Currently hard coded to queues
+        public string Destination
+        {
+            get { return this.address.Replace(this.schema, string.Empty); }
+        }
+
         public static Address Parse(string address)
         {
-            return new Queue(address);
+            Queue queue;
+            if (Queue.TryParse(address, out queue))
+            {
+                return queue;
+            }
+
+            Topic topic;
+            if (Topic.TryParse(address, out topic))
+            {
+                return topic;
+            }
+
+            return null;
         }
 
         public static bool operator ==(Address left, Address right)
@@ -31,11 +49,6 @@ namespace MMS.ServiceBus
         public static bool operator !=(Address left, Address right)
         {
             return !object.Equals(left, right);
-        }
-
-        public static implicit operator string(Address @from)
-        {
-            return @from.address;
         }
 
         public bool Equals(Address other)

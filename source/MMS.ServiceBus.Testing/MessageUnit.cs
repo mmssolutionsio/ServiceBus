@@ -188,7 +188,7 @@ namespace MMS.ServiceBus.Testing
             public OutgoingPipeline Create()
             {
                 var pipeline = new OutgoingPipeline();
-                var senderStep = new DispatchToTransportStep(new MessageSenderSimulator(this.onMessage), new MessagePublisher(null));
+                var senderStep = new DispatchToTransportStep(new MessageSenderSimulator(this.onMessage), new MessagePublisherSimulator(this.onMessage));
 
                 pipeline.Logical
                     .Register(new CreateTransportMessageStep())
@@ -243,6 +243,24 @@ namespace MMS.ServiceBus.Testing
             }
 
             public Task SendAsync(TransportMessage message, SendOptions options)
+            {
+                var brokeredMessage = message.ToBrokeredMessage();
+                var transportMessage = new TransportMessage(brokeredMessage);
+
+                return this.onMessage(transportMessage);
+            }
+        }
+
+        private class MessagePublisherSimulator : IPublishMessages
+        {
+            private readonly Func<TransportMessage, Task> onMessage;
+
+            public MessagePublisherSimulator(Func<TransportMessage, Task> onMessage)
+            {
+                this.onMessage = onMessage;
+            }
+
+            public Task PublishAsync(TransportMessage message, PublishOptions options)
             {
                 var brokeredMessage = message.ToBrokeredMessage();
                 var transportMessage = new TransportMessage(brokeredMessage);

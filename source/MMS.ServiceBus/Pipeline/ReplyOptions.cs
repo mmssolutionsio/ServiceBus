@@ -23,7 +23,7 @@ namespace MMS.ServiceBus.Pipeline
             }
 
             this.CorrelationId = correlationId;
-            this.Destination = destination;
+            this.Queue = destination;
         }
     }
 }

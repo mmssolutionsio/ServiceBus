@@ -58,7 +58,7 @@ namespace MMS.ServiceBus
 
             this.sender = new MessageUnit(new EndpointConfiguration().Endpoint(SenderEndpointName).Concurrency(1))
                 .Use(MessagingFactory.Create())
-                .Use(new AlwaysRouteToDestination(new Queue(ReceiverEndpointName)))
+                .Use(new AlwaysRouteToDestination(Queue.Create(ReceiverEndpointName)))
                 .Use(this.registry);
 
             this.receiver = new MessageUnit(new EndpointConfiguration().Endpoint(ReceiverEndpointName).Concurrency(1))

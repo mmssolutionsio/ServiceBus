@@ -36,7 +36,7 @@ namespace MMS.ServiceBus
 
             this.broker = new Broker();
             this.sender = new MessageUnit(new EndpointConfiguration().Endpoint("Publisher").Concurrency(1))
-                .Use(new AlwaysRouteToDestination(new Topic("Subscriber")));
+                .Use(new AlwaysRouteToDestination(Topic.Create("Subscriber")));
             this.receiver = new MessageUnit(new EndpointConfiguration().Endpoint("Subscriber")
                 .Concurrency(1)).Use(this.registry);
 
@@ -104,7 +104,7 @@ namespace MMS.ServiceBus
             {
                 if (messageType == typeof(Event))
                 {
-                    return new ReadOnlyCollection<Address>(new List<Address> { new Topic(typeof(Event).FullName) });
+                    return new ReadOnlyCollection<Address>(new List<Address> { Topic.Create(typeof(Event).FullName) });
                 }
 
                 return this.fallback.GetDestinationFor(messageType);

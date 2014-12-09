@@ -20,5 +20,10 @@ namespace MMS.ServiceBus
         {
             return new OnMessageOptions { AutoComplete = true, MaxConcurrentCalls = configuration.MaxConcurrency };
         }
+
+        public static string DestinationQueue(this EndpointConfiguration.ReadOnly configuration)
+        {
+            return configuration.EndpointQueue.Destination;
+        }
     }
 }

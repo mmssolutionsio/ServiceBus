@@ -26,7 +26,7 @@ namespace MMS.ServiceBus.Pipeline.Outgoing
             if (ShouldDetermineSendDestination(sendOptions))
             {
 // ReSharper disable PossibleNullReferenceException
-                sendOptions.Destination = this.GetDestinationForSend(context.LogicalMessage.Instance);
+                sendOptions.Queue = this.GetDestinationForSend(context.LogicalMessage.Instance);
 // ReSharper restore PossibleNullReferenceException
             }
 
@@ -34,7 +34,7 @@ namespace MMS.ServiceBus.Pipeline.Outgoing
             if (ShouldDeterminePublishDestination(publishOptions))
             {
 // ReSharper disable PossibleNullReferenceException
-                publishOptions.Destination = this.GetDestinationForPublish(context.LogicalMessage.Instance);
+                publishOptions.Topic = this.GetDestinationForPublish(context.LogicalMessage.Instance);
 // ReSharper restore PossibleNullReferenceException
             }
 
@@ -43,12 +43,12 @@ namespace MMS.ServiceBus.Pipeline.Outgoing
 
         private static bool ShouldDeterminePublishDestination(PublishOptions publishOptions)
         {
-            return publishOptions != null && publishOptions.Destination == null;
+            return publishOptions != null && publishOptions.Topic == null;
         }
 
         private static bool ShouldDetermineSendDestination(SendOptions sendOptions)
         {
-            return sendOptions != null && sendOptions.Destination == null;
+            return sendOptions != null && sendOptions.Queue == null;
         }
 
         private Queue GetDestinationForSend(object message)

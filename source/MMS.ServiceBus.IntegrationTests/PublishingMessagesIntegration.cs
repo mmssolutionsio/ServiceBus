@@ -23,7 +23,7 @@ namespace MMS.ServiceBus
     {
         private const string PublisherEndpointName = "Publisher";
         private const string SubscriberEndpointName = "Subscriber";
-        private const string Topic = "MMS.ServiceBus.PublishingMessagesIntegration.Event";
+        private const string EventTopic = "MMS.ServiceBus.PublishingMessagesIntegration.Event";
         private const string SubscriptionName = "subscriber";
 
         private Context context;
@@ -42,7 +42,7 @@ namespace MMS.ServiceBus
 
             this.sender = new MessageUnit(new EndpointConfiguration().Endpoint(PublisherEndpointName).Concurrency(1))
                 .Use(MessagingFactory.Create())
-                .Use(new AlwaysRouteToDestination(new Topic(Topic)))
+                .Use(new AlwaysRouteToDestination(Topic.Create(EventTopic)))
                 .Use(this.registry);
 
             this.receiver = new MessageUnit(new EndpointConfiguration().Endpoint(SubscriberEndpointName).Concurrency(1))
@@ -104,20 +104,20 @@ namespace MMS.ServiceBus
 
             manager.CreateQueue(SubscriberEndpointName);
 
-            if (manager.TopicExists(Topic))
+            if (manager.TopicExists(EventTopic))
             {
-                manager.DeleteTopic(Topic);
+                manager.DeleteTopic(EventTopic);
             }
 
-            manager.CreateTopic(Topic);
+            manager.CreateTopic(EventTopic);
 
-            if (manager.SubscriptionExists(Topic, SubscriptionName))
+            if (manager.SubscriptionExists(EventTopic, SubscriptionName))
             {
-                manager.DeleteSubscription(Topic, SubscriptionName);
+                manager.DeleteSubscription(EventTopic, SubscriptionName);
             }
 
             manager.CreateSubscription(new SubscriptionDescription(
-                Topic, SubscriptionName)
+                EventTopic, SubscriptionName)
             {
                 ForwardTo = SubscriberEndpointName
             });

@@ -97,7 +97,7 @@ namespace MMS.ServiceBus
         public Queue ReplyTo
         {
             get { return (Queue)Address.Parse(this.Headers[HeaderKeys.ReplyTo]); }
-            set { this.Headers[HeaderKeys.ReplyTo] = value; }
+            set { this.Headers[HeaderKeys.ReplyTo] = value.ToString(); }
         }
 
         public IDictionary<string, string> Headers { get; private set; }
@@ -124,7 +124,7 @@ namespace MMS.ServiceBus
                 ContentType = this.MessageType,
                 MessageId = this.Id,
                 CorrelationId = this.CorrelationId,
-                ReplyTo = this.ReplyTo,
+                ReplyTo = this.ReplyTo != null ? this.ReplyTo.ToString() : null,
             };
 
             foreach (KeyValuePair<string, string> pair in this.Headers)

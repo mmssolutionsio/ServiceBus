@@ -13,7 +13,7 @@ namespace MMS.ServiceBus
     {
         public virtual IReadOnlyCollection<Address> GetDestinationFor(Type messageType)
         {
-            return new[] { new Queue("NachrichtenEmpfangen") };
+            return new[] { Queue.Create("NachrichtenEmpfangen") };
         }
     }
 }

@@ -37,11 +37,11 @@ namespace MMS.ServiceBus
 
             this.broker = new Broker();
             this.sender = new MessageUnit(new EndpointConfiguration().Endpoint(SenderEndpointName).Concurrency(1))
-                .Use(new AlwaysRouteToDestination(new Queue(ReceiverEndpointName)))
+                .Use(new AlwaysRouteToDestination(Queue.Create(ReceiverEndpointName)))
                 .Use(this.registry);
 
             this.receiver = new MessageUnit(new EndpointConfiguration().Endpoint(ReceiverEndpointName).Concurrency(1))
-                .Use(new AlwaysRouteToDestination(new Queue(SenderEndpointName)))
+                .Use(new AlwaysRouteToDestination(Queue.Create(SenderEndpointName)))
                 .Use(this.registry);
 
             this.broker.Register(this.sender)

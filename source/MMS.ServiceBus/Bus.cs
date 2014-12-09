@@ -85,7 +85,7 @@ namespace MMS.ServiceBus
 
         private Task SendLocal(object message, TransportMessage incoming)
         {
-            return this.Send(message, new SendOptions { Destination = this.readOnlyConfiguration.EndpointQueue }, incoming);
+            return this.Send(message, new SendOptions { Queue = this.readOnlyConfiguration.EndpointQueue }, incoming);
         }
 
         private Task Send(object message, SendOptions options, TransportMessage incoming)

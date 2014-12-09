@@ -77,12 +77,12 @@ namespace MMS.ServiceBus
             {
                 if (messageType == typeof(MessageForReceiverOne))
                 {
-                    return new ReadOnlyCollection<Address>(new List<Address> { new Queue(ReceiverOneEndpointName) });
+                    return new ReadOnlyCollection<Address>(new List<Address> { Queue.Create(ReceiverOneEndpointName) });
                 }
 
                 if (messageType == typeof(MessageForReceiverTwo))
                 {
-                    return new ReadOnlyCollection<Address>(new List<Address> { new Queue(ReceiverTwoEndpointName) });
+                    return new ReadOnlyCollection<Address>(new List<Address> { Queue.Create(ReceiverTwoEndpointName) });
                 }
 
                 return new ReadOnlyCollection<Address>(new List<Address>());
@@ -104,7 +104,7 @@ namespace MMS.ServiceBus
         [Test]
         public async Task WhenSendingMessages_WithSpecificSendDestination_MessagesAreRoutedByUserInput()
         {
-            var sendOptions = new SendOptions { Destination = new Queue(ReceiverThreeEndpointName) };
+            var sendOptions = new SendOptions { Queue = Queue.Create(ReceiverThreeEndpointName) };
 
             await this.sender.Send(new MessageForReceiverThree { Bar = 42 }, sendOptions);
 

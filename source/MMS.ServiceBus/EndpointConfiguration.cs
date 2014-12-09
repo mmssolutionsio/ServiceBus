@@ -25,7 +25,7 @@ namespace MMS.ServiceBus
 
         public EndpointConfiguration Endpoint(string endpointName)
         {
-            this.EndpointQueue = new Queue(endpointName);
+            this.EndpointQueue = Queue.Create(endpointName);
             return this;
         }
 
