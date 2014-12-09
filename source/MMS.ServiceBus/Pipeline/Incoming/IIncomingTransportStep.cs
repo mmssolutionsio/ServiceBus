@@ -11,6 +11,6 @@ namespace MMS.ServiceBus.Pipeline.Incoming
 
     public interface IIncomingTransportStep
     {
-        Task Invoke(IncomingTransportContext context, IBus bus, Func<Task> next);
+        Task Invoke(IncomingTransportContext context, IBusForHandler bus, Func<Task> next);
     }
 }

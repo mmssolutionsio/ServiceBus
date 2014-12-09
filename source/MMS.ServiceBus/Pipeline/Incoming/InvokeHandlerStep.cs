@@ -11,7 +11,7 @@ namespace MMS.ServiceBus.Pipeline.Incoming
 
     public class InvokeHandlerStep : IIncomingLogicalStep
     {
-        public async Task Invoke(IncomingLogicalContext context, IBus bus, Func<Task> next)
+        public async Task Invoke(IncomingLogicalContext context, IBusForHandler bus, Func<Task> next)
         {
             var messageHandler = context.Handler;
 

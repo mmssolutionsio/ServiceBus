@@ -66,21 +66,6 @@ namespace MMS.ServiceBus
             return this.Publish(message, options, incoming: null);
         }
 
-        public Task Reply(object message)
-        {
-            throw new InvalidOperationException("You can only reply in a handler context!");
-        }
-
-        public IDictionary<string, string> Headers(object message)
-        {
-            throw new InvalidOperationException("You can only read headers in a handler context!");
-        }
-
-        public void DoNotContinueDispatchingCurrentMessageToHandlers()
-        {
-            throw new InvalidOperationException("You can only abort the pipeline in a handler context!");
-        }
-
         public async Task StopAsync()
         {
             await this.strategy.StopAsync();
@@ -137,7 +122,7 @@ namespace MMS.ServiceBus
             return incomingPipeline.Invoke(new IncomingBusDecorator(this, incomingPipeline, message), message, this.readOnlyConfiguration);
         }
 
-        private class IncomingBusDecorator : IBus
+        private class IncomingBusDecorator : IBusForHandler
         {
             private readonly Bus bus;
 

@@ -11,15 +11,14 @@ namespace MMS.ServiceBus.Pipeline
     using System.Collections.ObjectModel;
     using System.Threading.Tasks;
 
-    public class HandlerRegistry
+    public class HandlerRegistry : IHandlerRegistry
     {
-        // TODO: Strong typing?
         public virtual IReadOnlyCollection<object> GetHandlers(Type messageType)
         {
             return new ReadOnlyCollection<object>(new List<object>());
         }
 
-        public virtual Task InvokeHandle(object handler, object message, IBus bus)
+        public virtual Task InvokeHandle(object handler, object message, IBusForHandler bus)
         {
             dynamic h = handler;
             dynamic m = message;

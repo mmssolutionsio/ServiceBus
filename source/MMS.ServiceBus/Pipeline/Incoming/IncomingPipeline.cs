@@ -85,7 +85,7 @@ namespace MMS.ServiceBus.Pipeline.Incoming
             this.executingTransportPipeline = this.snapshotTransport.Pop();
         }
 
-        public async Task Invoke(IBus bus, TransportMessage message, EndpointConfiguration.ReadOnly configuration)
+        public async Task Invoke(IBusForHandler bus, TransportMessage message, EndpointConfiguration.ReadOnly configuration)
         {
             this.executingTransportPipeline = new Queue<IIncomingTransportStep>(this.registeredTransportPipeline);
             var transportContext = new IncomingTransportContext(message, configuration);
@@ -109,7 +109,7 @@ namespace MMS.ServiceBus.Pipeline.Incoming
             this.currentContext.AbortHandlerInvocation();
         }
 
-        private Task InvokeLogical(IncomingLogicalContext context, IBus bus)
+        private Task InvokeLogical(IncomingLogicalContext context, IBusForHandler bus)
         {
             if (this.executingLogicalPipeline.Count == 0)
             {
@@ -121,7 +121,7 @@ namespace MMS.ServiceBus.Pipeline.Incoming
             return step.Invoke(context, bus, () => this.InvokeLogical(context, bus));
         }
 
-        private Task InvokeTransport(IncomingTransportContext context, IBus bus)
+        private Task InvokeTransport(IncomingTransportContext context, IBusForHandler bus)
         {
             if (this.executingTransportPipeline.Count == 0)
             {
@@ -142,7 +142,7 @@ namespace MMS.ServiceBus.Pipeline.Incoming
                 this.factory = factory;
             }
 
-            public Task Invoke(IncomingLogicalContext context, IBus bus, Func<Task> next)
+            public Task Invoke(IncomingLogicalContext context, IBusForHandler bus, Func<Task> next)
             {
                 var step = this.factory();
 
@@ -159,7 +159,7 @@ namespace MMS.ServiceBus.Pipeline.Incoming
                 this.factory = factory;
             }
 
-            public Task Invoke(IncomingTransportContext context, IBus bus, Func<Task> next)
+            public Task Invoke(IncomingTransportContext context, IBusForHandler bus, Func<Task> next)
             {
                 var step = this.factory();
 

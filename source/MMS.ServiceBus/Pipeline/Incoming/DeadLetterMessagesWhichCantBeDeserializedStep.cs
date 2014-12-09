@@ -13,7 +13,7 @@ namespace MMS.ServiceBus.Pipeline.Incoming
 
     public class DeadLetterMessagesWhichCantBeDeserializedStep : IIncomingTransportStep
     {
-        public async Task Invoke(IncomingTransportContext context, IBus bus, Func<Task> next)
+        public async Task Invoke(IncomingTransportContext context, IBusForHandler bus, Func<Task> next)
         {
             ExceptionDispatchInfo serializationException = null;
             try

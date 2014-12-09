@@ -78,21 +78,6 @@ namespace MMS.ServiceBus
             return this.unit.Publish(message, options);
         }
 
-        public Task Reply(object message)
-        {
-            return this.unit.Reply(message);
-        }
-
-        public IDictionary<string, string> Headers(object message)
-        {
-            return this.unit.Headers(message);
-        }
-
-        public void DoNotContinueDispatchingCurrentMessageToHandlers()
-        {
-            this.unit.DoNotContinueDispatchingCurrentMessageToHandlers();
-        }
-
         protected virtual IIncomingPipelineFactory CreateIncomingPipelineFactory()
         {
             return new IncomingPipelineFactory(this.registry);

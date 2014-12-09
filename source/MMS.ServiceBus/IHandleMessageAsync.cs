@@ -10,6 +10,6 @@ namespace MMS.ServiceBus
 
     public interface IHandleMessageAsync<in TMessage>
     {
-        Task Handle(TMessage message, IBus bus);
+        Task Handle(TMessage message, IBusForHandler bus);
     }
 }

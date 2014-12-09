@@ -175,7 +175,7 @@ namespace MMS.ServiceBus
                 this.context = context;
             }
 
-            public Task Handle(MessageForReceiverOne message, IBus bus)
+            public Task Handle(MessageForReceiverOne message, IBusForHandler bus)
             {
                 this.context.AsyncReceiverOneCalled += 1;
                 return Task.FromResult(0);
@@ -191,7 +191,7 @@ namespace MMS.ServiceBus
                 this.context = context;
             }
 
-            public void Handle(MessageForReceiverOne message, IBus bus)
+            public void Handle(MessageForReceiverOne message, IBusForHandler bus)
             {
                 this.context.SyncReceiverOneCalled += 1;
             }
@@ -206,7 +206,7 @@ namespace MMS.ServiceBus
                 this.context = context;
             }
 
-            public Task Handle(MessageForReceiverTwo message, IBus bus)
+            public Task Handle(MessageForReceiverTwo message, IBusForHandler bus)
             {
                 this.context.AsyncReceiverTwoCalled += 1;
                 return Task.FromResult(0);
@@ -222,7 +222,7 @@ namespace MMS.ServiceBus
                 this.context = context;
             }
 
-            public void Handle(MessageForReceiverTwo message, IBus bus)
+            public void Handle(MessageForReceiverTwo message, IBusForHandler bus)
             {
                 this.context.SyncReceiverTwoCalled += 1;
             }
@@ -237,7 +237,7 @@ namespace MMS.ServiceBus
                 this.context = context;
             }
 
-            public Task Handle(MessageForReceiverThree message, IBus bus)
+            public Task Handle(MessageForReceiverThree message, IBusForHandler bus)
             {
                 this.context.AsyncReceiverThreeCalled += 1;
                 return Task.FromResult(0);
@@ -253,7 +253,7 @@ namespace MMS.ServiceBus
                 this.context = context;
             }
 
-            public void Handle(MessageForReceiverThree message, IBus bus)
+            public void Handle(MessageForReceiverThree message, IBusForHandler bus)
             {
                 this.context.SyncReceiverThreeCalled += 1;
             }

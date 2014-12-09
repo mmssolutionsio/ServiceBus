@@ -142,21 +142,6 @@ namespace MMS.ServiceBus.Testing
             return this.unit.Publish(message, options);
         }
 
-        public Task Reply(object message)
-        {
-            return this.unit.Reply(message);
-        }
-
-        public IDictionary<string, string> Headers(object message)
-        {
-            return this.unit.Headers(message);
-        }
-
-        public void DoNotContinueDispatchingCurrentMessageToHandlers()
-        {
-            this.unit.DoNotContinueDispatchingCurrentMessageToHandlers();
-        }
-
         protected virtual IIncomingPipelineFactory CreateIncomingPipelineFactory()
         {
             return new UnitIncomingPipelineFactory(this.registry, this.IncomingLogical);
@@ -324,7 +309,7 @@ namespace MMS.ServiceBus.Testing
                 this.collector = collector;
             }
 
-            public Task Invoke(IncomingLogicalContext context, IBus bus, Func<Task> next)
+            public Task Invoke(IncomingLogicalContext context, IBusForHandler bus, Func<Task> next)
             {
                 this.collector.Add(context.LogicalMessage);
                 return next();

@@ -18,7 +18,7 @@ namespace MMS.ServiceBus.Pipeline.Incoming
             this.registry = registry;
         }
 
-        public async Task Invoke(IncomingLogicalContext context, IBus bus, Func<Task> next)
+        public async Task Invoke(IncomingLogicalContext context, IBusForHandler bus, Func<Task> next)
         {
             var messageType = context.LogicalMessage.Instance.GetType();
 

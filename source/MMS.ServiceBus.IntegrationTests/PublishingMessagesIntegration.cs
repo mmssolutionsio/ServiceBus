@@ -156,7 +156,7 @@ namespace MMS.ServiceBus
                 this.context = context;
             }
 
-            public Task Handle(Event message, IBus bus)
+            public Task Handle(Event message, IBusForHandler bus)
             {
                 this.context.AsyncHandlerCalled();
                 return Task.FromResult(0);
@@ -172,7 +172,7 @@ namespace MMS.ServiceBus
                 this.context = context;
             }
 
-            public void Handle(Event message, IBus bus)
+            public void Handle(Event message, IBusForHandler bus)
             {
                 this.context.HandlerCalled();
             }

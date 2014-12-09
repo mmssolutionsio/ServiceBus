@@ -139,7 +139,7 @@ namespace MMS.ServiceBus
                 this.context = context;
             }
 
-            public Task Handle(Message message, IBus bus)
+            public Task Handle(Message message, IBusForHandler bus)
             {
                 this.context.AsyncHandlerCalled += 1;
                 this.context.AsyncHandlerCaughtHeaders = bus.Headers(message);
@@ -156,7 +156,7 @@ namespace MMS.ServiceBus
                 this.context = context;
             }
 
-            public void Handle(Message message, IBus bus)
+            public void Handle(Message message, IBusForHandler bus)
             {
                 this.context.HandlerCalled += 1;
                 this.context.HandlerCaughtHeaders = bus.Headers(message);

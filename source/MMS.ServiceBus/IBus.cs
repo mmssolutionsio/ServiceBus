@@ -6,9 +6,7 @@
 
 namespace MMS.ServiceBus
 {
-    using System.Collections.Generic;
     using System.Threading.Tasks;
-    using Pipeline;
 
     public interface IBus
     {
@@ -21,11 +19,5 @@ namespace MMS.ServiceBus
         Task Send(object message, SendOptions options = null);
 
         Task Publish(object message, PublishOptions options = null);
-
-        Task Reply(object message);
-
-        IDictionary<string, string> Headers(object message); 
-
-        void DoNotContinueDispatchingCurrentMessageToHandlers();
     }
 }

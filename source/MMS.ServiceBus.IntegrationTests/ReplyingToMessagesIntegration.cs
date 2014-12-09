@@ -147,7 +147,7 @@ namespace MMS.ServiceBus
                 this.context = context;
             }
 
-            public Task Handle(ReplyMessage message, IBus bus)
+            public Task Handle(ReplyMessage message, IBusForHandler bus)
             {
                 this.context.ReplyHandlerCalled();
                 return Task.FromResult(0);
@@ -163,7 +163,7 @@ namespace MMS.ServiceBus
                 this.context = context;
             }
 
-            public async Task Handle(Message message, IBus bus)
+            public async Task Handle(Message message, IBusForHandler bus)
             {
                 this.context.AsyncHandlerCalled();
                 await bus.Reply(new ReplyMessage { Answer = "AsyncMessageHandler" });
@@ -179,7 +179,7 @@ namespace MMS.ServiceBus
                 this.context = context;
             }
 
-            public void Handle(Message message, IBus bus)
+            public void Handle(Message message, IBusForHandler bus)
             {
                 this.context.HandlerCalled();
                 bus.Reply(new ReplyMessage { Answer = "MessageHandler" }).Wait();

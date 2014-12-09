@@ -17,7 +17,7 @@ namespace MMS.ServiceBus.Pipeline
             this.handler = handler;
         }
 
-        public Task Handle(TMessage message, IBus bus)
+        public Task Handle(TMessage message, IBusForHandler bus)
         {
             return Task.Run(() => this.handler.Handle(message, bus));
         }

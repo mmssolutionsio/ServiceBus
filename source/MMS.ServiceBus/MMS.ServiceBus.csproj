@@ -67,12 +67,14 @@
     <Compile Include="EndpointConfiguration.cs" />
     <Compile Include="HeaderKeys.cs" />
     <Compile Include="IBus.cs" />
+    <Compile Include="IBusForHandler.cs" />
     <Compile Include="IHandleMessage.cs" />
     <Compile Include="IHandleMessageAsync.cs" />
     <Compile Include="MessageIntent.cs" />
     <Compile Include="Pipeline\Context.cs" />
     <Compile Include="Pipeline\DataContractMessageSerializer.cs" />
     <Compile Include="Pipeline\HandlerRegistry.cs" />
+    <Compile Include="Pipeline\IHandlerRegistry.cs" />
     <Compile Include="Pipeline\IMessageSerializer.cs" />
     <Compile Include="Pipeline\Incoming\DateTimeExtensions.cs" />
     <Compile Include="Pipeline\Incoming\DeadLetterMessagesWhichCantBeDeserializedStep.cs" />
