@@ -68,6 +68,7 @@
     <Compile Include="NumericAssertionExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PublishingMessages.cs" />
+    <Compile Include="ReplyingToMessages.cs" />
     <Compile Include="RoutingMessages.cs" />
     <Compile Include="DeadLetterMessages.cs" />
     <Compile Include="SendingMessages.cs" />
