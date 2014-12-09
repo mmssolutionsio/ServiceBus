@@ -22,9 +22,11 @@ namespace MMS.ServiceBus.Pipeline
 
         public void Serialize(object message, Stream body)
         {
-            var writer = new JsonTextWriter(new StreamWriter(body));
+            var streamWriter = new StreamWriter(body);
+            var writer = new JsonTextWriter(streamWriter);
             var serializer = new JsonSerializer();
             serializer.Serialize(writer, message);
+            streamWriter.Flush();
 
             body.Flush();
             body.Position = 0;
@@ -32,7 +34,8 @@ namespace MMS.ServiceBus.Pipeline
 
         public object Deserialize(Stream body, Type messageType)
         {
-            var reader = new JsonTextReader(new StreamReader(body));
+            var streamReader = new StreamReader(body);
+            var reader = new JsonTextReader(streamReader);
             var serializer = new JsonSerializer();
             return serializer.Deserialize(reader, messageType);
         }

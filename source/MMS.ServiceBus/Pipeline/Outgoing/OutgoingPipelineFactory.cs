@@ -38,7 +38,7 @@ namespace MMS.ServiceBus.Pipeline.Outgoing
                 .Register(new CreateTransportMessageStep());
 
             pipeline.Transport
-                .Register(new SerializeMessageStep(new DataContractMessageSerializer()))
+                .Register(new SerializeMessageStep(new NewtonsoftJsonMessageSerializer()))
                 .Register(new DetermineDestinationStep(this.router))
                 .Register(new DispatchToTransportStep(this.sender, this.publisher));
 
