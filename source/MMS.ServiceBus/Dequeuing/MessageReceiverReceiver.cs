@@ -4,7 +4,7 @@
 // </copyright>
 //-------------------------------------------------------------------------------
 
-namespace MMS.ServiceBus
+namespace MMS.ServiceBus.Dequeuing
 {
     using System;
     using System.Globalization;

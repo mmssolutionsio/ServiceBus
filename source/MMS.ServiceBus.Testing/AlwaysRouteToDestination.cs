@@ -3,8 +3,9 @@ namespace MMS.ServiceBus.Testing
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
+    using Pipeline.Outgoing;
 
-    public class AlwaysRouteToDestination : MessageRouter
+    public class AlwaysRouteToDestination : IMessageRouter
     {
         private readonly Address destination;
 
@@ -13,7 +14,7 @@ namespace MMS.ServiceBus.Testing
             this.destination = destination;
         }
 
-        public override IReadOnlyCollection<Address> GetDestinationFor(Type messageType)
+        public IReadOnlyCollection<Address> GetDestinationFor(Type messageType)
         {
             var addresses = new List<Address> { this.destination };
             return new ReadOnlyCollection<Address>(addresses);

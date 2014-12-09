@@ -12,11 +12,11 @@ namespace MMS.ServiceBus.Pipeline.Outgoing
     public class OutgoingPipelineFactory : IOutgoingPipelineFactory
     {
         private readonly MessagingFactory factory;
-        private readonly MessageRouter router;
+        private readonly IMessageRouter router;
         private MessageSender sender;
         private MessagePublisher publisher;
 
-        public OutgoingPipelineFactory(MessagingFactory factory, MessageRouter router)
+        public OutgoingPipelineFactory(MessagingFactory factory, IMessageRouter router)
         {
             this.router = router;
             this.factory = factory;

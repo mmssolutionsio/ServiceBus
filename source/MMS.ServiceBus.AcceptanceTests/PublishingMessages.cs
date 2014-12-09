@@ -90,26 +90,6 @@ namespace MMS.ServiceBus
                 .Contain(HeaderKey, HeaderValue);
         }
 
-        public class PublishMessageRouter : MessageRouter
-        {
-            private readonly MessageRouter fallback;
-
-            public PublishMessageRouter(MessageRouter fallback)
-            {
-                this.fallback = fallback;
-            }
-
-            public override IReadOnlyCollection<Address> GetDestinationFor(Type messageType)
-            {
-                if (messageType == typeof(Event))
-                {
-                    return new ReadOnlyCollection<Address>(new List<Address> { Topic.Create(typeof(Event).FullName) });
-                }
-
-                return this.fallback.GetDestinationFor(messageType);
-            }
-        }
-
         public class HandlerRegistrySimulator : HandlerRegistry
         {
             private readonly Context context;

@@ -9,6 +9,7 @@ namespace MMS.ServiceBus
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
+    using Dequeuing;
     using Pipeline;
     using Pipeline.Incoming;
     using Pipeline.Outgoing;

@@ -4,7 +4,7 @@
 // </copyright>
 //-------------------------------------------------------------------------------
 
-namespace MMS.ServiceBus
+namespace MMS.ServiceBus.Pipeline
 {
     using System;
     using System.Collections.Generic;

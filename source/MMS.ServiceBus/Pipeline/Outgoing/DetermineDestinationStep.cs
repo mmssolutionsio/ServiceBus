@@ -13,9 +13,9 @@ namespace MMS.ServiceBus.Pipeline.Outgoing
 
     public class DetermineDestinationStep : IOutgoingTransportStep
     {
-        private readonly MessageRouter router;
+        private readonly IMessageRouter router;
 
-        public DetermineDestinationStep(MessageRouter router)
+        public DetermineDestinationStep(IMessageRouter router)
         {
             this.router = router;
         }

@@ -12,6 +12,7 @@ namespace MMS.ServiceBus
     using System.Threading.Tasks;
     using FluentAssertions;
     using NUnit.Framework;
+    using Pipeline.Outgoing;
     using ServiceBus.Pipeline;
     using ServiceBus.Testing;
 
@@ -71,9 +72,9 @@ namespace MMS.ServiceBus
             this.broker.Stop();
         }
 
-        private class Router : MessageRouter
+        private class Router : IMessageRouter
         {
-            public override IReadOnlyCollection<Address> GetDestinationFor(Type messageType)
+            public IReadOnlyCollection<Address> GetDestinationFor(Type messageType)
             {
                 if (messageType == typeof(MessageForReceiverOne))
                 {

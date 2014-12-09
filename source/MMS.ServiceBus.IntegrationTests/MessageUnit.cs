@@ -8,6 +8,7 @@ namespace MMS.ServiceBus
 {
     using System.Collections.Generic;
     using System.Threading.Tasks;
+    using Dequeuing;
     using Microsoft.ServiceBus.Messaging;
     using Pipeline;
     using Pipeline.Incoming;
@@ -21,7 +22,7 @@ namespace MMS.ServiceBus
 
         protected HandlerRegistry registry;
 
-        protected MessageRouter router;
+        protected IMessageRouter router;
 
         protected MessagingFactory factory;
 
@@ -36,7 +37,7 @@ namespace MMS.ServiceBus
             return this;
         }
 
-        public MessageUnit Use(MessageRouter router)
+        public MessageUnit Use(IMessageRouter router)
         {
             this.router = router;
             return this;

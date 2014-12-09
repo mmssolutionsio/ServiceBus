@@ -1,19 +1,16 @@
 //-------------------------------------------------------------------------------
-// <copyright file="MessageRouter.cs" company="MMS AG">
+// <copyright file="IMessageRouter.cs" company="MMS AG">
 //   Copyright (c) MMS AG, 2008-2015
 // </copyright>
 //-------------------------------------------------------------------------------
 
-namespace MMS.ServiceBus
+namespace MMS.ServiceBus.Pipeline.Outgoing
 {
     using System;
     using System.Collections.Generic;
 
-    public class MessageRouter
+    public interface IMessageRouter
     {
-        public virtual IReadOnlyCollection<Address> GetDestinationFor(Type messageType)
-        {
-            return new[] { Queue.Create("NachrichtenEmpfangen") };
-        }
+        IReadOnlyCollection<Address> GetDestinationFor(Type messageType);
     }
 }

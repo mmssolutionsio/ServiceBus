@@ -9,6 +9,7 @@ namespace MMS.ServiceBus.Testing
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
+    using Dequeuing;
     using Pipeline;
     using Pipeline.Incoming;
     using Pipeline.Outgoing;
@@ -29,7 +30,7 @@ namespace MMS.ServiceBus.Testing
 
         protected HandlerRegistry registry;
 
-        protected MessageRouter router;
+        protected IMessageRouter router;
 
         private MessageReceiverSimulator simulator;
 
@@ -91,7 +92,7 @@ namespace MMS.ServiceBus.Testing
             return this;
         }
 
-        public MessageUnit Use(MessageRouter router)
+        public MessageUnit Use(IMessageRouter router)
         {
             this.router = router;
             return this;
@@ -176,9 +177,9 @@ namespace MMS.ServiceBus.Testing
             private readonly ICollection<LogicalMessage> outgoing;
 
             private readonly Func<TransportMessage, Task> onMessage;
-            private readonly MessageRouter router;
+            private readonly IMessageRouter router;
 
-            public UnitOutgoingPipelineFactory(Func<TransportMessage, Task> onMessage, ICollection<LogicalMessage> outgoing, MessageRouter router)
+            public UnitOutgoingPipelineFactory(Func<TransportMessage, Task> onMessage, ICollection<LogicalMessage> outgoing, IMessageRouter router)
             {
                 this.router = router;
                 this.onMessage = onMessage;
