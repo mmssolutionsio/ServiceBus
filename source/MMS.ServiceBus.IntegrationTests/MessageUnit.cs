@@ -6,6 +6,7 @@
 
 namespace MMS.ServiceBus
 {
+    using System.Collections.Generic;
     using System.Threading.Tasks;
     using Microsoft.ServiceBus.Messaging;
     using Pipeline;
@@ -79,6 +80,11 @@ namespace MMS.ServiceBus
         public Task Reply(object message)
         {
             return this.unit.Reply(message);
+        }
+
+        public IDictionary<string, string> Headers(object message)
+        {
+            return this.unit.Headers(message);
         }
 
         public void DoNotContinueDispatchingCurrentMessageToHandlers()

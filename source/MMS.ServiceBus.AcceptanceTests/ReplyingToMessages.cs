@@ -1,5 +1,5 @@
 ﻿//-------------------------------------------------------------------------------
-// <copyright file="ReplyingToMessagesIntegration.cs" company="MMS AG">
+// <copyright file="ReplyingToMessages.cs" company="MMS AG">
 //   Copyright (c) MMS AG, 2008-2015
 // </copyright>
 //-------------------------------------------------------------------------------
@@ -9,10 +9,8 @@ namespace MMS.ServiceBus
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
-    using System.Threading;
     using System.Threading.Tasks;
     using FluentAssertions;
-    using Microsoft.ServiceBus.Messaging;
     using NUnit.Framework;
     using Pipeline;
     using Testing;
@@ -51,7 +49,6 @@ namespace MMS.ServiceBus
 
             this.broker.Start();
         }
-
 
         [Test]
         public async Task WhenOneMessageSent_InvokesSynchronousAndAsynchronousHandlers()

@@ -7,6 +7,7 @@
 namespace MMS.ServiceBus
 {
     using System;
+    using System.Collections.Generic;
     using System.Threading.Tasks;
     using Pipeline;
     using Pipeline.Incoming;
@@ -65,6 +66,11 @@ namespace MMS.ServiceBus
         public Task Reply(object message)
         {
             throw new InvalidOperationException("You can only reply in a handler context!");
+        }
+
+        public IDictionary<string, string> Headers(object message)
+        {
+            throw new InvalidOperationException("You can only read headers in a handler context!");
         }
 
         public void DoNotContinueDispatchingCurrentMessageToHandlers()
@@ -159,6 +165,11 @@ namespace MMS.ServiceBus
             {
                 ReplyOptions replyOptions = CreateReplyOptions(this.incoming);
                 return this.bus.Send(message, replyOptions, this.incoming);
+            }
+
+            public IDictionary<string, string> Headers(object message)
+            {
+                return this.incoming.Headers;
             }
 
             public void DoNotContinueDispatchingCurrentMessageToHandlers()

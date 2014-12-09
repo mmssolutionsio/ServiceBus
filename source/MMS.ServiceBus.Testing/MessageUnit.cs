@@ -146,6 +146,11 @@ namespace MMS.ServiceBus.Testing
             return this.unit.Reply(message);
         }
 
+        public IDictionary<string, string> Headers(object message)
+        {
+            return this.unit.Headers(message);
+        }
+
         public void DoNotContinueDispatchingCurrentMessageToHandlers()
         {
             this.unit.DoNotContinueDispatchingCurrentMessageToHandlers();

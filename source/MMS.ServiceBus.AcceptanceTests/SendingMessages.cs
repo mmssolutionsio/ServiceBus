@@ -64,8 +64,8 @@ namespace MMS.ServiceBus
                 // Dispose means rollback
             }
 
-            this.context.FooAsyncHandlerCalled.Should().NotBeInvoked();
-            this.context.FooHandlerCalled.Should().NotBeInvoked();
+            this.context.AsyncHandlerCalled.Should().NotBeInvoked();
+            this.context.HandlerCalled.Should().NotBeInvoked();
         }
 
         [Test]
@@ -73,8 +73,8 @@ namespace MMS.ServiceBus
         {
             await this.sender.Send(new Message { Bar = 42 });
 
-            this.context.FooAsyncHandlerCalled.Should().BeInvokedOnce();
-            this.context.FooHandlerCalled.Should().BeInvokedOnce();
+            this.context.AsyncHandlerCalled.Should().BeInvokedOnce();
+            this.context.HandlerCalled.Should().BeInvokedOnce();
         }
 
         [Test]
@@ -83,8 +83,25 @@ namespace MMS.ServiceBus
             await this.sender.Send(new Message { Bar = 42 });
             await this.sender.Send(new Message { Bar = 43 });
 
-            this.context.FooAsyncHandlerCalled.Should().BeInvokedTwice();
-            this.context.FooHandlerCalled.Should().BeInvokedTwice();
+            this.context.AsyncHandlerCalled.Should().BeInvokedTwice();
+            this.context.HandlerCalled.Should().BeInvokedTwice();
+        }
+
+        [Test]
+        public async Task WhenSendingMessagesWithCustomHeaders_HeadersCanBeReadOnReceiverSide()
+        {
+            const string HeaderKey = "MyHeader";
+            const string HeaderValue = "MyValue";
+
+            var sendOptions = new SendOptions();
+            sendOptions.Headers.Add(HeaderKey, HeaderValue);
+
+            await this.sender.Send(new Message { Bar = 42 }, sendOptions);
+
+            this.context.HandlerCaughtHeaders.Should()
+                .Contain(HeaderKey, HeaderValue);
+            this.context.AsyncHandlerCaughtHeaders.Should()
+                .Contain(HeaderKey, HeaderValue);
         }
 
         public class HandlerRegistrySimulator : HandlerRegistry
@@ -124,7 +141,8 @@ namespace MMS.ServiceBus
 
             public Task Handle(Message message, IBus bus)
             {
-                this.context.FooAsyncHandlerCalled += 1;
+                this.context.AsyncHandlerCalled += 1;
+                this.context.AsyncHandlerCaughtHeaders = bus.Headers(message);
                 return Task.FromResult(0);
             }
         }
@@ -140,7 +158,8 @@ namespace MMS.ServiceBus
 
             public void Handle(Message message, IBus bus)
             {
-                this.context.FooHandlerCalled += 1;
+                this.context.HandlerCalled += 1;
+                this.context.HandlerCaughtHeaders = bus.Headers(message);
             }
         }
 
@@ -151,9 +170,13 @@ namespace MMS.ServiceBus
 
         public class Context
         {
-            public int FooAsyncHandlerCalled { get; set; }
+            public int AsyncHandlerCalled { get; set; }
 
-            public int FooHandlerCalled { get; set; }
+            public int HandlerCalled { get; set; }
+
+            public IDictionary<string, string> AsyncHandlerCaughtHeaders { get; set; }
+
+            public IDictionary<string, string> HandlerCaughtHeaders { get; set; }
         }
     }
 }
