@@ -28,7 +28,7 @@ namespace MMS.ServiceBus.Pipeline.Incoming
 
             pipeline.Transport
                 .Register(new DeadLetterMessagesWhichCantBeDeserializedStep())
-                .Register(new DeserializeTransportMessageStep(new DataContractMessageSerializer()));
+                .Register(new DeserializeTransportMessageStep(new NewtonsoftJsonMessageSerializer()));
 
             pipeline.Logical
                 .Register(new LoadMessageHandlersStep(this.registry))

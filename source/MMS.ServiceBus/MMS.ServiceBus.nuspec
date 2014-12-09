@@ -11,6 +11,7 @@
         <dependencies>
 			<dependency id="log4net" version="[2.0.0,3)" />
 			<dependency id="ServiceBus.v1_1" version="[1.0.4,2)" />
+			<dependency id="Newtonsoft.Json" version="[5.0.5,6)" />
         </dependencies>
         <references>
 			<reference file="MMS.ServiceBus.dll" />
