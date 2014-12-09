@@ -6,10 +6,15 @@
 
 namespace MMS.ServiceBus
 {
+    using System.Threading.Tasks;
     using Pipeline.Incoming;
 
     public interface IIncomingPipelineFactory
     {
+        Task WarmupAsync();
+
         IncomingPipeline Create();
+
+        Task CooldownAsync();
     }
 }

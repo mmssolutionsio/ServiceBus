@@ -28,9 +28,9 @@ namespace MMS.ServiceBus
         private EndpointConfiguration.ReadOnly readOnlyConfiguration;
 
         public Bus(
-            EndpointConfiguration configuration, 
-            IDequeueStrategy strategy, 
-            IOutgoingPipelineFactory outgoingPipelineFactory, 
+            EndpointConfiguration configuration,
+            IDequeueStrategy strategy,
+            IOutgoingPipelineFactory outgoingPipelineFactory,
             IIncomingPipelineFactory incomingPipelineFactory)
         {
             this.incomingPipelineFactory = incomingPipelineFactory;
@@ -41,11 +41,13 @@ namespace MMS.ServiceBus
             this.strategy = strategy;
         }
 
-        public Task StartAsync()
+        public async Task StartAsync()
         {
             this.readOnlyConfiguration = this.configuration.Validate();
 
-            return this.strategy.StartAsync(this.readOnlyConfiguration, this.OnMessageAsync);
+            await this.outgoingPipelineFactory.WarmupAsync();
+            await this.incomingPipelineFactory.WarmupAsync();
+            await this.strategy.StartAsync(this.readOnlyConfiguration, this.OnMessageAsync);
         }
 
         public Task SendLocal(object message)
@@ -78,9 +80,11 @@ namespace MMS.ServiceBus
             throw new InvalidOperationException("You can only abort the pipeline in a handler context!");
         }
 
-        public Task StopAsync()
+        public async Task StopAsync()
         {
-            return this.strategy.StopAsync();
+            await this.strategy.StopAsync();
+            await this.incomingPipelineFactory.CooldownAsync();
+            await this.outgoingPipelineFactory.CooldownAsync();
         }
 
         private Task SendLocal(object message, TransportMessage incoming)

@@ -6,6 +6,8 @@
 
 namespace MMS.ServiceBus.Pipeline.Incoming
 {
+    using System.Threading.Tasks;
+
     public class IncomingPipelineFactory : IIncomingPipelineFactory
     {
         private readonly HandlerRegistry registry;
@@ -13,6 +15,11 @@ namespace MMS.ServiceBus.Pipeline.Incoming
         public IncomingPipelineFactory(HandlerRegistry registry)
         {
             this.registry = registry;
+        }
+
+        public Task WarmupAsync()
+        {
+            return Task.FromResult(0);
         }
 
         public IncomingPipeline Create()
@@ -28,6 +35,11 @@ namespace MMS.ServiceBus.Pipeline.Incoming
                 .Register(new InvokeHandlerStep());
 
             return pipeline;
+        }
+
+        public Task CooldownAsync()
+        {
+            return Task.FromResult(0);
         }
     }
 }

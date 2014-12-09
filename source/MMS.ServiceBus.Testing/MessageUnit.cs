@@ -185,6 +185,11 @@ namespace MMS.ServiceBus.Testing
                 this.outgoing = outgoing;
             }
 
+            public Task WarmupAsync()
+            {
+                return Task.FromResult(0);
+            }
+
             public OutgoingPipeline Create()
             {
                 var pipeline = new OutgoingPipeline();
@@ -202,6 +207,11 @@ namespace MMS.ServiceBus.Testing
 
                 return pipeline;
             }
+
+            public Task CooldownAsync()
+            {
+                return Task.FromResult(0);
+            }
         }
 
         private class UnitIncomingPipelineFactory : IIncomingPipelineFactory
@@ -214,6 +224,11 @@ namespace MMS.ServiceBus.Testing
             {
                 this.incoming = incoming;
                 this.registry = registry;
+            }
+
+            public Task WarmupAsync()
+            {
+                return Task.FromResult(0);
             }
 
             public IncomingPipeline Create()
@@ -230,6 +245,11 @@ namespace MMS.ServiceBus.Testing
                     .Register(new TraceIncomingLogical(this.incoming));
 
                 return pipeline;
+            }
+
+            public Task CooldownAsync()
+            {
+                return Task.FromResult(0);
             }
         }
 
