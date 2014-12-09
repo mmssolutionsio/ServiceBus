@@ -6,8 +6,11 @@
 
 namespace MMS.ServiceBus
 {
+    using JetBrains.Annotations;
+
     public static class StringToAddressExtensions
     {
+        [ContractAnnotation("null => null")]
         public static Address Parse(this string address)
         {
             Queue queue;

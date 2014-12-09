@@ -7,6 +7,7 @@
 namespace MMS.ServiceBus
 {
     using System;
+    using JetBrains.Annotations;
 
     public class EndpointConfiguration
     {
@@ -23,7 +24,7 @@ namespace MMS.ServiceBus
 
         internal int PrefetchCount { get; private set; }
 
-        public EndpointConfiguration Endpoint(string endpointName)
+        public EndpointConfiguration Endpoint([NotNull] string endpointName)
         {
             this.EndpointQueue = Queue.Create(endpointName);
             return this;
