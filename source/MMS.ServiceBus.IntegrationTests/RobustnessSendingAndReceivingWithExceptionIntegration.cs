@@ -1,5 +1,5 @@
 ﻿//-------------------------------------------------------------------------------
-// <copyright file="RobustnessSendingAndReceivingIntegration.cs" company="MMS AG">
+// <copyright file="RobustnessSendingAndReceivingWithExceptionIntegration.cs" company="MMS AG">
 //   Copyright (c) MMS AG, 2008-2015
 // </copyright>
 //-------------------------------------------------------------------------------
@@ -20,25 +20,11 @@ namespace MMS.ServiceBus
     using Testing;
 
     /// <summary>
-    /// In this scenario I fire 1000 messages with 100 ms delay against the server and interrupt the network connection to the server for
-    /// approximately 10 seconds after 45 seconds. This only works on Win8 or greater or WinServer2012 or greater.
+    /// In this scenario I fire 1000 messages against the server which has a handler which throws for certain messages.
     /// </summary>
-    /// <code>
-    ///     Start-Sleep -Seconds 45
-    ///
-    ///     Write-Host "Disable"
-    ///
-    ///     Disable-NetAdapter YourAdapter -Confirm:$false
-    ///
-    ///     Start-Sleep -Seconds 10
-    ///
-    ///     Write-Host "Enable"
-    ///
-    ///     Enable-NetAdapter YourAdapter -Confirm:$false
-    /// </code>
     [TestFixture]
     [Category("Manual")]
-    public class RobustnessSendingAndReceivingIntegration
+    public class RobustnessSendingAndReceivingWithExceptionIntegration
     {
         private const string SenderEndpointName = "Sender";
         private const string ReceiverEndpointName = "Receiver";
@@ -62,7 +48,7 @@ namespace MMS.ServiceBus
                 .Use(new AlwaysRouteToDestination(Queue.Create(ReceiverEndpointName)))
                 .Use(this.registry);
 
-            this.receiver = new MessageUnit(new EndpointConfiguration().Endpoint(ReceiverEndpointName).Concurrency(1))
+            this.receiver = new MessageUnit(new EndpointConfiguration().Endpoint(ReceiverEndpointName))
                 .Use(MessagingFactory.Create())
                 .Use(this.registry);
 
@@ -73,24 +59,57 @@ namespace MMS.ServiceBus
         }
 
         [Test]
-        public async Task Send1000Messages_InvokesSynchronousAndAsynchronousHandlers()
+        public async Task Send100AsyncMessages_WhenHandlerThrowsException_DeadLetters()
         {
 #pragma warning disable 4014
             Task.Run(async () =>
 #pragma warning restore 4014
             {
-                for (int i = 0; i < 1000; i++)
+                for (int i = 0; i < 100; i++)
                 {
-                    await this.sender.Send(new Message { Bar = i });
-
-                    await Task.Delay(100);
+                    await this.sender.Send(new AsyncMessage { Bar = i });
                 }
             });
-            
-            await this.context.Wait(asyncHandlerCalls: 1000, handlersCalls: 1000);
 
-            this.context.AsyncHandlerCalls.Should().BeInvoked(ntimes: 1000);
-            this.context.HandlerCalls.Should().BeInvoked(ntimes: 1000);
+            await this.context.Wait(handlerCalls: 50);
+            this.context.HandlerCalls.Should().BeInvoked(ntimes: 50);
+
+            // Wait a bit in order to let the bus deadletter
+            await Task.Delay(10000);
+
+            MessageReceiver deadLetterReceiver = await MessagingFactory.Create()
+                .CreateMessageReceiverAsync(QueueClient.FormatDeadLetterPath(ReceiverEndpointName), ReceiveMode.ReceiveAndDelete);
+            IEnumerable<BrokeredMessage> deadLetteredMessages = await deadLetterReceiver.ReceiveBatchAsync(50);
+
+            deadLetteredMessages.Should().HaveCount(50)
+                .And.OnlyContain(b => b.DeliveryCount == 11);
+        }
+
+        [Test]
+        public async Task Send100SyncMessages_WhenHandlerThrowsException_DeadLetters()
+        {
+#pragma warning disable 4014
+            Task.Run(async () =>
+#pragma warning restore 4014
+            {
+                for (int i = 0; i < 100; i++)
+                {
+                    await this.sender.Send(new Message { Bar = i });
+                }
+            });
+
+            await this.context.Wait(handlerCalls: 50);
+            this.context.HandlerCalls.Should().BeInvoked(ntimes: 50);
+
+            // Wait a bit in order to let the bus deadletter
+            await Task.Delay(10000);
+
+            MessageReceiver deadLetterReceiver = await MessagingFactory.Create()
+                .CreateMessageReceiverAsync(QueueClient.FormatDeadLetterPath(ReceiverEndpointName), ReceiveMode.ReceiveAndDelete);
+            IEnumerable<BrokeredMessage> deadLetteredMessages = await deadLetterReceiver.ReceiveBatchAsync(50);
+
+            deadLetteredMessages.Should().HaveCount(50)
+                .And.OnlyContain(b => b.DeliveryCount == 11);
         }
 
         [TearDown]
@@ -129,12 +148,19 @@ namespace MMS.ServiceBus
 
             public override IReadOnlyCollection<object> GetHandlers(Type messageType)
             {
-                if (messageType == typeof(Message))
+                if (messageType == typeof(AsyncMessage))
                 {
                     return new ReadOnlyCollection<object>(new List<object>
                         {
                             new AsyncMessageHandler(this.context),
-                            new SyncAsAsyncHandlerDecorator<Message>(new MessageHandler(this.context)),
+                        });
+                }
+
+                if (messageType == typeof(Message))
+                {
+                    return new ReadOnlyCollection<object>(new List<object>
+                        {
+                            new SyncAsAsyncHandlerDecorator<Message>(new RobustnessSendingAndReceivingWithExceptionIntegration.MessageHandler(this.context)),
                         });
                 }
 
@@ -142,7 +168,7 @@ namespace MMS.ServiceBus
             }
         }
 
-        public class AsyncMessageHandler : IHandleMessageAsync<Message>
+        public class AsyncMessageHandler : IHandleMessageAsync<AsyncMessage>
         {
             private readonly Context context;
 
@@ -151,13 +177,19 @@ namespace MMS.ServiceBus
                 this.context = context;
             }
 
-            public Task Handle(Message message, IBusForHandler bus)
+            public Task Handle(AsyncMessage message, IBusForHandler bus)
             {
                 Debug.WriteLine("Async {0}", message.Bar);
-                this.context.AsyncHandlerCalled();
+                if (message.Bar % 2 == 0)
+                {
+                    throw new InvalidOperationException();
+                }
+
+                this.context.HandlerCalled();
                 return Task.FromResult(0);
             }
         }
+
 
         public class MessageHandler : IHandleMessage<Message>
         {
@@ -171,8 +203,18 @@ namespace MMS.ServiceBus
             public void Handle(Message message, IBusForHandler bus)
             {
                 Debug.WriteLine("Sync {0}", message.Bar);
+                if (message.Bar % 2 == 0)
+                {
+                    throw new InvalidOperationException();
+                }
+
                 this.context.HandlerCalled();
             }
+        }
+
+        public class AsyncMessage
+        {
+            public int Bar { get; set; }
         }
 
         public class Message
@@ -182,16 +224,7 @@ namespace MMS.ServiceBus
 
         public class Context
         {
-            private long asyncHandlerCalled;
             private long handlerCalled;
-
-            public int AsyncHandlerCalls
-            {
-                get
-                {
-                    return (int)Interlocked.Read(ref this.asyncHandlerCalled);
-                }
-            }
 
             public int HandlerCalls
             {
@@ -201,19 +234,14 @@ namespace MMS.ServiceBus
                 }
             }
 
-            public void AsyncHandlerCalled()
-            {
-                Interlocked.Increment(ref this.asyncHandlerCalled);
-            }
-
             public void HandlerCalled()
             {
                 Interlocked.Increment(ref this.handlerCalled);
             }
 
-            public Task Wait(int asyncHandlerCalls, int handlersCalls)
+            public Task Wait(int handlerCalls)
             {
-                var task1 = Task.Run(() => SpinWait.SpinUntil(() => this.AsyncHandlerCalls >= asyncHandlerCalls && this.HandlerCalls >= handlersCalls));
+                var task1 = Task.Run(() => SpinWait.SpinUntil(() => this.HandlerCalls >= handlerCalls));
                 var task2 = Task.Delay(TimeSpan.FromSeconds(180));
 
                 return Task.WhenAny(task1, task2);
