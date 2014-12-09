@@ -4,10 +4,9 @@
 // </copyright>
 //-------------------------------------------------------------------------------
 
-namespace MMS.ServiceBus
+namespace MMS.ServiceBus.Pipeline.Outgoing
 {
     using System.Threading.Tasks;
-    using Pipeline.Outgoing;
 
     public interface IOutgoingPipelineFactory
     {
