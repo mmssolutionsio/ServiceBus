@@ -24,9 +24,9 @@ namespace MMS.ServiceBus
 
         private Broker broker;
 
-        private MessageUnit sender;
+        private MessageUnit publisher;
 
-        private MessageUnit receiver;
+        private MessageUnit subscriber;
 
         [SetUp]
         public void SetUp()
@@ -35,13 +35,15 @@ namespace MMS.ServiceBus
             this.registry = new HandlerRegistrySimulator(this.context);
 
             this.broker = new Broker();
-            this.sender = new MessageUnit(new EndpointConfiguration().Endpoint("Publisher").Concurrency(1))
-                .Use(new AlwaysRouteToDestination(Topic.Create("Subscriber")));
-            this.receiver = new MessageUnit(new EndpointConfiguration().Endpoint("Subscriber")
+            Topic destination = Topic.Create("Subscriber");
+
+            this.publisher = new MessageUnit(new EndpointConfiguration().Endpoint("Publisher").Concurrency(1))
+                .Use(new AlwaysRouteToDestination(destination));
+            this.subscriber = new MessageUnit(new EndpointConfiguration().Endpoint("Subscriber")
                 .Concurrency(1)).Use(this.registry);
 
-            this.broker.Register(this.sender)
-                       .Register(this.receiver);
+            this.broker.Register(this.publisher)
+                       .Register(this.subscriber, destination);
 
             this.broker.Start();
         }
@@ -53,28 +55,25 @@ namespace MMS.ServiceBus
         }
 
         [Test]
-        [Ignore("Currently not yet implemented")]
         public async Task WhenOneMessagePublished_InvokesSynchronousAndAsynchronousHandlers()
         {
-            await this.sender.Publish(new Event { Bar = 42 });
+            await this.publisher.Publish(new Event { Bar = 42 });
 
             this.context.AsyncHandlerCalled.Should().BeInvokedOnce();
             this.context.HandlerCalled.Should().BeInvokedOnce();
         }
 
         [Test]
-        [Ignore("Currently not yet implemented")]
         public async Task WhenMultipeMessagePublished_InvokesSynchronousAndAsynchronousHandlers()
         {
-            await this.sender.Publish(new Event { Bar = 42 });
-            await this.sender.Publish(new Event { Bar = 43 });
+            await this.publisher.Publish(new Event { Bar = 42 });
+            await this.publisher.Publish(new Event { Bar = 43 });
 
             this.context.AsyncHandlerCalled.Should().BeInvokedTwice();
             this.context.HandlerCalled.Should().BeInvokedTwice();
         }
 
         [Test]
-        [Ignore("Currently not yet implemented")]
         public async Task WhenPublishingMessagesWithCustomHeaders_HeadersCanBeReadOnSubscriberSide()
         {
             const string HeaderKey = "MyHeader";
@@ -83,7 +82,7 @@ namespace MMS.ServiceBus
             var publishOptions = new PublishOptions();
             publishOptions.Headers.Add(HeaderKey, HeaderValue);
 
-            await this.sender.Publish(new Event { Bar = 42 }, publishOptions);
+            await this.publisher.Publish(new Event { Bar = 42 }, publishOptions);
 
             this.context.HandlerCaughtHeaders.Should()
                 .Contain(HeaderKey, HeaderValue);

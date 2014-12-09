@@ -1,3 +1,9 @@
+//-------------------------------------------------------------------------------
+// <copyright file="Broker.cs" company="MMS AG">
+//   Copyright (c) MMS AG, 2008-2015
+// </copyright>
+//-------------------------------------------------------------------------------
+
 namespace MMS.ServiceBus.Testing
 {
     using System.Collections.Generic;
@@ -15,15 +21,12 @@ namespace MMS.ServiceBus.Testing
 
         public Broker Register(MessageUnit unit)
         {
-            if (!this.units.ContainsKey(unit.Endpoint))
-            {
-                this.units.Add(unit.Endpoint, new List<MessageUnit>());
-            }
+            return this.Register(unit, unit.Endpoint);
+        }
 
-            unit.SetOutgoing(this.Outgoing);
-            this.units[unit.Endpoint].Add(unit);
-
-            return this;
+        public Broker Register(MessageUnit unit, Topic topic)
+        {
+            return this.Register(unit, (Address)topic);
         }
 
         public async Task StartAsync()
@@ -42,6 +45,19 @@ namespace MMS.ServiceBus.Testing
                 await unit.StopAsync()
                     .ConfigureAwait(false);
             }
+        }
+
+        private Broker Register(MessageUnit unit, Address address)
+        {
+            if (!this.units.ContainsKey(address))
+            {
+                this.units.Add(address, new List<MessageUnit>());
+
+                unit.SetOutgoing(this.Outgoing);
+                this.units[address].Add(unit);
+            }
+
+            return this;
         }
 
         private async Task Outgoing(TransportMessage message)
