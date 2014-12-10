@@ -82,7 +82,7 @@ namespace MMS.ServiceBus
             IEnumerable<BrokeredMessage> deadLetteredMessages = await deadLetterReceiver.ReceiveBatchAsync(50);
 
             deadLetteredMessages.Should().HaveCount(50)
-                .And.OnlyContain(b => b.DeliveryCount == 11);
+                .And.OnlyContain(b => b.DeliveryCount == 10);
         }
 
         [Test]
@@ -109,7 +109,7 @@ namespace MMS.ServiceBus
             IEnumerable<BrokeredMessage> deadLetteredMessages = await deadLetterReceiver.ReceiveBatchAsync(50);
 
             deadLetteredMessages.Should().HaveCount(50)
-                .And.OnlyContain(b => b.DeliveryCount == 11);
+                .And.OnlyContain(b => b.DeliveryCount == 10);
         }
 
         [TearDown]

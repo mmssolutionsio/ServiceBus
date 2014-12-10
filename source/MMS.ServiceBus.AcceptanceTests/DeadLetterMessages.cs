@@ -20,8 +20,6 @@ namespace MMS.ServiceBus
     [TestFixture]
     public class DeadLetterMessages
     {
-        private Context context;
-
         private HandlerRegistrySimulator registry;
 
         private Broker broker;
@@ -33,8 +31,7 @@ namespace MMS.ServiceBus
         [SetUp]
         public void SetUp()
         {
-            this.context = new Context();
-            this.registry = new HandlerRegistrySimulator(this.context);
+            this.registry = new HandlerRegistrySimulator();
 
             this.broker = new Broker();
             this.sender = new MessageUnit(new EndpointConfiguration().Endpoint("Sender").Concurrency(1))
@@ -72,6 +69,24 @@ namespace MMS.ServiceBus
             tm.DeadLetterHeaders.Should().NotBeEmpty();
         }
 
+        [Test]
+        public void WhenMessageReachesMaximumNumberOfRetries_MessageIsDeadlettered()
+        {
+            var stream = new MemoryStream();
+            var writer = new StreamWriter(stream);
+            writer.Write("{ Bar: 1 }");
+            writer.Flush();
+            stream.Position = 0;
+
+            var tm = new DeadLetterTransportMessage { MessageType = typeof(Message).AssemblyQualifiedName };
+            tm.SetBody(stream);
+
+            Func<Task> action = () => this.receiver.HandOver(tm);
+
+            action.ShouldThrow<InvalidOperationException>();
+            tm.DeadLetterHeaders.Should().NotBeEmpty();
+        }
+
         public class DeadLetterTransportMessage : TransportMessage
         {
             public IDictionary<string, object> DeadLetterHeaders { get; private set; }
@@ -82,17 +97,15 @@ namespace MMS.ServiceBus
 
                 return Task.FromResult(0);
             }
+
+            public override int DeliveryCount
+            {
+                get { return 10; }
+            }
         }
 
         public class HandlerRegistrySimulator : HandlerRegistry
         {
-            private readonly Context context;
-
-            public HandlerRegistrySimulator(Context context)
-            {
-                this.context = context;
-            }
-
             public override IReadOnlyCollection<object> GetHandlers(Type messageType)
             {
                 if (messageType == typeof(Message))
@@ -101,8 +114,7 @@ namespace MMS.ServiceBus
                         new ReadOnlyCollection<object>(
                             new List<object>
                                 {
-                                    new AsyncMessageHandler(this.context),
-                                    new SyncAsAsyncHandlerDecorator<Message>(new MessageHandler(this.context)),
+                                    new AsyncHandlerWhichFailsAllTheTime(),
                                 });
                 }
 
@@ -110,47 +122,17 @@ namespace MMS.ServiceBus
             }
         }
 
-        public class AsyncMessageHandler : IHandleMessageAsync<Message>
+        public class AsyncHandlerWhichFailsAllTheTime : IHandleMessageAsync<Message>
         {
-            private readonly Context context;
-
-            public AsyncMessageHandler(Context context)
-            {
-                this.context = context;
-            }
-
             public Task Handle(Message message, IBusForHandler bus)
             {
-                this.context.FooAsyncHandlerCalled += 1;
-                return Task.FromResult(0);
-            }
-        }
-
-        public class MessageHandler : IHandleMessage<Message>
-        {
-            private readonly Context context;
-
-            public MessageHandler(Context context)
-            {
-                this.context = context;
-            }
-
-            public void Handle(Message message, IBusForHandler bus)
-            {
-                this.context.FooHandlerCalled += 1;
+                throw new InvalidOperationException();
             }
         }
 
         public class Message
         {
             public int Bar { get; set; }
-        }
-
-        public class Context
-        {
-            public int FooAsyncHandlerCalled { get; set; }
-
-            public int FooHandlerCalled { get; set; }
         }
     }
 }

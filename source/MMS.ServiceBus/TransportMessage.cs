@@ -107,7 +107,7 @@ namespace MMS.ServiceBus
             get { return this.body ?? (this.body = this.message.GetBody<Stream>()); }
         }
 
-        public int DeliveryCount
+        public virtual int DeliveryCount
         {
             get { return this.message != null ? this.message.DeliveryCount : 0; }
         }

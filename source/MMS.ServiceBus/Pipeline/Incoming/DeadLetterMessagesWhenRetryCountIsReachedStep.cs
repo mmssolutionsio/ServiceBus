@@ -33,16 +33,17 @@ namespace MMS.ServiceBus.Pipeline.Incoming
                 }
             }
 
-            var message = context.TransportMessage;
+            if (serializationException != null)
+            {
+                var message = context.TransportMessage;
 
-            // ReSharper disable PossibleNullReferenceException
-            message.SetFailureHeaders(serializationException.SourceException, "Max number of retries has been reached!");
-            // ReSharper restore PossibleNullReferenceException
-            await message.DeadLetterAsync()
-                .ConfigureAwait(false);
+                message.SetFailureHeaders(serializationException.SourceException, "Max number of retries has been reached!");
+                await message.DeadLetterAsync()
+                    .ConfigureAwait(false);
 
-            // Because we instructed the message to deadletter it is safe to rethrow. The broker will not redeliver.
-            serializationException.Throw();
+                // Because we instructed the message to deadletter it is safe to rethrow. The broker will not redeliver.
+                serializationException.Throw();
+            }
         }
 
         private static bool IsRetryCountReached(IncomingLogicalContext context)
