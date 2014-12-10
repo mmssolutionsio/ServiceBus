@@ -83,6 +83,7 @@
     <Compile Include="Pipeline\Incoming\DeadLetterMessagesWhenRetryCountIsReachedStep.cs" />
     <Compile Include="Pipeline\Incoming\DeadLetterMessagesWhichCantBeDeserializedStep.cs" />
     <Compile Include="Pipeline\Incoming\DeserializeTransportMessageStep.cs" />
+    <Compile Include="Pipeline\Incoming\EmptyIncomingPipelineFactory.cs" />
     <Compile Include="Pipeline\Incoming\ExceptionExtensions.cs" />
     <Compile Include="Pipeline\Incoming\FailureHeaderExtensions.cs" />
     <Compile Include="Pipeline\Incoming\IIncomingLogicalStep.cs" />

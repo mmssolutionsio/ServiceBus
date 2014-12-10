@@ -12,7 +12,7 @@ namespace MMS.ServiceBus
 
     public class SendOnlyBus : Bus
     {
-        public SendOnlyBus(SendOnlyConfiguration configuration, IOutgoingPipelineFactory outgoingPipelineFactory, IIncomingPipelineFactory incomingPipelineFactory) : base(configuration, new NoOpDequeStrategy(), outgoingPipelineFactory, incomingPipelineFactory)
+        public SendOnlyBus(SendOnlyConfiguration configuration, IOutgoingPipelineFactory outgoingPipelineFactory) : base(configuration, new NoOpDequeStrategy(), outgoingPipelineFactory, new EmptyIncomingPipelineFactory())
         {
         }
     }

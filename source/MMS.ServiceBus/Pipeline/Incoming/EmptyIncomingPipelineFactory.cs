@@ -1,22 +1,26 @@
 //-------------------------------------------------------------------------------
-// <copyright file="NoOpDequeStrategy.cs" company="MMS AG">
+// <copyright file="EmptyIncomingPipelineFactory.cs" company="MMS AG">
 //   Copyright (c) MMS AG, 2008-2015
 // </copyright>
 //-------------------------------------------------------------------------------
 
-namespace MMS.ServiceBus.Dequeuing
+namespace MMS.ServiceBus.Pipeline.Incoming
 {
-    using System;
     using System.Threading.Tasks;
 
-    internal class NoOpDequeStrategy : IDequeueStrategy
+    internal class EmptyIncomingPipelineFactory : IIncomingPipelineFactory
     {
-        public Task StartAsync(EndpointConfiguration.ReadOnly configuration, Func<TransportMessage, Task> onMessage)
+        public Task WarmupAsync()
         {
             return Task.FromResult(0);
         }
 
-        public Task StopAsync()
+        public IncomingPipeline Create()
+        {
+            return new IncomingPipeline();
+        }
+
+        public Task CooldownAsync()
         {
             return Task.FromResult(0);
         }
