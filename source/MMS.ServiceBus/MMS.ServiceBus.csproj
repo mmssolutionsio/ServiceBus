@@ -76,7 +76,6 @@
     <Compile Include="IHandleMessageAsync.cs" />
     <Compile Include="MessageIntent.cs" />
     <Compile Include="Pipeline\Context.cs" />
-    <Compile Include="Pipeline\DataContractMessageSerializer.cs" />
     <Compile Include="Pipeline\HandlerRegistry.cs" />
     <Compile Include="Pipeline\IHandlerRegistry.cs" />
     <Compile Include="Pipeline\IMessageSerializer.cs" />

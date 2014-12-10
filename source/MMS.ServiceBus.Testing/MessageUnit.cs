@@ -186,7 +186,7 @@ namespace MMS.ServiceBus.Testing
                     .Register(new TraceOutgoingLogical(this.outgoing));
 
                 pipeline.Transport
-                    .Register(new SerializeMessageStep(new DataContractMessageSerializer()))
+                    .Register(new SerializeMessageStep(new NewtonsoftJsonMessageSerializer()))
                     .Register(new DetermineDestinationStep(this.router))
                     .Register(new EnrichTransportMessageWithDestinationAddress())
                     .Register(senderStep);
@@ -223,9 +223,10 @@ namespace MMS.ServiceBus.Testing
 
                 pipeline.Transport
                     .Register(new DeadLetterMessagesWhichCantBeDeserializedStep())
-                    .Register(new DeserializeTransportMessageStep(new DataContractMessageSerializer()));
+                    .Register(new DeserializeTransportMessageStep(new NewtonsoftJsonMessageSerializer()));
 
                 pipeline.Logical
+                    .Register(new DeadLetterMessagesWhenRetryCountIsReachedStep())
                     .Register(new LoadMessageHandlersStep(this.registry))
                     .Register(new InvokeHandlerStep())
                     .Register(new TraceIncomingLogical(this.incoming));
