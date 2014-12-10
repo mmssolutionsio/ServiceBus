@@ -107,6 +107,11 @@ namespace MMS.ServiceBus
             get { return this.body ?? (this.body = this.message.GetBody<Stream>()); }
         }
 
+        public int DeliveryCount
+        {
+            get { return this.message != null ? this.message.DeliveryCount : 0; }
+        }
+
         public void SetBody(Stream body)
         {
             if (this.body != null)

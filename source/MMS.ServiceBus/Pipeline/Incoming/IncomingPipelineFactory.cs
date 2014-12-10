@@ -31,6 +31,7 @@ namespace MMS.ServiceBus.Pipeline.Incoming
                 .Register(new DeserializeTransportMessageStep(new NewtonsoftJsonMessageSerializer()));
 
             pipeline.Logical
+                .Register(new DeadLetterMessagesWhenRetryCountIsReachedStep())
                 .Register(new LoadMessageHandlersStep(this.registry))
                 .Register(new InvokeHandlerStep());
 

@@ -28,7 +28,8 @@ namespace MMS.ServiceBus.Dequeuing
             Func<TransportMessage, Task> onMessage)
         {
             MessageReceiver client =
-                await this.factory.CreateMessageReceiverAsync(configuration.DestinationQueue(), ReceiveMode.PeekLock)
+                await this.factory
+                    .CreateMessageReceiverAsync(configuration.DestinationQueue(), ReceiveMode.PeekLock)
                     .ConfigureAwait(false);
 
             OnMessageOptions options = configuration.Options();

@@ -81,6 +81,7 @@
     <Compile Include="Pipeline\IHandlerRegistry.cs" />
     <Compile Include="Pipeline\IMessageSerializer.cs" />
     <Compile Include="Pipeline\Incoming\DateTimeExtensions.cs" />
+    <Compile Include="Pipeline\Incoming\DeadLetterMessagesWhenRetryCountIsReachedStep.cs" />
     <Compile Include="Pipeline\Incoming\DeadLetterMessagesWhichCantBeDeserializedStep.cs" />
     <Compile Include="Pipeline\Incoming\DeserializeTransportMessageStep.cs" />
     <Compile Include="Pipeline\Incoming\ExceptionExtensions.cs" />
