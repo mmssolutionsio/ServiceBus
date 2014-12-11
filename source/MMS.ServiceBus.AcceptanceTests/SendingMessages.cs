@@ -10,7 +10,6 @@ namespace MMS.ServiceBus
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Threading.Tasks;
-    using System.Transactions;
     using FluentAssertions;
     using NUnit.Framework;
     using ServiceBus.Pipeline;
@@ -51,21 +50,6 @@ namespace MMS.ServiceBus
         public void TearDown()
         {
             this.broker.Stop();
-        }
-
-        [Test]
-        [Ignore("Transaction Scope currently not properly implemented. Serves as a reminder")]
-        public async Task WhenOneMessageSent_WithinATransactionWhichIsRolledback_DoesNotInvokeHandlers()
-        {
-            using (var tx = new TransactionScope(TransactionScopeOption.Required))
-            {
-                await this.sender.Send(new Message { Bar = 42 });
-
-                // Dispose means rollback
-            }
-
-            this.context.AsyncHandlerCalled.Should().NotBeInvoked();
-            this.context.HandlerCalled.Should().NotBeInvoked();
         }
 
         [Test]
