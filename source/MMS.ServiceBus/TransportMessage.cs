@@ -100,16 +100,16 @@ namespace MMS.ServiceBus
             set { this.Headers[HeaderKeys.ReplyTo] = value.ToString(); }
         }
 
+        public virtual int DeliveryCount
+        {
+            get { return this.message != null ? this.message.DeliveryCount : 0; }
+        }
+
         public IDictionary<string, string> Headers { get; private set; }
 
         public Stream Body
         {
             get { return this.body ?? (this.body = this.message.GetBody<Stream>()); }
-        }
-
-        public virtual int DeliveryCount
-        {
-            get { return this.message != null ? this.message.DeliveryCount : 0; }
         }
 
         public void SetBody(Stream body)
@@ -138,16 +138,6 @@ namespace MMS.ServiceBus
             }
 
             return brokeredMessage;
-        }
-
-        public void Complete()
-        {
-            this.message.Complete();
-        }
-
-        public void Abandon()
-        {
-            this.message.Abandon();
         }
 
         public Task DeadLetterAsync()
