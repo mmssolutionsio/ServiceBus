@@ -8,7 +8,6 @@ namespace MMS.ServiceBus.Dequeuing
 {
     using System;
     using System.Threading.Tasks;
-    using System.Transactions;
 
     public class DequeueStrategy : IDequeueStrategy
     {
@@ -40,23 +39,8 @@ namespace MMS.ServiceBus.Dequeuing
 
         private async Task OnMessageAsync(TransportMessage message)
         {
-            if (this.configuration.IsTransactional)
-            {
-                using (var scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions() /*, TransactionScopeAsyncFlowOption.Enabled */))
-                {
-                    Transaction.Current.EnlistVolatile(new ReceiveResourceManager(message), EnlistmentOptions.None);
-
-                    await this.onMessageAsync(message)
-                        .ConfigureAwait(false);
-
-                    scope.Complete();
-                }
-            }
-            else
-            {
-                await this.onMessageAsync(message)
-                    .ConfigureAwait(false);
-            }
+            await this.onMessageAsync(message)
+                               .ConfigureAwait(false);
         }
     }
 }

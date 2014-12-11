@@ -67,7 +67,6 @@
     <Compile Include="Dequeuing\IReceiveMessages.cs" />
     <Compile Include="Dequeuing\MessageReceiverReceiver.cs" />
     <Compile Include="Dequeuing\NoOpDequeStrategy.cs" />
-    <Compile Include="Dequeuing\ReceiveResourceManager.cs" />
     <Compile Include="EndpointConfiguration.cs" />
     <Compile Include="HeaderKeys.cs" />
     <Compile Include="IBus.cs" />
@@ -133,7 +132,6 @@
     <Compile Include="SendOnlyBus.cs" />
     <Compile Include="SendOnlyConfiguration.cs" />
     <Compile Include="SendOptions.cs" />
-    <Compile Include="SendResourceManager.cs" />
     <Compile Include="StringToAddressExtensions.cs" />
     <Compile Include="Topic.cs" />
     <Compile Include="TransportMessage.cs" />

@@ -18,8 +18,6 @@ namespace MMS.ServiceBus
 
         public Queue EndpointQueue { get; private set; }
 
-        internal bool IsTransactional { get; private set; }
-
         internal int MaxConcurrency { get; private set; }
 
         internal int PrefetchCount { get; private set; }
@@ -34,12 +32,6 @@ namespace MMS.ServiceBus
         {
             this.MaxConcurrency = maxConcurrency;
             this.PrefetchCount = maxConcurrency;
-            return this;
-        }
-
-        public EndpointConfiguration Transactional()
-        {
-            this.IsTransactional = true;
             return this;
         }
 
@@ -58,14 +50,11 @@ namespace MMS.ServiceBus
             protected internal ReadOnly(EndpointConfiguration configuration)
             {
                 this.EndpointQueue = configuration.EndpointQueue;
-                this.IsTransactional = configuration.IsTransactional;
                 this.MaxConcurrency = configuration.MaxConcurrency;
                 this.PrefetchCount = configuration.PrefetchCount;
             }
 
             public Queue EndpointQueue { get; private set; }
-
-            public bool IsTransactional { get; private set; }
 
             public int MaxConcurrency { get; private set; }
 
