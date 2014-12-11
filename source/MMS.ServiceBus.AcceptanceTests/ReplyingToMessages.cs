@@ -57,7 +57,8 @@ namespace MMS.ServiceBus
 
             this.context.AsyncHandlerCalls.Should().BeInvokedOnce();
             this.context.HandlerCalls.Should().BeInvokedOnce();
-            this.context.ReplyHandlerCalls.Should().BeInvokedTwice();
+            this.context.ReplyHandlerCalls.Should().BeInvoked(ntimes: 3);
+            this.context.HeaderValue.Should().Be("Value");
         }
 
         [Test]
@@ -70,7 +71,8 @@ namespace MMS.ServiceBus
 
             this.context.AsyncHandlerCalls.Should().BeInvoked(ntimes: 4);
             this.context.HandlerCalls.Should().BeInvoked(ntimes: 4);
-            this.context.ReplyHandlerCalls.Should().BeInvoked(ntimes: 8);
+            this.context.ReplyHandlerCalls.Should().BeInvoked(ntimes: 12);
+            this.context.HeaderValue.Should().Be("Value");
         }
 
         [TearDown]
@@ -123,6 +125,10 @@ namespace MMS.ServiceBus
             public Task Handle(ReplyMessage message, IBusForHandler bus)
             {
                 this.context.ReplyHandlerCalls += 1;
+                if (bus.Headers(message).ContainsKey("Key"))
+                {
+                    this.context.HeaderValue = bus.Headers(message)["Key"];
+                }
                 return Task.FromResult(0);
             }
         }
@@ -140,6 +146,10 @@ namespace MMS.ServiceBus
             {
                 this.context.AsyncHandlerCalls += 1;
                 await bus.Reply(new ReplyMessage { Answer = "AsyncMessageHandler" });
+
+                var options = new ReplyOptions();
+                options.Headers.Add("Key", "Value");
+                await bus.Reply(new ReplyMessage { Answer = "AsyncMessageHandlerWithHeaders" }, options);
             }
         }
 
@@ -176,6 +186,8 @@ namespace MMS.ServiceBus
             public int HandlerCalls { get; set; }
 
             public int ReplyHandlerCalls { get; set; }
+
+            public string HeaderValue { get; set; }
         }
     }
 }

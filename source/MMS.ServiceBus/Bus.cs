@@ -151,9 +151,9 @@ namespace MMS.ServiceBus
                 return this.bus.Publish(message, options, this.incoming);
             }
 
-            public Task Reply(object message)
+            public Task Reply(object message, ReplyOptions options = null)
             {
-                ReplyOptions replyOptions = CreateReplyOptions(this.incoming);
+                ReplyOptions replyOptions = GetOrCreateReplyOptions(this.incoming, options);
                 return this.bus.Send(message, replyOptions, this.incoming);
             }
 
@@ -167,7 +167,7 @@ namespace MMS.ServiceBus
                 this.incomingPipeline.DoNotInvokeAnyMoreHandlers();
             }
 
-            private static ReplyOptions CreateReplyOptions(TransportMessage incoming)
+            private static ReplyOptions GetOrCreateReplyOptions(TransportMessage incoming, ReplyOptions options = null)
             {
                 Queue destination = incoming.ReplyTo;
 
@@ -175,7 +175,14 @@ namespace MMS.ServiceBus
                     ? incoming.CorrelationId
                     : incoming.Id;
 
-                return new ReplyOptions(destination, correlationId);
+                if (options == null)
+                {
+                    return new ReplyOptions(destination, correlationId);
+                }
+
+                options.Queue = options.Queue ?? destination;
+                options.CorrelationId = options.CorrelationId ?? correlationId;
+                return options;
             }
         }
     }
