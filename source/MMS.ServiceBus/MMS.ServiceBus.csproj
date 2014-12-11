@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\packages\MMS.Development.0.11\build\MMS.development.props" Condition="Exists('..\packages\MMS.Development.0.11\build\MMS.development.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
-  <Import Project="..\packages\MMS.Development.0.9\build\MMS.development.props" Condition="Exists('..\packages\MMS.Development.0.9\build\MMS.development.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -12,7 +12,7 @@
     <AssemblyName>MMS.ServiceBus</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <NuGetPackageImportStamp>589d99ed</NuGetPackageImportStamp>
+    <NuGetPackageImportStamp>0009ee85</NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -153,11 +153,13 @@
     </PropertyGroup>
     <Error Condition="!Exists('..\packages\GitVersionTask.1.3.3\Build\GitVersionTask.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\GitVersionTask.1.3.3\Build\GitVersionTask.targets'))" />
     <Error Condition="!Exists('..\packages\StyleCop.MSBuild.4.7.49.0\build\StyleCop.MSBuild.Targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\StyleCop.MSBuild.4.7.49.0\build\StyleCop.MSBuild.Targets'))" />
-    <Error Condition="!Exists('..\packages\MMS.Development.0.9\build\MMS.development.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\MMS.Development.0.9\build\MMS.development.props'))" />
-    <Error Condition="!Exists('..\packages\MMS.Development.Production.0.9\build\MMS.Development.Production.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\MMS.Development.Production.0.9\build\MMS.Development.Production.targets'))" />
+    <Error Condition="!Exists('..\packages\MMS.Development.0.11\build\MMS.development.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\MMS.Development.0.11\build\MMS.development.props'))" />
+    <Error Condition="!Exists('..\packages\MMS.Development.0.11\build\MMS.development.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\MMS.Development.0.11\build\MMS.development.targets'))" />
+    <Error Condition="!Exists('..\packages\MMS.Development.Production.0.11\build\MMS.Development.Production.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\MMS.Development.Production.0.11\build\MMS.Development.Production.targets'))" />
   </Target>
   <Import Project="..\packages\StyleCop.MSBuild.4.7.49.0\build\StyleCop.MSBuild.Targets" Condition="Exists('..\packages\StyleCop.MSBuild.4.7.49.0\build\StyleCop.MSBuild.Targets')" />
-  <Import Project="..\packages\MMS.Development.Production.0.9\build\MMS.Development.Production.targets" Condition="Exists('..\packages\MMS.Development.Production.0.9\build\MMS.Development.Production.targets')" />
+  <Import Project="..\packages\MMS.Development.0.11\build\MMS.development.targets" Condition="Exists('..\packages\MMS.Development.0.11\build\MMS.development.targets')" />
+  <Import Project="..\packages\MMS.Development.Production.0.11\build\MMS.Development.Production.targets" Condition="Exists('..\packages\MMS.Development.Production.0.11\build\MMS.Development.Production.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

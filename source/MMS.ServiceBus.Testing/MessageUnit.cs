@@ -28,10 +28,6 @@ namespace MMS.ServiceBus.Testing
 
         private Bus unit;
 
-        protected IHandlerRegistry registry;
-
-        protected IMessageRouter router;
-
         private MessageReceiverSimulator simulator;
 
         private Func<TransportMessage, Task> outgoing;
@@ -86,15 +82,19 @@ namespace MMS.ServiceBus.Testing
             }
         }
 
+        protected IHandlerRegistry Registry { get; set; }
+
+        protected IMessageRouter Router { get; set; }
+
         public MessageUnit Use(HandlerRegistry registry)
         {
-            this.registry = registry;
+            this.Registry = registry;
             return this;
         }
 
         public MessageUnit Use(IMessageRouter router)
         {
-            this.router = router;
+            this.Router = router;
             return this;
         }
 
@@ -144,12 +144,12 @@ namespace MMS.ServiceBus.Testing
 
         protected virtual IIncomingPipelineFactory CreateIncomingPipelineFactory()
         {
-            return new UnitIncomingPipelineFactory(this.registry, this.IncomingLogical);
+            return new UnitIncomingPipelineFactory(this.Registry, this.IncomingLogical);
         }
 
         protected virtual IOutgoingPipelineFactory CreateOutgoingPipelineFactory()
         {
-            return new UnitOutgoingPipelineFactory(this.outgoing, this.OutgoingLogical, this.router);
+            return new UnitOutgoingPipelineFactory(this.outgoing, this.OutgoingLogical, this.Router);
         }
 
         protected virtual Bus CreateBus(IReceiveMessages receiver, IOutgoingPipelineFactory outgoingPipelineFactory, IIncomingPipelineFactory incomingPipelineFactory)
