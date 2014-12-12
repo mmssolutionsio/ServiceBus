@@ -15,6 +15,7 @@ namespace MMS.ServiceBus.Pipeline.Incoming
         {
             this.Set(logicalMessage);
             this.Set(message);
+            this.Set<MessageHandler>(null, ShouldBeSnapshotted.Yes);
             this.Set(HandlerInvocationAbortPendingKey, false);
         }
 
