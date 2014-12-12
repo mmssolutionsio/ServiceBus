@@ -129,6 +129,7 @@ namespace MMS.ServiceBus
                 {
                     this.context.HeaderValue = bus.Headers(message)["Key"];
                 }
+
                 return Task.FromResult(0);
             }
         }
