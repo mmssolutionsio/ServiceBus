@@ -8,15 +8,16 @@ namespace MMS.ServiceBus.Pipeline
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
 
     /// <summary>
     /// The context is a key value bag which allows typed retrieval of values.
     /// </summary>
-    /// <remarks>I'm not sure if having a dictionary internally is really justified. In theory this allows to snapshot also values internally 
-    /// in the context without putting the burden into the caller.</remarks>
-    public abstract class Context
+    public abstract class Context : ISupportSnapshots
     {
-        private readonly IDictionary<string, object> stash = new Dictionary<string, object>();
+        private readonly Stack<IDictionary<string, Entry>> snapshots = new Stack<IDictionary<string, Entry>>();
+
+        private readonly IDictionary<string, Entry> stash = new Dictionary<string, Entry>();
 
         private ISupportSnapshots chain;
 
@@ -37,24 +38,39 @@ namespace MMS.ServiceBus.Pipeline
 
         public T Get<T>(string key)
         {
-            object result;
+            Entry result;
 
             if (!this.stash.TryGetValue(key, out result))
             {
                 throw new KeyNotFoundException("No item found in behavior context with key: " + key);
             }
 
-            return (T)result;
+            return (T)result.Value;
         }
 
-        public void Set<T>(T t)
+        public void Set<T>(T t, ShouldBeSnapshotted candidateForSnapshot = ShouldBeSnapshotted.No)
         {
-            this.Set(typeof(T).FullName, t);
+            this.Set(typeof(T).FullName, t, candidateForSnapshot);
         }
 
-        public void Set<T>(string key, T t)
+        public void Set<T>(string key, T t, ShouldBeSnapshotted candidateForSnapshot = ShouldBeSnapshotted.No)
         {
-            this.stash[key] = t;
+            this.stash[key] = new Entry(t, candidateForSnapshot);
+        }
+
+        public void TakeSnapshot()
+        {
+            this.snapshots.Push(this.stash.Where(x => x.Value.CandidateForSnapshot == ShouldBeSnapshotted.Yes).ToDictionary(k => k.Key, v => v.Value));
+        }
+
+        public void DeleteSnapshot()
+        {
+            IDictionary<string, Entry> allSnapshottedCandidates = this.snapshots.Pop();
+
+            foreach (var allSnapshottedCandidate in allSnapshottedCandidates)
+            {
+                this.stash[allSnapshottedCandidate.Key] = allSnapshottedCandidate.Value;
+            }
         }
 
         internal void SetChain(ISupportSnapshots chain)
@@ -64,7 +80,20 @@ namespace MMS.ServiceBus.Pipeline
 
         internal IDisposable CreateSnapshot()
         {
-            return new SnapshotRegion(this.chain);
+            return new SnapshotRegion(this.chain, this);
+        }
+
+        private class Entry
+        {
+            public Entry(object value, ShouldBeSnapshotted candidateForSnapshot = ShouldBeSnapshotted.No)
+            {
+                this.CandidateForSnapshot = candidateForSnapshot;
+                this.Value = value;
+            }
+
+            public ShouldBeSnapshotted CandidateForSnapshot { get; private set; }
+
+            public object Value { get; private set; }
         }
     }
 }
