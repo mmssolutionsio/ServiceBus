@@ -10,17 +10,24 @@ namespace MMS.ServiceBus.Pipeline
 
     public sealed class SnapshotRegion : IDisposable
     {
-        private readonly ISupportSnapshots chain;
+        private readonly ISupportSnapshots[] chain;
 
-        public SnapshotRegion(ISupportSnapshots chain)
+        public SnapshotRegion(params ISupportSnapshots[] chain)
         {
             this.chain = chain;
-            this.chain.TakeSnapshot();
+
+            foreach (ISupportSnapshots snapshotable in this.chain)
+            {
+                snapshotable.TakeSnapshot();    
+            }
         }
 
         public void Dispose()
         {
-            this.chain.DeleteSnapshot();
+            foreach (ISupportSnapshots snapshotable in this.chain)
+            {
+                snapshotable.DeleteSnapshot();
+            }
         }
     }
 }

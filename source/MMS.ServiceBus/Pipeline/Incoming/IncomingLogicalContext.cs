@@ -43,7 +43,7 @@ namespace MMS.ServiceBus.Pipeline.Incoming
 
             set
             {
-                this.Set(value);
+                this.Set(value, ShouldBeSnapshotted.Yes);
             }
         }
 
