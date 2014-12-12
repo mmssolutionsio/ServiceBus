@@ -136,14 +136,12 @@ namespace MMS.ServiceBus
             {
                 if (messageType == typeof(Event))
                 {
-                    return new ReadOnlyCollection<object>(new List<object>
-                        {
-                            new AsyncMessageHandler(this.context),
-                            new SyncAsAsyncHandlerDecorator<Event>(new MessageHandler(this.context)),
-                        });
+                    return this.HandleWith(
+                        new AsyncMessageHandler(this.context),
+                        new SyncAsAsyncHandlerDecorator<Event>(new MessageHandler(this.context)));
                 }
 
-                return new ReadOnlyCollection<object>(new List<object>());
+                return this.DontHandle();
             }
         }
 

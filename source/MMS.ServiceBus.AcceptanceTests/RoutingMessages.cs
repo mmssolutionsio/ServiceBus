@@ -131,38 +131,28 @@ namespace MMS.ServiceBus
             {
                 if (messageType == typeof(MessageForReceiverOne))
                 {
-                    return
-                        new ReadOnlyCollection<object>(
-                            new List<object>
-                                {
-                                    new AsyncMessageHandlerReceiverOne(this.context),
-                                    new SyncAsAsyncHandlerDecorator<MessageForReceiverOne>(new MessageHandlerReceiverOne(this.context)),
-                                });
+                    return this.HandleWith(
+                        new AsyncMessageHandlerReceiverOne(this.context),
+                        new SyncAsAsyncHandlerDecorator<MessageForReceiverOne>(new MessageHandlerReceiverOne(this.context)));
                 }
 
                 if (messageType == typeof(MessageForReceiverTwo))
                 {
-                    return
-                        new ReadOnlyCollection<object>(
-                            new List<object>
-                                {
-                                    new AsyncMessageHandlerReceiverTwo(this.context),
-                                    new SyncAsAsyncHandlerDecorator<MessageForReceiverTwo>(new MessageHandlerReceiverTwo(this.context)),
-                                });
+                    return this.HandleWith(
+                        new AsyncMessageHandlerReceiverTwo(this.context),
+                        new SyncAsAsyncHandlerDecorator<MessageForReceiverTwo>(
+                            new MessageHandlerReceiverTwo(this.context)));
                 }
 
                 if (messageType == typeof(MessageForReceiverThree))
                 {
-                    return
-                        new ReadOnlyCollection<object>(
-                            new List<object>
-                                {
-                                    new AsyncMessageHandlerReceiverThree(this.context),
-                                    new SyncAsAsyncHandlerDecorator<MessageForReceiverThree>(new MessageHandlerReceiverThree(this.context)),
-                                });
+                    return this.HandleWith(
+                        new AsyncMessageHandlerReceiverThree(this.context),
+                        new SyncAsAsyncHandlerDecorator<MessageForReceiverThree>(
+                            new MessageHandlerReceiverThree(this.context)));
                 }
 
-                return new ReadOnlyCollection<object>(new List<object>());
+                return this.DontHandle();
             }
         }
 

@@ -119,13 +119,10 @@ namespace MMS.ServiceBus
             {
                 if (messageType == typeof(Message))
                 {
-                    return new ReadOnlyCollection<object>(new List<object>
-                        {
-                            new AsyncHandlerWhichFailsAllTheTime(),
-                        });
+                    return this.HandleWith(new AsyncHandlerWhichFailsAllTheTime());
                 }
 
-                return new ReadOnlyCollection<object>(new List<object>());
+                return this.DontHandle();
             }
         }
 
