@@ -121,6 +121,7 @@
     <Compile Include="Pipeline\Outgoing\ISendMessages.cs" />
     <Compile Include="Pipeline\Outgoing\MessagePublisher.cs" />
     <Compile Include="Pipeline\Outgoing\MessagePublisherPublishOptionsExtensions.cs" />
+    <Compile Include="Pipeline\Outgoing\MessageRouterExtensions.cs" />
     <Compile Include="Pipeline\Outgoing\MessageSender.cs" />
     <Compile Include="Pipeline\Outgoing\MessageSenderSendOptionsExtensions.cs" />
     <Compile Include="Pipeline\Outgoing\OutgoingLogicalContext.cs" />

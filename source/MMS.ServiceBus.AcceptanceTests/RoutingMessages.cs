@@ -8,13 +8,12 @@ namespace MMS.ServiceBus
 {
     using System;
     using System.Collections.Generic;
-    using System.Collections.ObjectModel;
     using System.Threading.Tasks;
     using FluentAssertions;
     using NUnit.Framework;
+    using Pipeline;
     using Pipeline.Outgoing;
-    using ServiceBus.Pipeline;
-    using ServiceBus.Testing;
+    using Testing;
 
     [TestFixture]
     public class RoutingMessages
@@ -78,15 +77,15 @@ namespace MMS.ServiceBus
             {
                 if (messageType == typeof(MessageForReceiverOne))
                 {
-                    return new ReadOnlyCollection<Address>(new List<Address> { Queue.Create(ReceiverOneEndpointName) });
+                    this.To(Queue.Create(ReceiverOneEndpointName));
                 }
 
                 if (messageType == typeof(MessageForReceiverTwo))
                 {
-                    return new ReadOnlyCollection<Address>(new List<Address> { Queue.Create(ReceiverTwoEndpointName) });
+                    this.To(Queue.Create(ReceiverTwoEndpointName));
                 }
 
-                return new ReadOnlyCollection<Address>(new List<Address>());
+                return this.NoDestination();
             }
         }
 
