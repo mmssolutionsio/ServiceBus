@@ -127,13 +127,13 @@ namespace MMS.ServiceBus
             {
                 if (messageType == typeof(Message))
                 {
-                    return this.HandleWith(
+                    return this.ConsumeWith(
                         new AsyncMessageHandler(this.context),
-                        new SyncAsAsyncHandlerDecorator<Message>(new MessageHandler(this.context)),
+                        new MessageHandler(this.context).AsAsync(),
                         new LastHandler(this.context));
                 }
 
-                return this.DontHandle();
+                return this.ConsumeAll();
             }
         }
 

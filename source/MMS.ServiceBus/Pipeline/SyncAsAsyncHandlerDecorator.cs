@@ -8,7 +8,7 @@ namespace MMS.ServiceBus.Pipeline
 {
     using System.Threading.Tasks;
 
-    public class SyncAsAsyncHandlerDecorator<TMessage> : IHandleMessageAsync<TMessage>
+    internal class SyncAsAsyncHandlerDecorator<TMessage> : IHandleMessageAsync<TMessage>
     {
         private readonly IHandleMessage<TMessage> handler;
 

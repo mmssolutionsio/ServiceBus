@@ -79,8 +79,10 @@
     <Compile Include="IHandleMessage.cs" />
     <Compile Include="IHandleMessageAsync.cs" />
     <Compile Include="MessageIntent.cs" />
+    <Compile Include="Pipeline\AlwaysRejectMessageHandler.cs" />
     <Compile Include="Pipeline\Context.cs" />
     <Compile Include="Pipeline\HandlerRegistry.cs" />
+    <Compile Include="Pipeline\HandlerRegistryExtensions.cs" />
     <Compile Include="Pipeline\IHandlerRegistry.cs" />
     <Compile Include="Pipeline\IMessageSerializer.cs" />
     <Compile Include="Pipeline\Incoming\DateTimeExtensions.cs" />
@@ -129,11 +131,13 @@
     <Compile Include="Pipeline\ShouldBeSnapshotted.cs" />
     <Compile Include="Pipeline\SnapshotRegion.cs" />
     <Compile Include="Pipeline\SyncAsAsyncHandlerDecorator.cs" />
+    <Compile Include="Pipeline\SyncHandlerExtensions.cs" />
+    <Compile Include="Pipeline\TypedHandlerRegistryExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\JetbrainsAnnotations.g.cs" />
     <Compile Include="..\GlobalAssembly.cs">
       <Link>Properties\GlobalAssembly.cs</Link>
-    </Compile>	
+    </Compile>
     <Compile Include="PublishOptions.cs" />
     <Compile Include="Queue.cs" />
     <Compile Include="ReplyOptions.cs" />

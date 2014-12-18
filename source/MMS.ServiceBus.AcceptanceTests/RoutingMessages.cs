@@ -131,28 +131,26 @@ namespace MMS.ServiceBus
             {
                 if (messageType == typeof(MessageForReceiverOne))
                 {
-                    return this.HandleWith(
+                    return this.ConsumeWith(
                         new AsyncMessageHandlerReceiverOne(this.context),
-                        new SyncAsAsyncHandlerDecorator<MessageForReceiverOne>(new MessageHandlerReceiverOne(this.context)));
+                        new MessageHandlerReceiverOne(this.context).AsAsync());
                 }
 
                 if (messageType == typeof(MessageForReceiverTwo))
                 {
-                    return this.HandleWith(
+                    return this.ConsumeWith(
                         new AsyncMessageHandlerReceiverTwo(this.context),
-                        new SyncAsAsyncHandlerDecorator<MessageForReceiverTwo>(
-                            new MessageHandlerReceiverTwo(this.context)));
+                        new MessageHandlerReceiverTwo(this.context).AsAsync());
                 }
 
                 if (messageType == typeof(MessageForReceiverThree))
                 {
-                    return this.HandleWith(
+                    return this.ConsumeWith(
                         new AsyncMessageHandlerReceiverThree(this.context),
-                        new SyncAsAsyncHandlerDecorator<MessageForReceiverThree>(
-                            new MessageHandlerReceiverThree(this.context)));
+                        new MessageHandlerReceiverThree(this.context).AsAsync());
                 }
 
-                return this.DontHandle();
+                return this.ConsumeAll();
             }
         }
 
