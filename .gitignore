@@ -28,12 +28,4 @@ obj/
 _ReSharper*/
 [Tt]est[Rr]esult*
 *.feature.cs
-source/MMS.FinancePlus.Web/Web.config
-source/MMS.FinancePlus/App.config
-source/MMS.ReportPlus/App.config
-source/MMS.TranslatePlus/App.config
-results/*
-source/MMS.FinancePlus.Web/Logs/*
-*.orig
-source/MMS.InDesignService.InDesignWrapper/IDS_Scripts/*.js*
 source/packages/*

@@ -1,14 +1,13 @@
-﻿//-------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------
 // <copyright file="ContextTests.cs" company="MMS AG">
 //   Copyright (c) MMS AG, 2008-2015
 // </copyright>
 //-------------------------------------------------------------------------------
 
-namespace MMS.ServiceBus
+namespace MMS.ServiceBus.Pipeline
 {
     using FluentAssertions;
     using NUnit.Framework;
-    using Pipeline;
 
     [TestFixture]
     public class ContextTests

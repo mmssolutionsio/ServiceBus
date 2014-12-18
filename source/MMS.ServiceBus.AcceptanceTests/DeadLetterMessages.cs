@@ -110,10 +110,10 @@ namespace MMS.ServiceBus
             {
                 if (messageType == typeof(Message))
                 {
-                    return this.HandleWith(new AsyncHandlerWhichFailsAllTheTime());
+                    return this.ConsumeWith(new AsyncHandlerWhichFailsAllTheTime());
                 }
 
-                return this.DontHandle();
+                return this.ConsumeAll();
             }
         }
 

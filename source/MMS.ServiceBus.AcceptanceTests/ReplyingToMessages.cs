@@ -94,17 +94,17 @@ namespace MMS.ServiceBus
             {
                 if (messageType == typeof(Message))
                 {
-                    return this.HandleWith(
+                    return this.ConsumeWith(
                         new AsyncMessageHandler(this.context),
-                        new SyncAsAsyncHandlerDecorator<Message>(new MessageHandler(this.context)));
+                        new MessageHandler(this.context).AsAsync());
                 }
 
                 if (messageType == typeof(ReplyMessage))
                 {
-                    return this.HandleWith(new ReplyMessageHandler(this.context));
+                    return this.ConsumeWith(new ReplyMessageHandler(this.context));
                 }
 
-                return this.DontHandle();
+                return this.ConsumeAll();
             }
         }
 
