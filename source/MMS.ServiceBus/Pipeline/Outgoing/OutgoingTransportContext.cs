@@ -11,8 +11,8 @@ namespace MMS.ServiceBus.Pipeline.Outgoing
         private const string OutgoingTransportMessageKey = "OutgoingTransportMessage";
         private const string IncomingTransportMessageKey = "IncomingTransportMessage";
 
-        public OutgoingTransportContext(LogicalMessage message, TransportMessage outgoingTransportMessage, DeliveryOptions options, EndpointConfiguration.ReadOnly configuration, TransportMessage incomingTransportMessage = null)
-            : base(configuration)
+        public OutgoingTransportContext(LogicalMessage message, TransportMessage outgoingTransportMessage, DeliveryOptions options, EndpointConfiguration.ReadOnly configuration, ITransactionEnlistment enlistment, TransportMessage incomingTransportMessage = null)
+            : base(configuration, enlistment)
         {
             this.Set(message);
             this.Set(OutgoingTransportMessageKey, outgoingTransportMessage);

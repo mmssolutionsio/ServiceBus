@@ -332,5 +332,15 @@ namespace MMS.ServiceBus.Testing
                 return next();
             }
         }
+
+        public ITransaction BeginTransaction()
+        {
+            return this.unit.BeginTransaction();
+        }
+
+        public IBus Participate(ITransaction @in)
+        {
+            return this.unit.Participate(@in);
+        }
     }
 }

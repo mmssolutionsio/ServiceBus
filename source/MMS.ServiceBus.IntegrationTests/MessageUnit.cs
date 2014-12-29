@@ -92,5 +92,15 @@ namespace MMS.ServiceBus
         {
             return new Bus(this.configuration, new DequeueStrategy(new MessageReceiverReceiver(this.factory)), outgoingPipelineFactory, incomingPipelineFactory);
         }
+
+        public ITransaction BeginTransaction()
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public IBus Participate(ITransaction @in)
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }

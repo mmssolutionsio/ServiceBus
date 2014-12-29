@@ -8,7 +8,7 @@ namespace MMS.ServiceBus
 {
     using System.Threading.Tasks;
 
-    public interface IBus
+    public interface IBus : ITransactionalBusProvider
     {
         /// <summary>
         /// Sends the message back to the current bus.

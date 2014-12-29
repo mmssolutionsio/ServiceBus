@@ -64,8 +64,16 @@ namespace MMS.ServiceBus
         [Test]
         public async Task WhenMultipeMessageSent_InvokesSynchronousAndAsynchronousHandlers()
         {
-            await this.sender.Send(new Message { Bar = 42 });
-            await this.sender.Send(new Message { Bar = 43 });
+            ITransaction firstSendTransaction = this.sender.BeginTransaction();
+            ITransaction secondSendTransaction = this.sender.BeginTransaction();
+
+            await this.sender.Participate(firstSendTransaction)
+                .Send(new Message { Bar = 42 });
+            await this.sender.Participate(secondSendTransaction)
+                .Send(new Message { Bar = 43 });
+
+            await firstSendTransaction.RollbackAsync();
+            await secondSendTransaction.CompleteAsync();
 
             this.context.AsyncHandlerCalled.Should().BeInvokedTwice();
             this.context.HandlerCalled.Should().BeInvokedTwice();

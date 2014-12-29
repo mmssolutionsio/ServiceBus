@@ -11,7 +11,7 @@ namespace MMS.ServiceBus.Pipeline.Incoming
         private const string HandlerInvocationAbortPendingKey = "HandlerInvocationAbortPending";
 
         public IncomingLogicalContext(LogicalMessage logicalMessage, TransportMessage message, EndpointConfiguration.ReadOnly configuration)
-            : base(configuration)
+            : base(configuration, null)
         {
             this.Set(logicalMessage);
             this.Set(message);

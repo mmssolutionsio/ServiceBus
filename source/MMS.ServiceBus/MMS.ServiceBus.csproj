@@ -78,6 +78,12 @@
     <Compile Include="IBusForHandler.cs" />
     <Compile Include="IHandleMessage.cs" />
     <Compile Include="IHandleMessageAsync.cs" />
+    <Compile Include="ImmediateCompleteTransaction.cs" />
+    <Compile Include="ITransaction.cs" />
+    <Compile Include="ITransactionalBusForHandlerProvider.cs" />
+    <Compile Include="ITransactionalBusProvider.cs" />
+    <Compile Include="ITransactionEnlistment.cs" />
+    <Compile Include="ITransactionProvider.cs" />
     <Compile Include="MessageIntent.cs" />
     <Compile Include="Pipeline\AlwaysRejectMessageHandler.cs" />
     <Compile Include="Pipeline\Context.cs" />
@@ -147,6 +153,7 @@
     <Compile Include="SendOptions.cs" />
     <Compile Include="StringToAddressExtensions.cs" />
     <Compile Include="Topic.cs" />
+    <Compile Include="Transaction.cs" />
     <Compile Include="TransportMessage.cs" />
   </ItemGroup>
   <ItemGroup>

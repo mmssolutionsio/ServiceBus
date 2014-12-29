@@ -9,7 +9,7 @@ namespace MMS.ServiceBus.Pipeline.Incoming
     public class IncomingTransportContext : Context
     {
         public IncomingTransportContext(TransportMessage message, EndpointConfiguration.ReadOnly configuration)
-            : base(configuration)
+            : base(configuration, null)
         {
             this.Set(message);
         }

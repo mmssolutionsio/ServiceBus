@@ -47,7 +47,7 @@ namespace MMS.ServiceBus.Pipeline
         private class TestableContext : Context
         {
             public TestableContext()
-                : base(new SendOnlyConfiguration().Validate())
+                : base(new SendOnlyConfiguration().Validate(), new ImmediateCompleteTransaction())
             {
             }
         }
