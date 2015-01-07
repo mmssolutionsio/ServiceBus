@@ -48,7 +48,7 @@ namespace MMS.ServiceBus
 
             await this.outgoingPipelineFactory.WarmupAsync();
             await this.incomingPipelineFactory.WarmupAsync();
-            await this.strategy.StartAsync(this.readOnlyConfiguration, this.OnMessageAsync);
+            await this.strategy.StartAsync(this.readOnlyConfiguration, this, this.OnMessageAsync);
         }
 
         public ITransaction BeginTransaction()
@@ -58,7 +58,7 @@ namespace MMS.ServiceBus
 
         public IBus Participate(ITransaction @in)
         {
-            return new OutgoingBusDecorator(this, (ITransactionEnlistment) @in);
+            return new TransactionAwareOutgoingBusDecorator(this, @in.AsEnlistment());
         }
 
         public Task SendLocal(object message)
@@ -126,18 +126,18 @@ namespace MMS.ServiceBus
             return outgoingPipeline.Invoke(outgoingLogicalMessage, options, this.readOnlyConfiguration, enlistment, incoming);
         }
 
-        private Task OnMessageAsync(TransportMessage message)
+        private Task OnMessageAsync(TransportMessage message, ITransaction transaction)
         {
             IncomingPipeline incomingPipeline = this.incomingPipelineFactory.Create();
-            return incomingPipeline.Invoke(new IncomingBusDecorator(this, incomingPipeline, message), message, this.readOnlyConfiguration);
+            return incomingPipeline.Invoke(new IncomingBusDecorator(this, incomingPipeline, message, transaction.AsEnlistment()), message, this.readOnlyConfiguration, transaction.AsEnlistment());
         }
 
-        private class OutgoingBusDecorator : IBus
+        private class TransactionAwareOutgoingBusDecorator : IBus
         {
             private readonly Bus bus;
             private readonly ITransactionEnlistment transactionEnlistment;
 
-            public OutgoingBusDecorator(Bus bus, ITransactionEnlistment enlistment)
+            public TransactionAwareOutgoingBusDecorator(Bus bus, ITransactionEnlistment enlistment)
             {
                 this.transactionEnlistment = enlistment;
                 this.bus = bus;
@@ -176,32 +176,35 @@ namespace MMS.ServiceBus
             private readonly IncomingPipeline incomingPipeline;
             private readonly TransportMessage incoming;
 
-            public IncomingBusDecorator(Bus bus, IncomingPipeline incomingPipeline, TransportMessage incoming)
+            private readonly ITransactionEnlistment transactionEnlistment;
+
+            public IncomingBusDecorator(Bus bus, IncomingPipeline incomingPipeline, TransportMessage incoming, ITransactionEnlistment enlistment)
             {
                 this.incoming = incoming;
                 this.incomingPipeline = incomingPipeline;
                 this.bus = bus;
+                this.transactionEnlistment = enlistment;
             }
 
             public Task SendLocal(object message)
             {
-                return this.bus.SendLocal(message, new ImmediateCompleteTransaction(), this.incoming);
+                return this.bus.SendLocal(message, this.transactionEnlistment, this.incoming);
             }
 
             public Task Send(object message, SendOptions options = null)
             {
-                return this.bus.Send(message, options, new ImmediateCompleteTransaction(), this.incoming);
+                return this.bus.Send(message, options, this.transactionEnlistment, this.incoming);
             }
 
             public Task Publish(object message, PublishOptions options = null)
             {
-                return this.bus.Publish(message, options, new ImmediateCompleteTransaction(), this.incoming);
+                return this.bus.Publish(message, options, this.transactionEnlistment, this.incoming);
             }
 
             public Task Reply(object message, ReplyOptions options = null)
             {
                 ReplyOptions replyOptions = GetOrCreateReplyOptions(this.incoming, options);
-                return this.bus.Send(message, replyOptions, new ImmediateCompleteTransaction(), this.incoming);
+                return this.bus.Send(message, replyOptions, this.transactionEnlistment, this.incoming);
             }
 
             public IDictionary<string, string> Headers(object message)
@@ -239,7 +242,7 @@ namespace MMS.ServiceBus
 
             public IBusForHandler Participate(ITransaction @in)
             {
-                return (IBusForHandler)this.bus.Participate(@in);
+                return new IncomingBusDecorator(this.bus, this.incomingPipeline, this.incoming, @in.AsEnlistment());
             }
         }
     }

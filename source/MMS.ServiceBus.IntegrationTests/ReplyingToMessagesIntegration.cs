@@ -37,12 +37,12 @@ namespace MMS.ServiceBus
 
             this.registry = new HandlerRegistrySimulator(this.context);
 
-            this.sender = new MessageUnit(new EndpointConfiguration().Endpoint(SenderEndpointName).Concurrency(1))
+            this.sender = new MessageUnit(new EndpointConfiguration().Endpoint(SenderEndpointName).Concurrency(1).Transactional())
                 .Use(MessagingFactory.Create())
                 .Use(new AlwaysRouteToDestination(Queue.Create(ReceiverEndpointName)))
                 .Use(this.registry);
 
-            this.receiver = new MessageUnit(new EndpointConfiguration().Endpoint(ReceiverEndpointName).Concurrency(1))
+            this.receiver = new MessageUnit(new EndpointConfiguration().Endpoint(ReceiverEndpointName).Concurrency(1).Transactional())
                 .Use(new AlwaysRouteToDestination(Queue.Create(SenderEndpointName)))
                 .Use(MessagingFactory.Create())
                 .Use(this.registry);
@@ -69,16 +69,21 @@ namespace MMS.ServiceBus
         [Test]
         public async Task WhenMultipeMessageSent_InvokesSynchronousAndAsynchronousHandlers()
         {
-            await this.sender.Send(new Message { Bar = 42 });
-            await this.sender.Send(new Message { Bar = 43 });
+            ITransaction firstTransaction = this.sender.BeginTransaction();
+
+            await this.sender.Participate(firstTransaction).Send(new Message { Bar = 42 });
+            await this.sender.Participate(firstTransaction).Send(new Message { Bar = 43 });
             await this.sender.Send(new Message { Bar = 44 });
             await this.sender.Send(new Message { Bar = 45 });
 
-            await this.context.Wait(asyncHandlerCalls: 4, handlersCalls: 4, replyHandlerCalls: 8);
+            await firstTransaction.RollbackAsync();
 
-            this.context.AsyncHandlerCalls.Should().BeInvoked(ntimes: 4);
-            this.context.HandlerCalls.Should().BeInvoked(ntimes: 4);
-            this.context.ReplyHandlerCalls.Should().BeInvoked(ntimes: 8);
+            await this.context.Wait(asyncHandlerCalls: 20, handlersCalls: 0, replyHandlerCalls: 20);
+
+            this.context.AsyncHandlerCalls.Should().BeInvoked(ntimes: 20);
+            this.context.HandlerCalls.Should().NotBeInvoked();
+            this.context.ReplyHandlerCalls.Should().BeInvoked(ntimes: 20);
+            this.context.HeaderValue.Should().Be("Value");
         }
 
         [TearDown]
@@ -145,6 +150,11 @@ namespace MMS.ServiceBus
             public Task Handle(ReplyMessage message, IBusForHandler bus)
             {
                 this.context.ReplyHandlerCalled();
+                if (bus.Headers(message).ContainsKey("Key"))
+                {
+                    this.context.HeaderValue = bus.Headers(message)["Key"];
+                }
+
                 return Task.FromResult(0);
             }
         }
@@ -162,6 +172,17 @@ namespace MMS.ServiceBus
             {
                 this.context.AsyncHandlerCalled();
                 await bus.Reply(new ReplyMessage { Answer = "AsyncMessageHandler" });
+
+                var tx = bus.BeginTransaction();
+
+                var options = new ReplyOptions();
+                options.Headers.Add("Key", "Value");
+                await bus.Participate(tx)
+                    .Reply(new ReplyMessage { Answer = "AsyncMessageHandlerWithHeaders" }, options);
+
+                await tx.CompleteAsync();
+
+                throw new Exception();
             }
         }
 
@@ -220,6 +241,8 @@ namespace MMS.ServiceBus
                     return (int)Interlocked.Read(ref this.replyHandlerCalled);
                 }
             }
+
+            public string HeaderValue { get; set; }
 
             public void AsyncHandlerCalled()
             {

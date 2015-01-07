@@ -75,8 +75,8 @@ namespace MMS.ServiceBus
             await firstSendTransaction.RollbackAsync();
             await secondSendTransaction.CompleteAsync();
 
-            this.context.AsyncHandlerCalled.Should().BeInvokedTwice();
-            this.context.HandlerCalled.Should().BeInvokedTwice();
+            this.context.AsyncHandlerCalled.Should().BeInvokedOnce();
+            this.context.HandlerCalled.Should().BeInvokedOnce();
         }
 
         [Test]

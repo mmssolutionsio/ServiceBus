@@ -252,7 +252,7 @@ namespace MMS.ServiceBus.Testing
             public Task SendAsync(TransportMessage message, SendOptions options)
             {
                 var brokeredMessage = message.ToBrokeredMessage();
-                var transportMessage = new TransportMessage(brokeredMessage);
+                var transportMessage = new SafeTransportMessage(brokeredMessage);
 
                 return this.onMessage(transportMessage);
             }
@@ -270,7 +270,7 @@ namespace MMS.ServiceBus.Testing
             public Task PublishAsync(TransportMessage message, PublishOptions options)
             {
                 var brokeredMessage = message.ToBrokeredMessage();
-                var transportMessage = new TransportMessage(brokeredMessage);
+                var transportMessage = new SafeTransportMessage(brokeredMessage);
 
                 return this.onMessage(transportMessage);
             }

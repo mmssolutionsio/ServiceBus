@@ -154,6 +154,7 @@
     <Compile Include="StringToAddressExtensions.cs" />
     <Compile Include="Topic.cs" />
     <Compile Include="Transaction.cs" />
+    <Compile Include="TransactionEnlistmentExtension.cs" />
     <Compile Include="TransportMessage.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -11,7 +11,7 @@ namespace MMS.ServiceBus.Dequeuing
 
     internal class NoOpDequeStrategy : IDequeueStrategy
     {
-        public Task StartAsync(EndpointConfiguration.ReadOnly configuration, Func<TransportMessage, Task> onMessage)
+        public Task StartAsync(EndpointConfiguration.ReadOnly configuration, ITransactionalBusProvider transactionalBusProvider, Func<TransportMessage, ITransaction, Task> onMessage)
         {
             return Task.FromResult(0);
         }

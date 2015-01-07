@@ -8,8 +8,8 @@ namespace MMS.ServiceBus.Pipeline.Incoming
 {
     public class IncomingTransportContext : Context
     {
-        public IncomingTransportContext(TransportMessage message, EndpointConfiguration.ReadOnly configuration)
-            : base(configuration, null)
+        public IncomingTransportContext(TransportMessage message, EndpointConfiguration.ReadOnly configuration, ITransactionEnlistment enlistment)
+            : base(configuration, enlistment)
         {
             this.Set(message);
         }

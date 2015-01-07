@@ -95,12 +95,12 @@ namespace MMS.ServiceBus
 
         public ITransaction BeginTransaction()
         {
-            throw new System.NotImplementedException();
+            return this.unit.BeginTransaction();
         }
 
         public IBus Participate(ITransaction @in)
         {
-            throw new System.NotImplementedException();
+            return this.unit.Participate(@in);
         }
     }
 }

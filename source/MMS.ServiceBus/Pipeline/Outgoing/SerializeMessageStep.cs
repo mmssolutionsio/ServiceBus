@@ -21,6 +21,7 @@ namespace MMS.ServiceBus.Pipeline.Outgoing
 
         public async Task Invoke(OutgoingTransportContext context, Func<Task> next)
         {
+            
             // TODO: Is there a way to properly track disposables?
             var ms = new MemoryStream();
             this.serializer.Serialize(context.LogicalMessage.Instance, ms);
