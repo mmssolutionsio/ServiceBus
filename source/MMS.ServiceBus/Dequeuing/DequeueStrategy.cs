@@ -8,6 +8,7 @@ namespace MMS.ServiceBus.Dequeuing
 {
     using System;
     using System.Threading.Tasks;
+    using System.Transactions;
 
     public class DequeueStrategy : IDequeueStrategy
     {
@@ -39,8 +40,42 @@ namespace MMS.ServiceBus.Dequeuing
 
         private async Task OnMessageAsync(TransportMessage message)
         {
-            await this.onMessageAsync(message)
-                               .ConfigureAwait(false);
+            using (var tx = new TransactionScopeDecorator(this.configuration))
+            {
+                await this.onMessageAsync(message)
+                    .ConfigureAwait(false);
+
+                tx.Complete();
+            }
+        }
+
+        private sealed class TransactionScopeDecorator : IDisposable
+        {
+            private readonly TransactionScope scope;
+
+            public TransactionScopeDecorator(EndpointConfiguration.ReadOnly configuration)
+            {
+                if (configuration.IsTransactional)
+                {
+                    this.scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
+                }
+            }
+
+            public void Complete()
+            {
+                if (this.scope != null)
+                {
+                    this.scope.Complete();
+                }
+            }
+
+            public void Dispose()
+            {
+                if (this.scope != null)
+                {
+                    this.scope.Dispose();
+                }
+            }
         }
     }
 }
