@@ -6,7 +6,6 @@
 
 namespace MMS.ServiceBus.Pipeline.Outgoing
 {
-    using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
 
@@ -19,7 +18,7 @@ namespace MMS.ServiceBus.Pipeline.Outgoing
 
         public static IReadOnlyCollection<Address> To(this IMessageRouter router, Queue queue)
         {
-            return router.To(queue);
+            return new ReadOnlyCollection<Address>(new List<Address> { queue });
         }
 
         public static IReadOnlyCollection<Address> To(this IMessageRouter router, Topic topic)

@@ -77,12 +77,12 @@ namespace MMS.ServiceBus
             {
                 if (messageType == typeof(MessageForReceiverOne))
                 {
-                    this.To(Queue.Create(ReceiverOneEndpointName));
+                    return this.To(Queue.Create(ReceiverOneEndpointName));
                 }
 
                 if (messageType == typeof(MessageForReceiverTwo))
                 {
-                    this.To(Queue.Create(ReceiverTwoEndpointName));
+                    return this.To(Queue.Create(ReceiverTwoEndpointName));
                 }
 
                 return this.NoDestination();
