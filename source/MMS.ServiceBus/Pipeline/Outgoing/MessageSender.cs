@@ -8,13 +8,14 @@ namespace MMS.ServiceBus.Pipeline.Outgoing
 {
     using System.Collections.Concurrent;
     using System.Threading.Tasks;
+    using System.Transactions;
     using Microsoft.ServiceBus.Messaging;
     using ServiceBusMessageSender = Microsoft.ServiceBus.Messaging.MessageSender;
 
     public class MessageSender : ISendMessages
     {
-        private readonly ConcurrentDictionary<Queue, ServiceBusMessageSender> senderCache = 
-            new ConcurrentDictionary<Queue, ServiceBusMessageSender>(); 
+        private readonly ConcurrentDictionary<Queue, ServiceBusMessageSender> senderCache =
+            new ConcurrentDictionary<Queue, ServiceBusMessageSender>();
 
         private readonly MessagingFactory factory;
 
@@ -23,18 +24,14 @@ namespace MMS.ServiceBus.Pipeline.Outgoing
             this.factory = factory;
         }
 
-        public async Task SendAsync(TransportMessage message, SendOptions options)
+        public Task SendAsync(TransportMessage message, SendOptions options)
         {
-            ServiceBusMessageSender sender;
-            if (!this.senderCache.TryGetValue(options.Queue, out sender))
+            if (Transaction.Current != null)
             {
-                sender = await this.factory.CreateMessageSenderAsync(options.Destination())
-                    .ConfigureAwait(false);
-                this.senderCache.TryAdd(options.Queue, sender);
+                return Transaction.Current.EnlistVolatileAsync(new SendResourceManager(() => this.SendInternalAsync(message, options)), EnlistmentOptions.None);
             }
 
-            await sender.SendAsync(message.ToBrokeredMessage())
-                .ConfigureAwait(false);
+            return this.SendInternalAsync(message, options);
         }
 
         public async Task CloseAsync()
@@ -46,6 +43,20 @@ namespace MMS.ServiceBus.Pipeline.Outgoing
             }
 
             this.senderCache.Clear();
+        }
+
+        private async Task SendInternalAsync(TransportMessage message, SendOptions options)
+        {
+            ServiceBusMessageSender sender;
+            if (!this.senderCache.TryGetValue(options.Queue, out sender))
+            {
+                sender = await this.factory.CreateMessageSenderAsync(options.Destination())
+                    .ConfigureAwait(false);
+                this.senderCache.TryAdd(options.Queue, sender);
+            }
+
+            await sender.SendAsync(message.ToBrokeredMessage())
+                .ConfigureAwait(false);
         }
     }
 }

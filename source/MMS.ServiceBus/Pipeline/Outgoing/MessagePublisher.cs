@@ -8,6 +8,7 @@ namespace MMS.ServiceBus.Pipeline.Outgoing
 {
     using System.Collections.Concurrent;
     using System.Threading.Tasks;
+    using System.Transactions;
     using Microsoft.ServiceBus.Messaging;
     using ServiceBusMessageSender = Microsoft.ServiceBus.Messaging.MessageSender;
 
@@ -23,18 +24,14 @@ namespace MMS.ServiceBus.Pipeline.Outgoing
             this.factory = factory;
         }
 
-        public async Task PublishAsync(TransportMessage message, PublishOptions options)
+        public Task PublishAsync(TransportMessage message, PublishOptions options)
         {
-            ServiceBusMessageSender sender;
-            if (!this.publisherCache.TryGetValue(options.Topic, out sender))
+            if (Transaction.Current != null)
             {
-                sender = await this.factory.CreateMessageSenderAsync(options.Destination())
-                    .ConfigureAwait(false);
-                this.publisherCache.TryAdd(options.Topic, sender);
+                return Transaction.Current.EnlistVolatileAsync(new SendResourceManager(() => this.PublishInternalAsync(message, options)), EnlistmentOptions.None);
             }
 
-            await sender.SendAsync(message.ToBrokeredMessage())
-                .ConfigureAwait(false);
+            return this.PublishInternalAsync(message, options);
         }
 
         public async Task CloseAsync()
@@ -46,6 +43,20 @@ namespace MMS.ServiceBus.Pipeline.Outgoing
             }
 
             this.publisherCache.Clear();
+        }
+
+        private async Task PublishInternalAsync(TransportMessage message, PublishOptions options)
+        {
+            ServiceBusMessageSender sender;
+            if (!this.publisherCache.TryGetValue(options.Topic, out sender))
+            {
+                sender = await this.factory.CreateMessageSenderAsync(options.Destination())
+                    .ConfigureAwait(false);
+                this.publisherCache.TryAdd(options.Topic, sender);
+            }
+
+            await sender.SendAsync(message.ToBrokeredMessage())
+                .ConfigureAwait(false);
         }
     }
 }
