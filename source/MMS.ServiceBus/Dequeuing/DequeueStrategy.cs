@@ -7,6 +7,7 @@
 namespace MMS.ServiceBus.Dequeuing
 {
     using System;
+    using System.Runtime.ExceptionServices;
     using System.Threading.Tasks;
 
     public class DequeueStrategy : IDequeueStrategy
@@ -17,15 +18,18 @@ namespace MMS.ServiceBus.Dequeuing
 
         private AsyncClosable receiver;
 
-        private Func<TransportMessage, Task> onMessageAsync;
+        private Func<TransportMessage, ITransaction, Task> onMessageAsync;
+
+        private ITransactionalBusProvider transactionalBusProvider;
 
         public DequeueStrategy(IReceiveMessages receiveMessages)
         {
             this.receiveMessages = receiveMessages;
         }
 
-        public async Task StartAsync(EndpointConfiguration.ReadOnly configuration, Func<TransportMessage, Task> onMessage)
+        public async Task StartAsync(EndpointConfiguration.ReadOnly configuration, ITransactionalBusProvider transactionalBusProvider, Func<TransportMessage, ITransaction, Task> onMessage)
         {
+            this.transactionalBusProvider = transactionalBusProvider;
             this.configuration = configuration;
             this.onMessageAsync = onMessage;
             this.receiver = await this.receiveMessages.StartAsync(this.configuration, this.OnMessageAsync)
@@ -39,8 +43,28 @@ namespace MMS.ServiceBus.Dequeuing
 
         private async Task OnMessageAsync(TransportMessage message)
         {
-            await this.onMessageAsync(message)
-                               .ConfigureAwait(false);
+            ExceptionDispatchInfo info = null;
+            ITransaction tx = this.configuration.IsTransactional ? 
+                this.transactionalBusProvider.BeginTransaction() : new ImmediateCompleteTransaction();
+
+            try
+            {
+                await this.onMessageAsync(message, tx)
+                    .ConfigureAwait(false);
+
+                await tx.CompleteAsync();
+            }
+            catch (Exception exception)
+            {
+                info = ExceptionDispatchInfo.Capture(exception);
+            }
+
+            if (info != null)
+            {
+                await tx.RollbackAsync();
+
+                info.Throw();
+            }
         }
     }
 }

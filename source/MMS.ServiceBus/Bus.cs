@@ -48,22 +48,32 @@ namespace MMS.ServiceBus
 
             await this.outgoingPipelineFactory.WarmupAsync();
             await this.incomingPipelineFactory.WarmupAsync();
-            await this.strategy.StartAsync(this.readOnlyConfiguration, this.OnMessageAsync);
+            await this.strategy.StartAsync(this.readOnlyConfiguration, this, this.OnMessageAsync);
+        }
+
+        public ITransaction BeginTransaction()
+        {
+            return new Transaction();
+        }
+
+        public IBus Participate(ITransaction @in)
+        {
+            return new TransactionAwareOutgoingBusDecorator(this, @in.AsEnlistment());
         }
 
         public Task SendLocal(object message)
         {
-            return this.SendLocal(message, incoming: null);
+            return this.SendLocal(message, new ImmediateCompleteTransaction(), incoming: null);
         }
 
         public Task Send(object message, SendOptions options = null)
         {
-            return this.Send(message, options, incoming: null);
+            return this.Send(message, options, new ImmediateCompleteTransaction(), incoming: null);
         }
 
         public Task Publish(object message, PublishOptions options = null)
         {
-            return this.Publish(message, options, incoming: null);
+            return this.Publish(message, options, new ImmediateCompleteTransaction(), incoming: null);
         }
 
         public async Task StopAsync()
@@ -73,12 +83,12 @@ namespace MMS.ServiceBus
             await this.outgoingPipelineFactory.CooldownAsync();
         }
 
-        private Task SendLocal(object message, TransportMessage incoming)
+        private Task SendLocal(object message, ITransactionEnlistment enlistment, TransportMessage incoming)
         {
-            return this.Send(message, new SendOptions { Queue = this.readOnlyConfiguration.EndpointQueue }, incoming);
+            return this.Send(message, new SendOptions { Queue = this.readOnlyConfiguration.EndpointQueue }, enlistment, incoming);
         }
 
-        private Task Send(object message, SendOptions options, TransportMessage incoming)
+        private Task Send(object message, SendOptions options, ITransactionEnlistment enlistment, TransportMessage incoming)
         {
             if (message == null)
             {
@@ -88,10 +98,10 @@ namespace MMS.ServiceBus
             var sendOptions = options ?? new SendOptions();
             LogicalMessage msg = this.factory.Create(message, sendOptions.Headers);
 
-            return this.SendMessage(msg, sendOptions, incoming);
+            return this.SendMessage(msg, sendOptions, enlistment, incoming);
         }
 
-        private Task Publish(object message, PublishOptions options, TransportMessage incoming)
+        private Task Publish(object message, PublishOptions options, ITransactionEnlistment enlistment, TransportMessage incoming)
         {
             if (message == null)
             {
@@ -102,10 +112,10 @@ namespace MMS.ServiceBus
             LogicalMessage msg = this.factory.Create(message, publishOptions.Headers);
             publishOptions.EventType = msg.MessageType;
 
-            return this.SendMessage(msg, publishOptions, incoming);
+            return this.SendMessage(msg, publishOptions, enlistment, incoming);
         }
 
-        private Task SendMessage(LogicalMessage outgoingLogicalMessage, DeliveryOptions options, TransportMessage incoming)
+        private Task SendMessage(LogicalMessage outgoingLogicalMessage, DeliveryOptions options, ITransactionEnlistment enlistment, TransportMessage incoming)
         {
             if (options.ReplyToAddress == null)
             {
@@ -113,13 +123,50 @@ namespace MMS.ServiceBus
             }
 
             OutgoingPipeline outgoingPipeline = this.outgoingPipelineFactory.Create();
-            return outgoingPipeline.Invoke(outgoingLogicalMessage, options, this.readOnlyConfiguration, incoming);
+            return outgoingPipeline.Invoke(outgoingLogicalMessage, options, this.readOnlyConfiguration, enlistment, incoming);
         }
 
-        private Task OnMessageAsync(TransportMessage message)
+        private Task OnMessageAsync(TransportMessage message, ITransaction transaction)
         {
             IncomingPipeline incomingPipeline = this.incomingPipelineFactory.Create();
-            return incomingPipeline.Invoke(new IncomingBusDecorator(this, incomingPipeline, message), message, this.readOnlyConfiguration);
+            return incomingPipeline.Invoke(new IncomingBusDecorator(this, incomingPipeline, message, transaction.AsEnlistment()), message, this.readOnlyConfiguration, transaction.AsEnlistment());
+        }
+
+        private class TransactionAwareOutgoingBusDecorator : IBus
+        {
+            private readonly Bus bus;
+            private readonly ITransactionEnlistment transactionEnlistment;
+
+            public TransactionAwareOutgoingBusDecorator(Bus bus, ITransactionEnlistment enlistment)
+            {
+                this.transactionEnlistment = enlistment;
+                this.bus = bus;
+            }
+
+            public ITransaction BeginTransaction()
+            {
+                return this.bus.BeginTransaction();
+            }
+
+            public IBus Participate(ITransaction @in)
+            {
+                return this.bus.Participate(@in);
+            }
+
+            public Task SendLocal(object message)
+            {
+                return this.bus.SendLocal(message, this.transactionEnlistment, incoming: null);
+            }
+
+            public Task Send(object message, SendOptions options = null)
+            {
+                return this.bus.Send(message, options, this.transactionEnlistment, incoming: null);
+            }
+
+            public Task Publish(object message, PublishOptions options = null)
+            {
+                return this.bus.Publish(message, options, this.transactionEnlistment, incoming: null);
+            }
         }
 
         private class IncomingBusDecorator : IBusForHandler
@@ -129,32 +176,35 @@ namespace MMS.ServiceBus
             private readonly IncomingPipeline incomingPipeline;
             private readonly TransportMessage incoming;
 
-            public IncomingBusDecorator(Bus bus, IncomingPipeline incomingPipeline, TransportMessage incoming)
+            private readonly ITransactionEnlistment transactionEnlistment;
+
+            public IncomingBusDecorator(Bus bus, IncomingPipeline incomingPipeline, TransportMessage incoming, ITransactionEnlistment enlistment)
             {
                 this.incoming = incoming;
                 this.incomingPipeline = incomingPipeline;
                 this.bus = bus;
+                this.transactionEnlistment = enlistment;
             }
 
             public Task SendLocal(object message)
             {
-                return this.bus.SendLocal(message, this.incoming);
+                return this.bus.SendLocal(message, this.transactionEnlistment, this.incoming);
             }
 
             public Task Send(object message, SendOptions options = null)
             {
-                return this.bus.Send(message, options, this.incoming);
+                return this.bus.Send(message, options, this.transactionEnlistment, this.incoming);
             }
 
             public Task Publish(object message, PublishOptions options = null)
             {
-                return this.bus.Publish(message, options, this.incoming);
+                return this.bus.Publish(message, options, this.transactionEnlistment, this.incoming);
             }
 
             public Task Reply(object message, ReplyOptions options = null)
             {
                 ReplyOptions replyOptions = GetOrCreateReplyOptions(this.incoming, options);
-                return this.bus.Send(message, replyOptions, this.incoming);
+                return this.bus.Send(message, replyOptions, this.transactionEnlistment, this.incoming);
             }
 
             public IDictionary<string, string> Headers(object message)
@@ -183,6 +233,16 @@ namespace MMS.ServiceBus
                 options.Queue = options.Queue ?? destination;
                 options.CorrelationId = options.CorrelationId ?? correlationId;
                 return options;
+            }
+
+            public ITransaction BeginTransaction()
+            {
+                return this.bus.BeginTransaction();
+            }
+
+            public IBusForHandler Participate(ITransaction @in)
+            {
+                return new IncomingBusDecorator(this.bus, this.incomingPipeline, this.incoming, @in.AsEnlistment());
             }
         }
     }

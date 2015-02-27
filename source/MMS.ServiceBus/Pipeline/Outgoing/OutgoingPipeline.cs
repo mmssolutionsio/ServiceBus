@@ -83,10 +83,10 @@ namespace MMS.ServiceBus.Pipeline.Outgoing
             this.executingTransportPipeline = this.snapshotTransport.Pop();
         }
 
-        public virtual async Task Invoke(LogicalMessage outgoingLogicalMessage, DeliveryOptions options, EndpointConfiguration.ReadOnly configuration, TransportMessage incomingTransportMessage = null)
+        public virtual async Task Invoke(LogicalMessage outgoingLogicalMessage, DeliveryOptions options, EndpointConfiguration.ReadOnly configuration, ITransactionEnlistment enlistment, TransportMessage incomingTransportMessage = null)
         {
             this.executingLogicalPipeline = new Queue<IOutgoingLogicalStep>(this.registeredlogicalPipelineSteps);
-            var logicalContext = new OutgoingLogicalContext(outgoingLogicalMessage, options, configuration);
+            var logicalContext = new OutgoingLogicalContext(outgoingLogicalMessage, options, configuration, enlistment);
             logicalContext.SetChain(this);
             await this.InvokeLogical(logicalContext)
                 .ConfigureAwait(false);
@@ -95,7 +95,7 @@ namespace MMS.ServiceBus.Pipeline.Outgoing
             var outgoingTransportMessage = logicalContext.Get<TransportMessage>();
 
             this.executingTransportPipeline = new Queue<IOutgoingTransportStep>(this.registeredTransportPipelineSteps);
-            var transportContext = new OutgoingTransportContext(outgoingLogicalMessage, outgoingTransportMessage, options, configuration, incomingTransportMessage);
+            var transportContext = new OutgoingTransportContext(outgoingLogicalMessage, outgoingTransportMessage, options, configuration, enlistment, incomingTransportMessage);
             transportContext.SetChain(this);
             await this.InvokeTransport(transportContext)
                 .ConfigureAwait(false);

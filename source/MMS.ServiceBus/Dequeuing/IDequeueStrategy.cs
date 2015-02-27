@@ -11,7 +11,7 @@ namespace MMS.ServiceBus.Dequeuing
 
     public interface IDequeueStrategy
     {
-        Task StartAsync(EndpointConfiguration.ReadOnly configuration, Func<TransportMessage, Task> onMessage);
+        Task StartAsync(EndpointConfiguration.ReadOnly configuration, ITransactionalBusProvider transactionalBusProvider, Func<TransportMessage, ITransaction, Task> onMessage);
 
         Task StopAsync();
     }

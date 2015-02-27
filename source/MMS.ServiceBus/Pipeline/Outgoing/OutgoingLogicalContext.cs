@@ -8,8 +8,8 @@ namespace MMS.ServiceBus.Pipeline.Outgoing
 {
     public class OutgoingLogicalContext : Context
     {
-        public OutgoingLogicalContext(LogicalMessage message, DeliveryOptions options, EndpointConfiguration.ReadOnly configuration)
-            : base(configuration)
+        public OutgoingLogicalContext(LogicalMessage message, DeliveryOptions options, EndpointConfiguration.ReadOnly configuration, ITransactionEnlistment enlistment)
+            : base(configuration, enlistment)
         {
             this.Set(message);
             this.Set(options);

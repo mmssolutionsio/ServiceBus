@@ -21,14 +21,20 @@ namespace MMS.ServiceBus.Pipeline
 
         private ISupportSnapshots chain;
 
-        protected Context(EndpointConfiguration.ReadOnly configuration)
+        protected Context(EndpointConfiguration.ReadOnly configuration, ITransactionEnlistment enlistment)
         {
             this.Set(configuration);
+            this.Set(enlistment);
         }
 
         public EndpointConfiguration.ReadOnly Configuration
         {
             get { return this.Get<EndpointConfiguration.ReadOnly>(); }
+        }
+
+        public ITransactionEnlistment Enlistment
+        {
+            get { return this.Get<ITransactionEnlistment>(); }
         }
 
         public T Get<T>()

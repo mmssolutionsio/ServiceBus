@@ -85,10 +85,10 @@ namespace MMS.ServiceBus.Pipeline.Incoming
             this.executingTransportPipeline = this.snapshotTransport.Pop();
         }
 
-        public async Task Invoke(IBusForHandler bus, TransportMessage message, EndpointConfiguration.ReadOnly configuration)
+        public async Task Invoke(IBusForHandler bus, TransportMessage message, EndpointConfiguration.ReadOnly configuration, ITransactionEnlistment enlistment)
         {
             this.executingTransportPipeline = new Queue<IIncomingTransportStep>(this.registeredTransportPipeline);
-            var transportContext = new IncomingTransportContext(message, configuration);
+            var transportContext = new IncomingTransportContext(message, configuration, enlistment);
             transportContext.SetChain(this);
             await this.InvokeTransport(transportContext, bus)
                 .ConfigureAwait(false);
@@ -97,7 +97,7 @@ namespace MMS.ServiceBus.Pipeline.Incoming
             var logicalMessage = transportContext.Get<LogicalMessage>();
 
             this.executingLogicalPipeline = new Queue<IIncomingLogicalStep>(this.registeredLogicalPipeline);
-            var logicalContext = new IncomingLogicalContext(logicalMessage, message, configuration);
+            var logicalContext = new IncomingLogicalContext(logicalMessage, message, configuration, enlistment);
             logicalContext.SetChain(this);
             this.currentContext = logicalContext;
             await this.InvokeLogical(logicalContext, bus)
