@@ -26,12 +26,7 @@ namespace MMS.ServiceBus.Pipeline.Outgoing
 
         public Task PublishAsync(TransportMessage message, PublishOptions options)
         {
-            if (Transaction.Current != null)
-            {
-                return Transaction.Current.EnlistVolatileAsync(new SendResourceManager(() => this.PublishInternalAsync(message, options)), EnlistmentOptions.None);
-            }
-
-            return this.PublishInternalAsync(message, options);
+            return Transaction.Current.ExecuteAsyncWithEnlistmentIfNecessary(() => this.PublishInternalAsync(message, options));
         }
 
         public async Task CloseAsync()

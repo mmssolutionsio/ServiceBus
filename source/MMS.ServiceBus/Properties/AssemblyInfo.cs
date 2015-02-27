@@ -25,3 +25,4 @@ using System.Runtime.InteropServices;
 [assembly: Guid("df6a63ad-bdc1-4f43-b91d-102de5f8fe7a")]
 
 [assembly: InternalsVisibleTo("MMS.ServiceBus.Tests")]
+[assembly: InternalsVisibleTo("MMS.ServiceBus.Testing")]

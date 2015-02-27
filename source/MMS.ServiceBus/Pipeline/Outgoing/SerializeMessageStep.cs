@@ -21,18 +21,20 @@ namespace MMS.ServiceBus.Pipeline.Outgoing
 
         public async Task Invoke(OutgoingTransportContext context, Func<Task> next)
         {
-            using (var ms = new MemoryStream())
-            {
-                this.serializer.Serialize(context.LogicalMessage.Instance, ms);
+            // TODO : Disposable tracker
+            ////using (var ms = new MemoryStream())
+            ////{
+            var ms = new MemoryStream();
+            this.serializer.Serialize(context.LogicalMessage.Instance, ms);
 
-                context.OutgoingTransportMessage.ContentType = this.serializer.ContentType;
-                context.OutgoingTransportMessage.MessageType = context.LogicalMessage.Instance.GetType().AssemblyQualifiedName;
+            context.OutgoingTransportMessage.ContentType = this.serializer.ContentType;
+            context.OutgoingTransportMessage.MessageType = context.LogicalMessage.Instance.GetType().AssemblyQualifiedName;
 
-                context.OutgoingTransportMessage.SetBody(ms);
+            context.OutgoingTransportMessage.SetBody(ms);
 
-                await next()
-                    .ConfigureAwait(false);
-            }
+            await next()
+                .ConfigureAwait(false);
+            ////}
         }
     }
 }

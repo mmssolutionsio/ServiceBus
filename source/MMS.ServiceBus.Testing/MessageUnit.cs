@@ -9,6 +9,7 @@ namespace MMS.ServiceBus.Testing
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
+    using System.Transactions;
     using Dequeuing;
     using Pipeline;
     using Pipeline.Incoming;
@@ -251,6 +252,11 @@ namespace MMS.ServiceBus.Testing
 
             public Task SendAsync(TransportMessage message, SendOptions options)
             {
+                return Transaction.Current.ExecuteAsyncWithEnlistmentIfNecessary(() => this.SendInternalAsync(message));
+            }
+
+            private Task SendInternalAsync(TransportMessage message)
+            {
                 var brokeredMessage = message.ToBrokeredMessage();
                 var transportMessage = new TransportMessage(brokeredMessage);
 
@@ -268,6 +274,11 @@ namespace MMS.ServiceBus.Testing
             }
 
             public Task PublishAsync(TransportMessage message, PublishOptions options)
+            {
+                return Transaction.Current.ExecuteAsyncWithEnlistmentIfNecessary(() => this.PublishInternalAsync(message));
+            }
+
+            private Task PublishInternalAsync(TransportMessage message)
             {
                 var brokeredMessage = message.ToBrokeredMessage();
                 var transportMessage = new TransportMessage(brokeredMessage);
