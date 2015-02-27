@@ -7,6 +7,7 @@
 namespace MMS.ServiceBus.Pipeline.Outgoing
 {
     using System;
+    using System.Collections.Generic;
     using System.IO;
     using System.Threading.Tasks;
 
@@ -19,22 +20,21 @@ namespace MMS.ServiceBus.Pipeline.Outgoing
             this.serializer = serializer;
         }
 
-        public async Task Invoke(OutgoingTransportContext context, Func<Task> next)
+        public Task Invoke(OutgoingTransportContext context, Func<Task> next)
         {
-            // TODO : Disposable tracker
-            ////using (var ms = new MemoryStream())
-            ////{
             var ms = new MemoryStream();
-            this.serializer.Serialize(context.LogicalMessage.Instance, ms);
+            return ms.UsingAsync(() =>
+            {
+                this.serializer.Serialize(context.LogicalMessage.Instance, ms);
 
-            context.OutgoingTransportMessage.ContentType = this.serializer.ContentType;
-            context.OutgoingTransportMessage.MessageType = context.LogicalMessage.Instance.GetType().AssemblyQualifiedName;
+                context.OutgoingTransportMessage.ContentType = this.serializer.ContentType;
+                context.OutgoingTransportMessage.MessageType =
+                    context.LogicalMessage.Instance.GetType().AssemblyQualifiedName;
 
-            context.OutgoingTransportMessage.SetBody(ms);
+                context.OutgoingTransportMessage.SetBody(ms);
 
-            await next()
-                .ConfigureAwait(false);
-            ////}
+                return next();
+            });
         }
     }
 }

@@ -113,6 +113,7 @@
     <Compile Include="Pipeline\Outgoing\CreateTransportMessageStep.cs" />
     <Compile Include="Pipeline\Outgoing\DetermineDestinationStep.cs" />
     <Compile Include="Pipeline\Outgoing\DispatchToTransportStep.cs" />
+    <Compile Include="Pipeline\Outgoing\DisposableExtensions.cs" />
     <Compile Include="Pipeline\Outgoing\IMessageRouter.cs" />
     <Compile Include="Pipeline\Outgoing\IOutgoingLogicalStep.cs" />
     <Compile Include="Pipeline\Outgoing\IOutgoingLogicalStepRegisterer.cs" />
