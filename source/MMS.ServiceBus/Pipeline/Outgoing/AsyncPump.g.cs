@@ -41,10 +41,20 @@ namespace MMS.ServiceBus.Pipeline.Outgoing
         private sealed class SingleThreadSynchronizationContext : SynchronizationContext
         {
             /// <summary>The queue of work items.</summary>
-            private readonly BlockingCollection<KeyValuePair<SendOrPostCallback, object>> m_queue =
-                new BlockingCollection<KeyValuePair<SendOrPostCallback, object>>();
+            private readonly BlockingCollection<KeyValuePair<SendOrPostCallback, object>> m_queue;
             /// <summary>The processing thread.</summary>
-            private readonly Thread m_thread = Thread.CurrentThread;
+            private readonly Thread m_thread;
+
+            public SingleThreadSynchronizationContext()
+                : this(new BlockingCollection<KeyValuePair<SendOrPostCallback, object>>(), Thread.CurrentThread)
+            {
+            }
+
+            public SingleThreadSynchronizationContext(BlockingCollection<KeyValuePair<SendOrPostCallback, object>> queue, Thread currentThread)
+            {
+                m_queue = queue;
+                m_thread = currentThread;
+            }
 
             /// <summary>Dispatches an asynchronous message to the synchronization context.</summary>
             /// <param name="d">The System.Threading.SendOrPostCallback delegate to call.</param>
@@ -59,6 +69,11 @@ namespace MMS.ServiceBus.Pipeline.Outgoing
             public override void Send(SendOrPostCallback d, object state)
             {
                 throw new NotSupportedException("Synchronously sending is not supported.");
+            }
+
+            public override SynchronizationContext CreateCopy()
+            {
+                return new SingleThreadSynchronizationContext(this.m_queue, this.m_thread);
             }
 
             /// <summary>Runs an loop to process all queued work items.</summary>

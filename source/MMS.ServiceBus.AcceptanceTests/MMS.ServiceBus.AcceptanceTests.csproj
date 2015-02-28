@@ -75,7 +75,7 @@
     <Compile Include="DeadLetterMessages.cs" />
     <Compile Include="SendingMessages.cs" />
     <Compile Include="SendingMessagesLocal.cs" />
-    <Compile Include="TransactionsSendingMessages.cs" />
+    <Compile Include="TransactionalSendingMessages.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config">
