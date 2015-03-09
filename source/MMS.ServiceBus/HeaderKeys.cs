@@ -20,6 +20,8 @@ namespace MMS.ServiceBus
 
         public const string MessageIntent = HeaderPrefix + "MessageIntent";
 
+        public const string ScheduledEnqueueTimeUtc = HeaderPrefix + "ScheduledEnqueueTimeUtc";
+
         public const string FailurePrefix = HeaderPrefix + "Failure.";
 
         public const string ExceptionReason = FailurePrefix + "Exception.Reason";
@@ -39,5 +41,10 @@ namespace MMS.ServiceBus
         public const string TimeOfFailure = FailurePrefix + "TimeOfFailure";
 
         private const string HeaderPrefix = "MMS.ServiceBus.";
+
+        public static bool IsKey(string key)
+        {
+            return key.StartsWith(HeaderPrefix);
+        }
     }
 }

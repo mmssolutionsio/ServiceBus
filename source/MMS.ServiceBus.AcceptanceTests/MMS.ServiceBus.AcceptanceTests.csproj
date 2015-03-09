@@ -21,7 +21,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <NoWarn>1591</NoWarn>	
+    <NoWarn>1591</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -30,7 +30,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <NoWarn>1591</NoWarn>	
+    <NoWarn>1591</NoWarn>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="FluentAssertions">
@@ -73,6 +73,8 @@
     <Compile Include="RoutingMessages.cs" />
     <Compile Include="DeadLetterMessages.cs" />
     <Compile Include="SendingMessages.cs" />
+    <Compile Include="PostponingMessages.cs" />
+    <Compile Include="SendingMessagesScheduled.cs" />
     <Compile Include="SendingMessagesLocal.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -105,18 +107,15 @@
     <BuildDependsOn>$(BuildDependsOn);NUnit</BuildDependsOn>
     <RebuildDependsOn>$(RebuildDependsOn);NUnit</RebuildDependsOn>
   </PropertyGroup>
-  
   <PropertyGroup>
     <TestsFolder>$(SolutionDir)..\results\</TestsFolder>
   </PropertyGroup>
   <ItemGroup>
-    <NUnit Include="$(SolutionDir)packages\NUnit.Runners.*\tools\nunit-console.exe"/>
+    <NUnit Include="$(SolutionDir)packages\NUnit.Runners.*\tools\nunit-console.exe" />
   </ItemGroup>
   <Target Name="NUnit">
     <MakeDir Directories="$(TestsFolder)" />
-    <Error Condition="'@(NUnit->Count())' != '1'" Text="There are several NUnit.Runners packages installed. Cannot execute tests." />
-    <Exec
-        Condition="'$(Configuration)' == 'Release'"
-        Command="@(NUnit->'%(FullPath)') $(TargetPath) --xml $(TestsFolder)$(MSBuildProjectName).xml" />
+    <Error Condition="'@(NUnit-&gt;Count())' != '1'" Text="There are several NUnit.Runners packages installed. Cannot execute tests." />
+    <Exec Condition="'$(Configuration)' == 'Release'" Command="@(NUnit->'%(FullPath)') $(TargetPath) --xml $(TestsFolder)$(MSBuildProjectName).xml" />
   </Target>
 </Project>

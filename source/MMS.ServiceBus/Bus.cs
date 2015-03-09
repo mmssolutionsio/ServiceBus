@@ -8,6 +8,7 @@ namespace MMS.ServiceBus
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Threading.Tasks;
     using Dequeuing;
     using Pipeline;
@@ -78,6 +79,12 @@ namespace MMS.ServiceBus
             return this.Send(message, new SendOptions { Queue = this.readOnlyConfiguration.EndpointQueue }, incoming);
         }
 
+        private Task SendLocal(object message, SendOptions sendOptions, TransportMessage incoming)
+        {
+            sendOptions.Queue = this.readOnlyConfiguration.EndpointQueue;
+            return this.Send(message, sendOptions, incoming);
+        }
+
         private Task Send(object message, SendOptions options, TransportMessage incoming)
         {
             if (message == null)
@@ -141,6 +148,13 @@ namespace MMS.ServiceBus
                 return this.bus.SendLocal(message, this.incoming);
             }
 
+            public Task Postpone(object message, DateTime scheduledEnqueueTimeUtc)
+            {
+                var sendOptions = CreatePostponeSendOptions(scheduledEnqueueTimeUtc, this.incoming);
+
+                return this.bus.SendLocal(message, sendOptions, this.incoming);
+            }
+
             public Task Send(object message, SendOptions options = null)
             {
                 return this.bus.Send(message, options, this.incoming);
@@ -183,6 +197,29 @@ namespace MMS.ServiceBus
                 options.Queue = options.Queue ?? destination;
                 options.CorrelationId = options.CorrelationId ?? correlationId;
                 return options;
+            }
+
+            private static SendOptions CreatePostponeSendOptions(DateTime scheduledEnqueueTimeUtc, TransportMessage incoming)
+            {
+                var options = new SendOptions
+                              {
+                                  CorrelationId = incoming.CorrelationId,
+                                  ScheduledEnqueueTimeUtc = scheduledEnqueueTimeUtc,
+                                  ReplyToAddress = incoming.ReplyTo
+                              };
+                AddCustomHeaders(options, incoming);
+                return options;
+            }
+
+            private static void AddCustomHeaders(SendOptions sendOptions, TransportMessage incoming)
+            {
+                foreach (var keyvalue in incoming.Headers)
+                {
+                    if (!HeaderKeys.IsKey(keyvalue.Key))
+                    {
+                        sendOptions.Headers.Add(keyvalue.Key, keyvalue.Value);
+                    }
+                }
             }
         }
     }

@@ -22,6 +22,7 @@ namespace MMS.ServiceBus.Pipeline.Outgoing
             {
                 toSend.MessageIntent = sendOptions is ReplyOptions ? MessageIntent.Reply : MessageIntent.Send;
                 toSend.ReplyTo = sendOptions.ReplyToAddress;
+                toSend.ScheduledEnqueueTimeUtc = sendOptions.ScheduledEnqueueTimeUtc;
 
                 if (sendOptions.CorrelationId != null)
                 {
