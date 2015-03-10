@@ -6,10 +6,14 @@
 
 namespace MMS.ServiceBus
 {
+    using System;
+
     public class SendOptions : DeliveryOptions
     {
         public Queue Queue { get; set; }
 
         public string CorrelationId { get; set; }
+
+        public DateTime ScheduledEnqueueTimeUtc { get; set; }
     }
 }

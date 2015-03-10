@@ -31,6 +31,7 @@ namespace MMS.ServiceBus
                 { HeaderKeys.ReplyTo, null },
                 { HeaderKeys.MessageType, null },
                 { HeaderKeys.MessageIntent, null },
+                { HeaderKeys.ScheduledEnqueueTimeUtc, null },
             };
         }
 
@@ -41,7 +42,8 @@ namespace MMS.ServiceBus
                 { HeaderKeys.MessageId, message.MessageId },
                 { HeaderKeys.CorrelationId, message.CorrelationId },
                 { HeaderKeys.MessageType, message.ContentType },
-                { HeaderKeys.ReplyTo, message.ReplyTo }
+                { HeaderKeys.ReplyTo, message.ReplyTo },
+                { HeaderKeys.ScheduledEnqueueTimeUtc, message.ScheduledEnqueueTimeUtc.Ticks.ToString() }
             };
 
             this.message = message;
@@ -107,6 +109,12 @@ namespace MMS.ServiceBus
 
         public IDictionary<string, string> Headers { get; private set; }
 
+        public DateTime ScheduledEnqueueTimeUtc
+        {
+            get { return new DateTime(long.Parse(this.Headers[HeaderKeys.ScheduledEnqueueTimeUtc] ?? "0")); }
+            set { this.Headers[HeaderKeys.ScheduledEnqueueTimeUtc] = value.Ticks.ToString(); }
+        }
+
         public Stream Body
         {
             get { return this.body ?? (this.body = this.message.GetBody<Stream>()); }
@@ -130,6 +138,7 @@ namespace MMS.ServiceBus
                 MessageId = this.Id,
                 CorrelationId = this.CorrelationId,
                 ReplyTo = this.ReplyTo != null ? this.ReplyTo.ToString() : null,
+                ScheduledEnqueueTimeUtc = this.ScheduledEnqueueTimeUtc,
             };
 
             foreach (KeyValuePair<string, string> pair in this.Headers)
