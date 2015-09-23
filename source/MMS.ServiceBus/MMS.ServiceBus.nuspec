@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>MMS.ServiceBus</id>
-        <version>2.6.0</version>
+        <version>$version$</version>
         <title>MMS.ServiceBus</title>
         <authors>MMS Software Development Team</authors>
         <owners>MMS Software Development Team</owners>
