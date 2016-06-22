@@ -25,11 +25,8 @@ namespace MMS.ServiceBus
         private const string ReceiverEndpointName = "Receiver";
 
         private Context context;
-
         private HandlerRegistrySimulator registry;
-
         private MessageUnit sender;
-
         private MessageUnit receiver;
 
         [SetUp]
