@@ -83,7 +83,6 @@ namespace MMS.ServiceBus
             await this.sender.Send(new Message(), sendOptions);
 
             this.receiver.OutgoingTransport.Should().OnlyContain(msg => msg.Headers[HeaderKeys.CorrelationId] == sendOptions.CorrelationId);
-            this.receiver.OutgoingTransport.Should().OnlyContain(msg => msg.Headers[HeaderKeys.CorrelationId] == sendOptions.CorrelationId);
         }
 
         [Test]
@@ -109,6 +108,17 @@ namespace MMS.ServiceBus
             var shortReplyTo = RemoveBrackets(incomingMessageReplyTo);
             this.receiver.OutgoingTransport.Should().OnlyContain(msg => msg.ReplyTo.ToString() == incomingMessageReplyTo);
             this.receiver.OutgoingTransport.Should().OnlyContain(msg => msg.Headers[HeaderKeys.ReplyTo] == shortReplyTo);
+        }
+
+        [Test]
+        public async Task WhenMessageHandlerPostponesMessage_PostponedMessageContainsOriginalDelayedDeliveryCount()
+        {
+            var sendOptions = new SendOptions { DelayedDeliveryCount = 5 };
+
+            await this.sender.Send(new Message(), sendOptions);
+
+            var delayedDeliveryCount = this.receiver.IncomingTransport[0].DelayedDeliveryCount.ToString();
+            this.receiver.OutgoingTransport.Should().OnlyContain(msg => msg.DelayedDeliveryCount.ToString() == delayedDeliveryCount);
         }
 
         [Test]

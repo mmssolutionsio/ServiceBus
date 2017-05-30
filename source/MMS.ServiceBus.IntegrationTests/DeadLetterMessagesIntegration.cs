@@ -26,12 +26,14 @@ namespace MMS.ServiceBus
         private MessageUnit receiver;
         private MessagingFactory messagingFactory;
 
+        private const int MessageCount = 10;
+
         [SetUp]
         public void SetUp()
         {
             this.messagingFactory = MessagingFactory.Create();
 
-            this.receiver = new MessageUnit(new EndpointConfiguration().Endpoint(ReceiverEndpointName).Concurrency(1))
+            this.receiver = new MessageUnit(new EndpointConfiguration().Endpoint(ReceiverEndpointName).Concurrency(1).MaximumImmediateRetryCount(MessageCount/2).MaximumDelayedRetryCount(MessageCount/2))
                 .Use(this.messagingFactory)
                 .Use(new HandlerRegistrySimulator());
 
@@ -56,7 +58,7 @@ namespace MMS.ServiceBus
             await messageSender.SendAsync(tm.ToBrokeredMessage());
 
             MessageReceiver deadLetterReceiver = await this.messagingFactory.CreateMessageReceiverAsync(QueueClient.FormatDeadLetterPath(ReceiverEndpointName), ReceiveMode.ReceiveAndDelete);
-            IEnumerable<BrokeredMessage> deadLetteredMessages = await deadLetterReceiver.ReceiveBatchAsync(10);
+            IEnumerable<BrokeredMessage> deadLetteredMessages = await deadLetterReceiver.ReceiveBatchAsync(MessageCount);
 
             // That's not really a good assertion here. But how far should I compare exception, stacktrace etc.
             deadLetteredMessages.Should().HaveCount(1);
@@ -81,7 +83,7 @@ namespace MMS.ServiceBus
             await messageSender.SendAsync(tm.ToBrokeredMessage());
 
             MessageReceiver deadLetterReceiver = await this.messagingFactory.CreateMessageReceiverAsync(QueueClient.FormatDeadLetterPath(ReceiverEndpointName), ReceiveMode.ReceiveAndDelete);
-            IEnumerable<BrokeredMessage> deadLetteredMessages = await deadLetterReceiver.ReceiveBatchAsync(10);
+            IEnumerable<BrokeredMessage> deadLetteredMessages = await deadLetterReceiver.ReceiveBatchAsync(MessageCount);
 
             // That's not really a good assertion here. But how far should I compare exception, stacktrace etc.
             deadLetteredMessages.Should().HaveCount(1);

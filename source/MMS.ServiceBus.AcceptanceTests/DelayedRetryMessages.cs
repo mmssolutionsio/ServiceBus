@@ -8,9 +8,7 @@ namespace MMS.ServiceBus
 {
     using System;
     using System.Collections.Generic;
-    using System.Collections.ObjectModel;
     using System.IO;
-    using System.Runtime.Serialization;
     using System.Threading.Tasks;
     using FluentAssertions;
     using NUnit.Framework;
@@ -18,8 +16,10 @@ namespace MMS.ServiceBus
     using ServiceBus.Testing;
 
     [TestFixture]
-    public class DeadLetterMessages
+    public class DelayedRetryMessages
     {
+        private const int MaxImmediateRetryCount = 6;
+        private const int MaxDelayedRetryCount = 3;
         private HandlerRegistrySimulator registry;
 
         private Broker broker;
@@ -27,6 +27,8 @@ namespace MMS.ServiceBus
         private MessageUnit sender;
 
         private MessageUnit receiver;
+
+        static int actualDelayedRetryCount;
 
         [SetUp]
         public void SetUp()
@@ -37,7 +39,7 @@ namespace MMS.ServiceBus
             this.sender = new MessageUnit(new EndpointConfiguration().Endpoint("Sender").Concurrency(1))
                 .Use(new AlwaysRouteToDestination(Queue.Create("Receiver")));
             this.receiver = new MessageUnit(new EndpointConfiguration().Endpoint("Receiver")
-                .Concurrency(1)).Use(this.registry);
+                .Concurrency(1).MaximumImmediateRetryCount(MaxImmediateRetryCount).MaximumDelayedRetryCount(MaxDelayedRetryCount)).Use(this.registry);
 
             this.broker.Register(this.sender)
                        .Register(this.receiver);
@@ -52,25 +54,7 @@ namespace MMS.ServiceBus
         }
 
         [Test]
-        public void WhenMessageSentWithBodyWhichCannotBeDeserialized_MessageIsDeadlettered()
-        {
-            var stream = new MemoryStream();
-            var writer = new StreamWriter(stream);
-            writer.Write("{ ; }");
-            writer.Flush();
-            stream.Position = 0;
-
-            var tm = new DeadLetterTransportMessage { MessageType = typeof(Message).AssemblyQualifiedName };
-            tm.SetBody(stream);
-
-            Func<Task> action = () => this.receiver.HandOver(tm);
-
-            action.ShouldThrow<SerializationException>();
-            tm.DeadLetterHeaders.Should().NotBeEmpty();
-        }
-
-        [Test]
-        public void WhenMessageReachesMaximumNumberOfRetries_MessageIsDeadlettered()
+        public void WhenMessageReachesMaximumNumberOfImmediateRetries_MessageIsDelayed()
         {
             var stream = new MemoryStream();
             var writer = new StreamWriter(stream);
@@ -78,18 +62,45 @@ namespace MMS.ServiceBus
             writer.Flush();
             stream.Position = 0;
 
-            var tm = new DeadLetterTransportMessage { MessageType = typeof(Message).AssemblyQualifiedName };
+            actualDelayedRetryCount = 0;
+            var tm = new TestTransportMessage(typeof(Message).AssemblyQualifiedName);
+            tm.SetBody(stream);
+
+            Func<Task> action = () => this.receiver.HandOver(tm);
+
+            action.ShouldNotThrow<InvalidOperationException>();
+            tm.DeadLetterHeaders.Should().BeNull();
+            tm.DelayedDeliveryCount.Should().Be(1);
+        }
+
+        [Test]
+        public void WhenMessageReachesMaximumNumberOfDelayedRetries_MessageIsDeadlettered()
+        {
+            var stream = new MemoryStream();
+            var writer = new StreamWriter(stream);
+            writer.Write("{ Bar: 1 }");
+            writer.Flush();
+            stream.Position = 0;
+
+            actualDelayedRetryCount = MaxDelayedRetryCount;
+            var tm = new TestTransportMessage(typeof(Message).AssemblyQualifiedName);
             tm.SetBody(stream);
 
             Func<Task> action = () => this.receiver.HandOver(tm);
 
             action.ShouldThrow<InvalidOperationException>();
             tm.DeadLetterHeaders.Should().NotBeEmpty();
-            tm.DelayedDeliveryCount.Should().Be(0);
+            tm.DelayedDeliveryCount.Should().Be(MaxDelayedRetryCount);
         }
 
-        public class DeadLetterTransportMessage : TransportMessage
+        public class TestTransportMessage : TransportMessage
         {
+            public TestTransportMessage(string messageType)
+            {
+                this.MessageType = messageType;
+                this.DelayedDeliveryCount = actualDelayedRetryCount;
+            }
+
             public IDictionary<string, object> DeadLetterHeaders { get; private set; }
 
             protected override Task DeadLetterAsyncInternal(IDictionary<string, object> deadLetterHeaders)
@@ -99,10 +110,8 @@ namespace MMS.ServiceBus
                 return Task.FromResult(0);
             }
 
-            public override int DeliveryCount
-            {
-                get { return 10; }
-            }
+            public override int DeliveryCount => DelayedRetryMessages.MaxImmediateRetryCount;
+
         }
 
         public class HandlerRegistrySimulator : HandlerRegistry
@@ -111,18 +120,25 @@ namespace MMS.ServiceBus
             {
                 if (messageType == typeof(Message))
                 {
-                    return this.ConsumeWith(new AsyncHandlerWhichFailsAllTheTime());
+                    return this.ConsumeWith(new AsyncHandlerWhichFailsUntilDelayedRetryCountIsReached());
                 }
 
                 return this.ConsumeAll();
             }
         }
 
-        public class AsyncHandlerWhichFailsAllTheTime : IHandleMessageAsync<Message>
+        public class AsyncHandlerWhichFailsUntilDelayedRetryCountIsReached : IHandleMessageAsync<Message>
         {
             public Task Handle(Message message, IBusForHandler bus)
             {
-                throw new InvalidOperationException();
+                int delayedDeliveryCount;
+                string delayedDeliveryCountString;
+                bus.Headers(message).TryGetValue(HeaderKeys.DelayedDeliveryCount, out delayedDeliveryCountString);
+                int.TryParse(delayedDeliveryCountString, out delayedDeliveryCount);
+                if (delayedDeliveryCount == actualDelayedRetryCount)
+                    throw new InvalidOperationException();
+
+                return Task.FromResult(0);
             }
         }
 

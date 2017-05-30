@@ -76,6 +76,7 @@
     <Compile Include="PublishingMessagesIntegration.cs" />
     <Compile Include="ReplyingToMessagesIntegration.cs" />
     <Compile Include="RobustnessSendingAndReceivingIntegration.cs" />
+    <Compile Include="RobustnessSendingAndReceivingWithDelayedRetriesIntegration.cs" />
     <Compile Include="RobustnessSendingAndReceivingWithExceptionIntegration.cs" />
     <Compile Include="SendingMessagesIntegration.cs" />
     <Compile Include="SendingMessagesLocalIntegration.cs" />

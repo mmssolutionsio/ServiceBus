@@ -22,6 +22,8 @@ namespace MMS.ServiceBus
 
         public const string ScheduledEnqueueTimeUtc = HeaderPrefix + "ScheduledEnqueueTimeUtc";
 
+        public const string DelayedDeliveryCount = HeaderPrefix + "DelayedDeliveryCount";
+
         public const string FailurePrefix = HeaderPrefix + "Failure.";
 
         public const string ExceptionReason = FailurePrefix + "Exception.Reason";

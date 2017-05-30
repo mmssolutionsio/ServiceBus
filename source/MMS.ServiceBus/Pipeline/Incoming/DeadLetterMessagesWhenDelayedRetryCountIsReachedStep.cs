@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------------
-// <copyright file="DeadLetterMessagesWhenRetryCountIsReachedStep.cs" company="MMS AG">
+// <copyright file="DeadLetterMessagesWhenDelayedRetryCountIsReachedStep.cs" company="MMS AG">
 //   Copyright (c) MMS AG, 2008-2015
 // </copyright>
 //-------------------------------------------------------------------------------
@@ -7,10 +7,11 @@
 namespace MMS.ServiceBus.Pipeline.Incoming
 {
     using System;
+    using System.Runtime.CompilerServices;
     using System.Runtime.ExceptionServices;
     using System.Threading.Tasks;
 
-    public class DeadLetterMessagesWhenRetryCountIsReachedStep : IIncomingLogicalStep
+    public class DeadLetterMessagesWhenDelayedRetryCountIsReachedStep : IIncomingLogicalStep
     {
         public async Task Invoke(IncomingLogicalContext context, IBusForHandler bus, Func<Task> next)
         {
@@ -48,8 +49,8 @@ namespace MMS.ServiceBus.Pipeline.Incoming
 
         private static bool IsRetryCountReached(IncomingLogicalContext context)
         {
-            const int HardcodedMaxRetryOfServiceBusLibrary = 10;
-            return context.TransportMessage.DeliveryCount > HardcodedMaxRetryOfServiceBusLibrary - 1;
+            return context.TransportMessage.DeliveryCount >= context.Configuration.ImmediateRetryCount
+                && context.TransportMessage.DelayedDeliveryCount == context.Configuration.DelayedRetryCount;
         }
     }
 }

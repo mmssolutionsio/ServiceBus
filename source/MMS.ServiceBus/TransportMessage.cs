@@ -32,6 +32,7 @@ namespace MMS.ServiceBus
                 { HeaderKeys.MessageType, null },
                 { HeaderKeys.MessageIntent, null },
                 { HeaderKeys.ScheduledEnqueueTimeUtc, null },
+                { HeaderKeys.DelayedDeliveryCount, 0.ToString() },
             };
         }
 
@@ -113,6 +114,12 @@ namespace MMS.ServiceBus
         {
             get { return new DateTime(long.Parse(this.Headers[HeaderKeys.ScheduledEnqueueTimeUtc] ?? "0")); }
             set { this.Headers[HeaderKeys.ScheduledEnqueueTimeUtc] = value.Ticks.ToString(); }
+        }
+
+        public int DelayedDeliveryCount
+        {
+            get { return int.Parse(this.Headers[HeaderKeys.DelayedDeliveryCount] ?? "0"); }
+            set { this.Headers[HeaderKeys.DelayedDeliveryCount] = value.ToString(); }
         }
 
         public Stream Body

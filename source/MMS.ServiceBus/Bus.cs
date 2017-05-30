@@ -205,8 +205,10 @@ namespace MMS.ServiceBus
                               {
                                   CorrelationId = incoming.CorrelationId,
                                   ScheduledEnqueueTimeUtc = scheduledEnqueueTimeUtc,
-                                  ReplyToAddress = incoming.ReplyTo
+                                  ReplyToAddress = incoming.ReplyTo,
+                                  DelayedDeliveryCount = incoming.DelayedDeliveryCount
                               };
+                
                 AddCustomHeaders(options, incoming);
                 return options;
             }
