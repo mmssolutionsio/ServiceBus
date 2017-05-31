@@ -38,6 +38,8 @@ namespace MMS.ServiceBus
         private MessageUnit sender;
         private MessageUnit receiver;
 
+        static DateTime startTime;
+
         [SetUp]
         public void SetUp()
         {
@@ -59,6 +61,7 @@ namespace MMS.ServiceBus
 
             this.sender.StartAsync().Wait();
             this.receiver.StartAsync().Wait();
+            startTime = DateTime.Now;
         }
 
         [Test]
@@ -79,7 +82,7 @@ namespace MMS.ServiceBus
 
 
             // Wait a bit in order to let the bus deadletter
-            await Task.Delay(10000 * MaxDelayedRetryCount * MaxImmediateRetryCount);
+            await Task.Delay(10000);
 
             MessageReceiver deadLetterReceiver = await MessagingFactory.Create()
                 .CreateMessageReceiverAsync(QueueClient.FormatDeadLetterPath(ReceiverEndpointName), ReceiveMode.ReceiveAndDelete);
@@ -107,7 +110,7 @@ namespace MMS.ServiceBus
             this.context.HandlerCalls.Should().BeInvoked(ntimes: 50);
 
             // Wait a bit in order to let the bus deadletter
-            await Task.Delay(10000 * MaxDelayedRetryCount * MaxImmediateRetryCount);
+            await Task.Delay(10000);
 
             MessageReceiver deadLetterReceiver = await MessagingFactory.Create()
                 .CreateMessageReceiverAsync(QueueClient.FormatDeadLetterPath(ReceiverEndpointName), ReceiveMode.ReceiveAndDelete);
@@ -179,7 +182,7 @@ namespace MMS.ServiceBus
 
             public Task Handle(AsyncMessage message, IBusForHandler bus)
             {
-                Debug.WriteLine("Async {0}", message.Bar);
+                Debug.WriteLine("ASync {0}, delayed {1}", message.Bar, bus.Headers(message)[HeaderKeys.DelayedDeliveryCount]);
                 if (message.Bar % 2 == 0)
                 {
                     throw new InvalidOperationException();
@@ -202,7 +205,7 @@ namespace MMS.ServiceBus
 
             public void Handle(Message message, IBusForHandler bus)
             {
-                Debug.WriteLine("Sync {0}, delayed {1}", message.Bar, bus.Headers(message)[HeaderKeys.DelayedDeliveryCount]);
+                Debug.WriteLine("{0}s: Sync {1}, delayed {2}", DateTime.Now.Subtract(startTime).Seconds, message.Bar, bus.Headers(message)[HeaderKeys.DelayedDeliveryCount]);
                 if (message.Bar % 2 == 0)
                 {
                     throw new InvalidOperationException();

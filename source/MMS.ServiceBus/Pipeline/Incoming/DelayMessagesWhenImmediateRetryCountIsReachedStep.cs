@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------------
-// <copyright file="DeadLetterMessagesWhenDelayedRetryCountIsReachedStep.cs" company="MMS AG">
+// <copyright file="DelayMessagesWhenImmediateRetryCountIsReachedStep.cs" company="MMS AG">
 //   Copyright (c) MMS AG, 2008-2015
 // </copyright>
 //-------------------------------------------------------------------------------
@@ -12,6 +12,8 @@ namespace MMS.ServiceBus.Pipeline.Incoming
 
     public class DelayMessagesWhenImmediateRetryCountIsReachedStep : IIncomingLogicalStep
     {
+        public DateTime DateTime;
+
         public async Task Invoke(IncomingLogicalContext context, IBusForHandler bus, Func<Task> next)
         {
             ExceptionDispatchInfo exceptionDispatchInfo = null;
@@ -36,7 +38,8 @@ namespace MMS.ServiceBus.Pipeline.Incoming
             if (exceptionDispatchInfo != null)
             {
                 var message = context.TransportMessage;
-                var scheduledEnqueueTimeUtc = DateTime.UtcNow
+                this.DateTime = DateTime.UtcNow;
+                var scheduledEnqueueTimeUtc = this.DateTime
                                                   + TimeSpan.FromSeconds(DelayTimeSpanInSeconds(context));
 
                 message.DelayedDeliveryCount++;
@@ -48,8 +51,7 @@ namespace MMS.ServiceBus.Pipeline.Incoming
 
         private static double DelayTimeSpanInSeconds(IncomingLogicalContext context)
         {
-            return 2;
-            //return Math.Pow(2, context.TransportMessage.DeliveryCount - context.Configuration.ImmediateRetryCount);
+            return Math.Pow(2, context.TransportMessage.DelayedDeliveryCount);
         }
 
         private static bool ShouldMessageBeDelayed(IncomingLogicalContext context)

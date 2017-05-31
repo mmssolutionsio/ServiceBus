@@ -24,7 +24,7 @@ namespace MMS.ServiceBus
 
         internal int ImmediateRetryCount { get; private set; } = 10;
 
-        internal int DelayedRetryCount { get; private set; } = 0;
+        internal int DelayedRetryCount { get; private set; }
 
         public EndpointConfiguration Endpoint([NotNull] string endpointName)
         {
