@@ -226,7 +226,8 @@ namespace MMS.ServiceBus.Testing
                     .Register(new DeserializeTransportMessageStep(new NewtonsoftJsonMessageSerializer()));
 
                 pipeline.Logical
-                    .Register(new DeadLetterMessagesWhenRetryCountIsReachedStep())
+                    .Register(new DeadLetterMessagesWhenDelayedRetryCountIsReachedStep())
+                    .Register(new DelayMessagesWhenImmediateRetryCountIsReachedStep())
                     .Register(new LoadMessageHandlersStep(this.registry))
                     .Register(new InvokeHandlerStep())
                     .Register(new TraceIncomingLogical(this.incoming));

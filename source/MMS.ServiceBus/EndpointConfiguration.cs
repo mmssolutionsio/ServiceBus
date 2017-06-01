@@ -22,6 +22,10 @@ namespace MMS.ServiceBus
 
         internal int PrefetchCount { get; private set; }
 
+        internal int ImmediateRetryCount { get; private set; } = 10;
+
+        internal int DelayedRetryCount { get; private set; }
+
         public EndpointConfiguration Endpoint([NotNull] string endpointName)
         {
             this.EndpointQueue = Queue.Create(endpointName);
@@ -32,6 +36,31 @@ namespace MMS.ServiceBus
         {
             this.MaxConcurrency = maxConcurrency;
             this.PrefetchCount = maxConcurrency;
+            return this;
+        }
+
+        /// <summary>
+        /// Set the maximum number of immediate retries.
+        /// </summary>
+        /// <param name="count"></param>
+        /// <returns></returns>
+        public EndpointConfiguration MaximumImmediateRetryCount(int count)
+        {
+            this.ImmediateRetryCount = count;
+            return this;
+        }
+
+        /// <summary>
+        /// Set the maximum number of delayed retries. 
+        /// If the delivery of the message fails again, it will be immediatly retried as configured with MaximumImmediateRetryCount.
+        /// If these immediate retries fail also, the message will be delayed again until this counter is reached.
+        /// https://docs.particular.net/nservicebus/recoverability/
+        /// </summary>
+        /// <param name="count"></param>
+        /// <returns></returns>
+        public EndpointConfiguration MaximumDelayedRetryCount(int count)
+        {
+            this.DelayedRetryCount = count;
             return this;
         }
 
@@ -52,6 +81,8 @@ namespace MMS.ServiceBus
                 this.EndpointQueue = configuration.EndpointQueue;
                 this.MaxConcurrency = configuration.MaxConcurrency;
                 this.PrefetchCount = configuration.PrefetchCount;
+                this.ImmediateRetryCount = configuration.ImmediateRetryCount;
+                this.DelayedRetryCount = configuration.DelayedRetryCount;
             }
 
             public Queue EndpointQueue { get; private set; }
@@ -59,6 +90,10 @@ namespace MMS.ServiceBus
             public int MaxConcurrency { get; private set; }
 
             public int PrefetchCount { get; private set; }
+
+            public int ImmediateRetryCount { get; private set; }
+
+            public int DelayedRetryCount { get; private set; }
         }
     }
 }

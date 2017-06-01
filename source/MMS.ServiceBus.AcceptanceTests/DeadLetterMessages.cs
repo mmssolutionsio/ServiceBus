@@ -85,6 +85,7 @@ namespace MMS.ServiceBus
 
             action.ShouldThrow<InvalidOperationException>();
             tm.DeadLetterHeaders.Should().NotBeEmpty();
+            tm.DelayedDeliveryCount.Should().Be(0);
         }
 
         public class DeadLetterTransportMessage : TransportMessage

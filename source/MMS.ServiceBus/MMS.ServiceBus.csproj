@@ -88,8 +88,9 @@
     <Compile Include="Pipeline\IHandlerRegistry.cs" />
     <Compile Include="Pipeline\IMessageSerializer.cs" />
     <Compile Include="Pipeline\Incoming\DateTimeExtensions.cs" />
-    <Compile Include="Pipeline\Incoming\DeadLetterMessagesWhenRetryCountIsReachedStep.cs" />
+    <Compile Include="Pipeline\Incoming\DeadLetterMessagesWhenDelayedRetryCountIsReachedStep.cs" />
     <Compile Include="Pipeline\Incoming\DeadLetterMessagesWhichCantBeDeserializedStep.cs" />
+    <Compile Include="Pipeline\Incoming\DelayMessagesWhenImmediateRetryCountIsReachedStep.cs" />
     <Compile Include="Pipeline\Incoming\DeserializeTransportMessageStep.cs" />
     <Compile Include="Pipeline\Incoming\EmptyIncomingPipelineFactory.cs" />
     <Compile Include="Pipeline\Incoming\ExceptionExtensions.cs" />

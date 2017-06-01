@@ -83,7 +83,6 @@ namespace MMS.ServiceBus
             await this.sender.Send(new Message(), sendOptions);
 
             this.receiver.OutgoingTransport.Should().OnlyContain(msg => msg.Headers[HeaderKeys.CorrelationId] == sendOptions.CorrelationId);
-            this.receiver.OutgoingTransport.Should().OnlyContain(msg => msg.Headers[HeaderKeys.CorrelationId] == sendOptions.CorrelationId);
         }
 
         [Test]

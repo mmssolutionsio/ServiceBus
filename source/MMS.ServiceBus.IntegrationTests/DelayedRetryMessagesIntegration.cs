@@ -1,5 +1,5 @@
 ﻿//-------------------------------------------------------------------------------
-// <copyright file="DeadLetterMessagesIntegration.cs" company="MMS AG">
+// <copyright file="DelayedRetryMessagesIntegration.cs" company="MMS AG">
 //   Copyright (c) MMS AG, 2008-2015
 // </copyright>
 //-------------------------------------------------------------------------------
@@ -18,21 +18,22 @@ namespace MMS.ServiceBus
     using Pipeline;
 
     [TestFixture]
-    public class DeadLetterMessagesIntegration
+    public class DelayedRetryMessagesIntegration
     {
         private const string ReceiverEndpointName = "Receiver";
 
         private MessageUnit receiver;
         private MessagingFactory messagingFactory;
 
-        private const int MessageCount = 10;
+        private const int MaxImmediateRetryCount = 5;
+        private const int MaxDelayedRetryCount = 3;
 
         [SetUp]
         public void SetUp()
         {
             this.messagingFactory = MessagingFactory.Create();
 
-            this.receiver = new MessageUnit(new EndpointConfiguration().Endpoint(ReceiverEndpointName).Concurrency(1).MaximumImmediateRetryCount(MessageCount/2).MaximumDelayedRetryCount(MessageCount/2))
+            this.receiver = new MessageUnit(new EndpointConfiguration().Endpoint(ReceiverEndpointName).Concurrency(1).MaximumImmediateRetryCount(MaxImmediateRetryCount).MaximumDelayedRetryCount(MaxDelayedRetryCount))
                 .Use(this.messagingFactory)
                 .Use(new HandlerRegistrySimulator());
 
@@ -42,32 +43,7 @@ namespace MMS.ServiceBus
         }
 
         [Test]
-        public async Task WhenMessageSentWithBodyWhichCannotBeDeserialized_MessageIsDeadlettered()
-        {
-            var stream = new MemoryStream();
-            var writer = new StreamWriter(stream);
-            writer.Write("{ ; }");
-            writer.Flush();
-            stream.Position = 0;
-
-            var tm = new TransportMessage { MessageType = typeof(Message).AssemblyQualifiedName };
-            tm.SetBody(stream);
-
-            MessageSender messageSender = await this.messagingFactory.CreateMessageSenderAsync(ReceiverEndpointName);
-            await messageSender.SendAsync(tm.ToBrokeredMessage());
-
-            MessageReceiver deadLetterReceiver = await this.messagingFactory.CreateMessageReceiverAsync(QueueClient.FormatDeadLetterPath(ReceiverEndpointName), ReceiveMode.ReceiveAndDelete);
-            IEnumerable<BrokeredMessage> deadLetteredMessages = await deadLetterReceiver.ReceiveBatchAsync(MessageCount);
-
-            // That's not really a good assertion here. But how far should I compare exception, stacktrace etc.
-            deadLetteredMessages.Should().HaveCount(1);
-            deadLetteredMessages.Single()
-                .Properties.Where(p => p.Key.StartsWith(HeaderKeys.FailurePrefix, StringComparison.InvariantCultureIgnoreCase))
-                .Should().NotBeEmpty();
-        }
-
-        [Test]
-        public async Task WhenMessageReachesMaximumNumberOfRetries_MessageIsDeadlettered()
+        public async Task WhenMessageReachesMaximumNumberOfImmediateRetries_MessageIsDelayedUntilDeadlettered()
         {
             var stream = new MemoryStream();
             var writer = new StreamWriter(stream);
@@ -82,13 +58,17 @@ namespace MMS.ServiceBus
             await messageSender.SendAsync(tm.ToBrokeredMessage());
 
             MessageReceiver deadLetterReceiver = await this.messagingFactory.CreateMessageReceiverAsync(QueueClient.FormatDeadLetterPath(ReceiverEndpointName), ReceiveMode.ReceiveAndDelete);
-            IEnumerable<BrokeredMessage> deadLetteredMessages = await deadLetterReceiver.ReceiveBatchAsync(MessageCount);
+            IEnumerable<BrokeredMessage> deadLetteredMessages = await deadLetterReceiver.ReceiveBatchAsync(MaxDelayedRetryCount);
 
             // That's not really a good assertion here. But how far should I compare exception, stacktrace etc.
             deadLetteredMessages.Should().HaveCount(1);
-            deadLetteredMessages.Single()
-                .Properties.Where(p => p.Key.StartsWith(HeaderKeys.FailurePrefix, StringComparison.InvariantCultureIgnoreCase))
+            var brokeredMessage = deadLetteredMessages.Single();
+            brokeredMessage.DeliveryCount.Should().Be(MaxImmediateRetryCount);
+            var properties = brokeredMessage.Properties;
+            properties.Where(p => p.Key.StartsWith(HeaderKeys.FailurePrefix, StringComparison.InvariantCultureIgnoreCase))
                 .Should().NotBeEmpty();
+            properties[HeaderKeys.DelayedDeliveryCount]
+                .Should().Be(MaxDelayedRetryCount.ToString());
         }
 
         [TearDown]

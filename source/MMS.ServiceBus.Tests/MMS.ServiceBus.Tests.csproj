@@ -71,6 +71,7 @@
     </Compile>
     <Compile Include="Pipeline\AlwaysRejectMessageHandlerTests.cs" />
     <Compile Include="Pipeline\ContextTests.cs" />
+    <Compile Include="Pipeline\DelayMessagesWhenImmediateRetryCountIsReachedStepTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
