@@ -14,6 +14,7 @@ namespace MMS.ServiceBus
         public EndpointConfiguration()
         {
             this.Concurrency(Environment.ProcessorCount);
+            this.ImmediateRetryCount = 10;
         }
 
         public Queue EndpointQueue { get; private set; }
@@ -22,7 +23,7 @@ namespace MMS.ServiceBus
 
         internal int PrefetchCount { get; private set; }
 
-        internal int ImmediateRetryCount { get; private set; } = 10;
+        internal int ImmediateRetryCount { get; private set; }
 
         internal int DelayedRetryCount { get; private set; }
 
@@ -42,8 +43,8 @@ namespace MMS.ServiceBus
         /// <summary>
         /// Set the maximum number of immediate retries.
         /// </summary>
-        /// <param name="count"></param>
-        /// <returns></returns>
+        /// <param name="count">maximum number of immediate retries</param>
+        /// <returns>EndpointConfiguration with maximum number of immediate retries</returns>
         public EndpointConfiguration MaximumImmediateRetryCount(int count)
         {
             this.ImmediateRetryCount = count;
@@ -56,8 +57,8 @@ namespace MMS.ServiceBus
         /// If these immediate retries fail also, the message will be delayed again until this counter is reached.
         /// https://docs.particular.net/nservicebus/recoverability/
         /// </summary>
-        /// <param name="count"></param>
-        /// <returns></returns>
+        /// <param name="count">maximum number of delayed retries</param>
+        /// <returns>EndpointConfiguration with maximum number of delayed retries</returns>
         public EndpointConfiguration MaximumDelayedRetryCount(int count)
         {
             this.DelayedRetryCount = count;

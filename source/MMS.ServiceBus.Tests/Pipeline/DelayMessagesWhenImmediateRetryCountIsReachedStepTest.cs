@@ -102,7 +102,7 @@ namespace MMS.ServiceBus.Pipeline
                 await this.testee.Invoke(this.incomingLogicalContext, this.busMock.Object, this.pipelineStepRaisingException);
 
                 var expectedTimeSpan = TimeSpan.FromSeconds(Math.Pow(2, i));
-                this.busMock.Verify(_ => _.Postpone(this.incomingLogicalContext.LogicalMessage.Instance, this.testee.DateTime + expectedTimeSpan));
+                this.busMock.Verify(_ => _.Postpone(this.incomingLogicalContext.LogicalMessage.Instance, this.testee.Time + expectedTimeSpan));
             }
         }
 
