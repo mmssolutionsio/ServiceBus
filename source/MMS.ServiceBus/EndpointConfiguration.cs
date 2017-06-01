@@ -39,12 +39,25 @@ namespace MMS.ServiceBus
             return this;
         }
 
+        /// <summary>
+        /// Set the maximum number of immediate retries.
+        /// </summary>
+        /// <param name="count"></param>
+        /// <returns></returns>
         public EndpointConfiguration MaximumImmediateRetryCount(int count)
         {
             this.ImmediateRetryCount = count;
             return this;
         }
 
+        /// <summary>
+        /// Set the maximum number of delayed retries. 
+        /// If the delivery of the message fails again, it will be immediatly retried as configured with MaximumImmediateRetryCount.
+        /// If these immediate retries fail also, the message will be delayed again until this counter is reached.
+        /// https://docs.particular.net/nservicebus/recoverability/
+        /// </summary>
+        /// <param name="count"></param>
+        /// <returns></returns>
         public EndpointConfiguration MaximumDelayedRetryCount(int count)
         {
             this.DelayedRetryCount = count;

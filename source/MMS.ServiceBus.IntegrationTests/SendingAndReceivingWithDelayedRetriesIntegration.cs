@@ -24,7 +24,7 @@ namespace MMS.ServiceBus
     /// </summary>
     [TestFixture]
     [Category("Manual")]
-    public class RobustnessSendingAndReceivingWithDelayedRetriesIntegration
+    public class SendingAndReceivingWithDelayedRetriesIntegration
     {
         private const int MaxDelayedRetryCount = 2;
         private const int MaxImmediateRetryCount = 2;

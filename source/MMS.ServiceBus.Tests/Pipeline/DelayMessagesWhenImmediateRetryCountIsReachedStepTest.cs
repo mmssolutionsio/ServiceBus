@@ -33,7 +33,7 @@ namespace MMS.ServiceBus.Pipeline
 
         static int actualDeliveryCount;
 
-        private Func<Task> next;
+        private Func<Task> pipelineStepRaisingException;
 
         private Mock<IBusForHandler> busMock;
 
@@ -41,17 +41,14 @@ namespace MMS.ServiceBus.Pipeline
 
         private IncomingLogicalContext incomingLogicalContext;
 
-        public DelayMessagesWhenImmediateRetryCountIsReachedStepTest()
-        {
-            next = async () =>
-            {
-                throw new InvalidOperationException();
-            };
-        }
-
         [SetUp]
         public void Setup()
         {
+            this.pipelineStepRaisingException = async () =>
+            {
+                throw new InvalidOperationException();
+            };
+
             this.testTransportMessage = new TestTransportMessage(typeof(Message).AssemblyQualifiedName);
             var readOnlyConfiguration = new EndpointConfiguration.ReadOnly(new EndpointConfiguration().MaximumImmediateRetryCount(MaxImmediateRetryCount).MaximumDelayedRetryCount(MaxDelayedRetryCount));
             var logicalMessage = new LogicalMessage(typeof(Message), this.testTransportMessage, null);
@@ -82,7 +79,7 @@ namespace MMS.ServiceBus.Pipeline
         {
             actualDeliveryCount = MaxImmediateRetryCount - 1;
 
-            Func<Task> action = async () => await this.testee.Invoke(this.incomingLogicalContext, null, this.next);
+            Func<Task> action = async () => await this.testee.Invoke(this.incomingLogicalContext, null, this.pipelineStepRaisingException);
 
             action.ShouldThrow<InvalidOperationException>();
         }
@@ -92,19 +89,19 @@ namespace MMS.ServiceBus.Pipeline
         {
             actualDeliveryCount = MaxImmediateRetryCount;
 
-            Func<Task> action = async () => await this.testee.Invoke(this.incomingLogicalContext, this.busMock.Object, this.next);
+            Func<Task> action = async () => await this.testee.Invoke(this.incomingLogicalContext, this.busMock.Object, this.pipelineStepRaisingException);
 
             action.ShouldNotThrow<InvalidOperationException>();
         }
 
         [Test]
-        public async Task Invoke_WhenExceptionFromPipelineAndMaxImmediateRetriesReachedButNotMaxDelayedRetryCount_ThenPostponeForDelayedRetryCountPowerOf2Second()
+        public async Task Invoke_WhenExceptionFromPipelineAndMaxImmediateRetriesReachedButNotMaxDelayedRetryCountReached_ThenPostponeForDelayedRetryCountPowerOf2Second()
         {
             actualDeliveryCount = MaxImmediateRetryCount;
 
             for (int i = 0; i < MaxDelayedRetryCount; i++)
             {
-                await this.testee.Invoke(this.incomingLogicalContext, this.busMock.Object, this.next);
+                await this.testee.Invoke(this.incomingLogicalContext, this.busMock.Object, this.pipelineStepRaisingException);
 
                 var expectedTimeSpan = TimeSpan.FromSeconds(Math.Pow(2, i));
                 this.busMock.Verify(_ => _.Postpone(this.incomingLogicalContext.LogicalMessage.Instance, this.testee.DateTime + expectedTimeSpan));
@@ -116,7 +113,7 @@ namespace MMS.ServiceBus.Pipeline
         {
             actualDeliveryCount = MaxImmediateRetryCount;
             this.testTransportMessage.DelayedDeliveryCount = MaxDelayedRetryCount;
-            Func<Task> action = async () => await this.testee.Invoke(this.incomingLogicalContext, this.busMock.Object, this.next);
+            Func<Task> action = async () => await this.testee.Invoke(this.incomingLogicalContext, this.busMock.Object, this.pipelineStepRaisingException);
 
             action.ShouldThrow<InvalidOperationException>();
         }
