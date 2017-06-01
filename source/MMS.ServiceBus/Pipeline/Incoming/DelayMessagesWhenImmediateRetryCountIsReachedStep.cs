@@ -12,7 +12,7 @@ namespace MMS.ServiceBus.Pipeline.Incoming
 
     public class DelayMessagesWhenImmediateRetryCountIsReachedStep : IIncomingLogicalStep
     {
-        public DateTime DateTime;
+        public DateTime Time { get; private set; }
 
         public async Task Invoke(IncomingLogicalContext context, IBusForHandler bus, Func<Task> next)
         {
@@ -38,8 +38,8 @@ namespace MMS.ServiceBus.Pipeline.Incoming
             if (exceptionDispatchInfo != null)
             {
                 var message = context.TransportMessage;
-                this.DateTime = DateTime.UtcNow;
-                var scheduledEnqueueTimeUtc = this.DateTime
+                this.Time = DateTime.UtcNow;
+                var scheduledEnqueueTimeUtc = this.Time
                                                   + TimeSpan.FromSeconds(DelayTimeSpanInSeconds(context));
 
                 message.DelayedDeliveryCount++;
