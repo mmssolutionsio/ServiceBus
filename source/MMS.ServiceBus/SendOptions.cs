@@ -15,7 +15,5 @@ namespace MMS.ServiceBus
         public string CorrelationId { get; set; }
 
         public DateTime ScheduledEnqueueTimeUtc { get; set; }
-
-        public int DelayedDeliveryCount { get; set; }
     }
 }

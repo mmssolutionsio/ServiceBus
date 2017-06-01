@@ -111,17 +111,6 @@ namespace MMS.ServiceBus
         }
 
         [Test]
-        public async Task WhenMessageHandlerPostponesMessage_PostponedMessageContainsOriginalDelayedDeliveryCount()
-        {
-            var sendOptions = new SendOptions { DelayedDeliveryCount = 5 };
-
-            await this.sender.Send(new Message(), sendOptions);
-
-            var delayedDeliveryCount = this.receiver.IncomingTransport[0].DelayedDeliveryCount.ToString();
-            this.receiver.OutgoingTransport.Should().OnlyContain(msg => msg.DelayedDeliveryCount.ToString() == delayedDeliveryCount);
-        }
-
-        [Test]
         public async Task WhenMessageHandlerPostponesMessage_PostponedMessageContainsOriginalMessageCustomHeader()
         {
             var sendOptions = new SendOptions();

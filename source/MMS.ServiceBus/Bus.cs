@@ -206,11 +206,18 @@ namespace MMS.ServiceBus
                                   CorrelationId = incoming.CorrelationId,
                                   ScheduledEnqueueTimeUtc = scheduledEnqueueTimeUtc,
                                   ReplyToAddress = incoming.ReplyTo,
-                                  DelayedDeliveryCount = incoming.DelayedDeliveryCount
                               };
-                
+ 
+                AddDelayedRetryHeader(options, incoming);
+               
                 AddCustomHeaders(options, incoming);
+
                 return options;
+            }
+
+            private static void AddDelayedRetryHeader(SendOptions options, TransportMessage incoming)
+            {
+                options.Headers.Add(HeaderKeys.DelayedDeliveryCount, incoming.DelayedDeliveryCount.ToString());
             }
 
             private static void AddCustomHeaders(SendOptions sendOptions, TransportMessage incoming)

@@ -212,7 +212,7 @@ namespace MMS.ServiceBus
             public Task Wait(int asyncHandlerCalls, int handlersCalls)
             {
                 var task1 = Task.Run(() => SpinWait.SpinUntil(() => this.AsyncHandlerCalls >= asyncHandlerCalls && this.HandlerCalls >= handlersCalls));
-                var task2 = Task.Delay(TimeSpan.FromSeconds(180));
+                var task2 = Task.Delay(TimeSpan.FromSeconds(200));
 
                 return Task.WhenAny(task1, task2);
             }

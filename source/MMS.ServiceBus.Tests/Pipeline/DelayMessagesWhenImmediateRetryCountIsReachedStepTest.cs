@@ -29,8 +29,6 @@ namespace MMS.ServiceBus.Pipeline
 
         private static int MaxDelayedRetryCount = 3;
 
-        static int actualDelayedRetryCount;
-
         static int actualDeliveryCount;
 
         private Func<Task> pipelineStepRaisingException;
@@ -44,7 +42,7 @@ namespace MMS.ServiceBus.Pipeline
         [SetUp]
         public void Setup()
         {
-            this.pipelineStepRaisingException = async () =>
+            this.pipelineStepRaisingException = () =>
             {
                 throw new InvalidOperationException();
             };
@@ -75,7 +73,7 @@ namespace MMS.ServiceBus.Pipeline
         }
 
         [Test]
-        public async Task Invoke_WhenExceptionFromPipelineAndNotMaxImmediateRetriesReached_ThenRethrow()
+        public void Invoke_WhenExceptionFromPipelineAndNotMaxImmediateRetriesReached_ThenRethrow()
         {
             actualDeliveryCount = MaxImmediateRetryCount - 1;
 
@@ -85,7 +83,7 @@ namespace MMS.ServiceBus.Pipeline
         }
 
         [Test]
-        public async Task Invoke_WhenExceptionFromPipelineAndMaxImmediateRetriesReached_ThenConsumeOldMessage()
+        public void Invoke_WhenExceptionFromPipelineAndMaxImmediateRetriesReached_ThenConsumeOldMessage()
         {
             actualDeliveryCount = MaxImmediateRetryCount;
 
@@ -124,7 +122,6 @@ namespace MMS.ServiceBus.Pipeline
             public TestTransportMessage(string messageType)
             {
                 this.MessageType = messageType;
-                this.DelayedDeliveryCount = actualDelayedRetryCount;
             }
 
             public IDictionary<string, object> DeadLetterHeaders { get; private set; }
