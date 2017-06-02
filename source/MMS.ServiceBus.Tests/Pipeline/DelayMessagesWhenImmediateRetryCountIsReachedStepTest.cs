@@ -8,8 +8,6 @@ namespace MMS.ServiceBus.Pipeline
 {
     using System;
     using System.Collections.Generic;
-    using System.IO;
-    using System.Runtime.CompilerServices;
     using System.Threading.Tasks;
 
     using FluentAssertions;
@@ -27,7 +25,7 @@ namespace MMS.ServiceBus.Pipeline
 
         private static int MaxImmediateRetryCount = 5;
 
-        private static int MaxDelayedRetryCount = 3;
+        private static int MaxDelayedRetryCount = 6;
 
         static int actualDeliveryCount;
 
@@ -42,14 +40,14 @@ namespace MMS.ServiceBus.Pipeline
         [SetUp]
         public void Setup()
         {
-            this.pipelineStepRaisingException = () =>
+            this.pipelineStepRaisingException = async () =>
             {
-                throw new InvalidOperationException();
+                await Task.Run(() => throw new InvalidOperationException());
             };
 
             this.testTransportMessage = new TestTransportMessage(typeof(Message).AssemblyQualifiedName);
             var readOnlyConfiguration = new EndpointConfiguration.ReadOnly(new EndpointConfiguration().MaximumImmediateRetryCount(MaxImmediateRetryCount).MaximumDelayedRetryCount(MaxDelayedRetryCount));
-            var logicalMessage = new LogicalMessage(typeof(Message), this.testTransportMessage, null);
+            var logicalMessage = new LogicalMessage(typeof(Message), new Message(), null);
             this.incomingLogicalContext = new IncomingLogicalContext(logicalMessage, this.testTransportMessage, readOnlyConfiguration);
             this.busMock = new Mock<IBusForHandler>();
 
@@ -96,13 +94,18 @@ namespace MMS.ServiceBus.Pipeline
         public async Task Invoke_WhenExceptionFromPipelineAndMaxImmediateRetriesReachedButNotMaxDelayedRetryCountReached_ThenPostponeForDelayedRetryCountPowerOf2Second()
         {
             actualDeliveryCount = MaxImmediateRetryCount;
-
             for (int i = 0; i < MaxDelayedRetryCount; i++)
             {
-                await this.testee.Invoke(this.incomingLogicalContext, this.busMock.Object, this.pipelineStepRaisingException);
+                this.busMock.Setup(_ => _.Postpone(this.incomingLogicalContext.LogicalMessage.Instance, It.IsAny<DateTime>()))
+                    .Callback<object, DateTime>(
+                        (message, scheduledTime) =>
+                        {
+                            var expectedTime = DateTime.UtcNow + TimeSpan.FromSeconds(Math.Pow(2, i));
+                            scheduledTime.Should().BeCloseTo(expectedTime);
+                        })
+                    .Returns(Task.FromResult(0)); ;
 
-                var expectedTimeSpan = TimeSpan.FromSeconds(Math.Pow(2, i));
-                this.busMock.Verify(_ => _.Postpone(this.incomingLogicalContext.LogicalMessage.Instance, this.testee.Time + expectedTimeSpan));
+                await this.testee.Invoke(this.incomingLogicalContext, this.busMock.Object, this.pipelineStepRaisingException);
             }
         }
 
