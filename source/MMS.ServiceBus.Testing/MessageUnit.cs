@@ -228,6 +228,7 @@ namespace MMS.ServiceBus.Testing
                 pipeline.Logical
                     .Register(new DeadLetterMessagesWhenDelayedRetryCountIsReachedStep())
                     .Register(new DelayMessagesWhenImmediateRetryCountIsReachedStep())
+                    .Register(new DeadletterMessageImmediatelyExceptionStep())
                     .Register(new LoadMessageHandlersStep(this.registry))
                     .Register(new InvokeHandlerStep())
                     .Register(new TraceIncomingLogical(this.incoming));

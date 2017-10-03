@@ -88,6 +88,25 @@ namespace MMS.ServiceBus
             tm.DelayedDeliveryCount.Should().Be(0);
         }
 
+        [Test]
+        public void WhenMessageHandlerThrowsDeadletterMessageImmediatelyException_MessageIsDeadlettered()
+        {
+            var stream = new MemoryStream();
+            var writer = new StreamWriter(stream);
+            writer.Write("{ Bar: 1 }");
+            writer.Flush();
+            stream.Position = 0;
+
+            var tm = new DeadLetterTransportMessage { MessageType = typeof(DeadletterImmediatelyMessage).AssemblyQualifiedName };
+            tm.SetBody(stream);
+
+            Func<Task> action = () => this.receiver.HandOver(tm);
+
+            action.ShouldNotThrow<Exception>();
+            tm.DeadLetterHeaders.Should().NotBeEmpty();
+            tm.DelayedDeliveryCount.Should().Be(0);
+        }
+
         public class DeadLetterTransportMessage : TransportMessage
         {
             public IDictionary<string, object> DeadLetterHeaders { get; private set; }
@@ -113,7 +132,10 @@ namespace MMS.ServiceBus
                 {
                     return this.ConsumeWith(new AsyncHandlerWhichFailsAllTheTime());
                 }
-
+                if (messageType == typeof(DeadletterImmediatelyMessage))
+                {
+                    return this.ConsumeWith(new AsyncHandlerWhichThrowsDeadletterMessageImmediatelyException());
+                }
                 return this.ConsumeAll();
             }
         }
@@ -126,7 +148,21 @@ namespace MMS.ServiceBus
             }
         }
 
+        public class AsyncHandlerWhichThrowsDeadletterMessageImmediatelyException
+            : IHandleMessageAsync<DeadletterImmediatelyMessage>
+        {
+            public Task Handle(DeadletterImmediatelyMessage message, IBusForHandler bus)
+            {
+                throw new DeadletterMessageImmediatelyException(new NotImplementedException());
+            }
+        }
+
         public class Message
+        {
+            public int Bar { get; set; }
+        }
+
+        public class DeadletterImmediatelyMessage
         {
             public int Bar { get; set; }
         }

@@ -33,6 +33,7 @@ namespace MMS.ServiceBus.Pipeline.Incoming
             pipeline.Logical
                 .Register(new DeadLetterMessagesWhenDelayedRetryCountIsReachedStep())
                 .Register(new DelayMessagesWhenImmediateRetryCountIsReachedStep())
+                .Register(new DeadletterMessageImmediatelyExceptionStep())
                 .Register(new LoadMessageHandlersStep(this.registry))
                 .Register(new InvokeHandlerStep());
 

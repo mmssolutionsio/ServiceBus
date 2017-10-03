@@ -91,6 +91,31 @@ namespace MMS.ServiceBus
                 .Should().NotBeEmpty();
         }
 
+        [Test]
+        public async Task WhenMessageHandlerThrowsDeadletterMessageImmediatelyException_MessageIsDeadlettered()
+        {
+            var stream = new MemoryStream();
+            var writer = new StreamWriter(stream);
+            writer.Write("{ Bar: 1 }");
+            writer.Flush();
+            stream.Position = 0;
+
+            var tm = new TransportMessage { MessageType = typeof(DeadletterImmediatelyMessage).AssemblyQualifiedName };
+            tm.SetBody(stream);
+
+            MessageSender messageSender = await this.messagingFactory.CreateMessageSenderAsync(ReceiverEndpointName);
+            await messageSender.SendAsync(tm.ToBrokeredMessage());
+
+            MessageReceiver deadLetterReceiver = await this.messagingFactory.CreateMessageReceiverAsync(QueueClient.FormatDeadLetterPath(ReceiverEndpointName), ReceiveMode.ReceiveAndDelete);
+            IEnumerable<BrokeredMessage> deadLetteredMessages = await deadLetterReceiver.ReceiveBatchAsync(MessageCount);
+
+            // That's not really a good assertion here. But how far should I compare exception, stacktrace etc.
+            deadLetteredMessages.Should().HaveCount(1);
+            deadLetteredMessages.Single()
+                .Properties.Where(p => p.Key.StartsWith(HeaderKeys.FailurePrefix, StringComparison.InvariantCultureIgnoreCase))
+                .Should().NotBeEmpty();
+        }
+
         [TearDown]
         public void TearDown()
         {
@@ -122,7 +147,10 @@ namespace MMS.ServiceBus
                 {
                     return this.ConsumeWith(new AsyncHandlerWhichFailsAllTheTime());
                 }
-
+                if (messageType == typeof(DeadletterImmediatelyMessage))
+                {
+                    return this.ConsumeWith(new AsyncHandlerWhichThrowsDeadletterMessageImmediatelyException());
+                }
                 return this.ConsumeAll();
             }
         }
@@ -132,6 +160,20 @@ namespace MMS.ServiceBus
             public Task Handle(Message message, IBusForHandler bus)
             {
                 throw new InvalidOperationException();
+            }
+        }
+
+        public class DeadletterImmediatelyMessage
+        {
+            public int Bar { get; set; }
+        }
+
+        public class AsyncHandlerWhichThrowsDeadletterMessageImmediatelyException
+            : IHandleMessageAsync<DeadletterImmediatelyMessage>
+        {
+            public Task Handle(DeadletterImmediatelyMessage message, IBusForHandler bus)
+            {
+                throw new DeadletterMessageImmediatelyException(new NotImplementedException());
             }
         }
     }
