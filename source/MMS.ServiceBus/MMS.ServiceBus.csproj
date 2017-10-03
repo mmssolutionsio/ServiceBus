@@ -75,6 +75,7 @@
     <Compile Include="Dequeuing\MessageReceiverReceiver.cs" />
     <Compile Include="Dequeuing\NoOpDequeStrategy.cs" />
     <Compile Include="EndpointConfiguration.cs" />
+    <Compile Include="DeadletterMessageImmediatelyException.cs" />
     <Compile Include="HeaderKeys.cs" />
     <Compile Include="IBus.cs" />
     <Compile Include="IBusForHandler.cs" />
@@ -88,6 +89,7 @@
     <Compile Include="Pipeline\IHandlerRegistry.cs" />
     <Compile Include="Pipeline\IMessageSerializer.cs" />
     <Compile Include="Pipeline\Incoming\DateTimeExtensions.cs" />
+    <Compile Include="Pipeline\Incoming\DeadletterMessageImmediatelyExceptionStep.cs" />
     <Compile Include="Pipeline\Incoming\DeadLetterMessagesWhenDelayedRetryCountIsReachedStep.cs" />
     <Compile Include="Pipeline\Incoming\DeadLetterMessagesWhichCantBeDeserializedStep.cs" />
     <Compile Include="Pipeline\Incoming\DelayMessagesWhenImmediateRetryCountIsReachedStep.cs" />

@@ -42,7 +42,7 @@ namespace MMS.ServiceBus.Pipeline
         {
             this.pipelineStepRaisingException = async () =>
             {
-                await Task.Run(() => throw new InvalidOperationException());
+                await Task.Run(() => { throw new InvalidOperationException(); });
             };
 
             this.testTransportMessage = new TestTransportMessage(typeof(Message).AssemblyQualifiedName);
