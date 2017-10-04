@@ -10,7 +10,7 @@ namespace MMS.ServiceBus
     public class DeadletterMessageImmediatelyException : Exception
     {
         public DeadletterMessageImmediatelyException(Exception innerException)
-            : base("An critical errror during message handling! See InnerException for more details.",innerException)
+            : base("An critical errror during message handling! See InnerException for more details.", innerException)
         {
         }
     }

@@ -132,10 +132,12 @@ namespace MMS.ServiceBus
                 {
                     return this.ConsumeWith(new AsyncHandlerWhichFailsAllTheTime());
                 }
+
                 if (messageType == typeof(DeadletterImmediatelyMessage))
                 {
                     return this.ConsumeWith(new AsyncHandlerWhichThrowsDeadletterMessageImmediatelyException());
                 }
+
                 return this.ConsumeAll();
             }
         }
