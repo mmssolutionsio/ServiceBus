@@ -31,7 +31,7 @@ namespace MMS.ServiceBus.Pipeline.Incoming
                 var message = context.TransportMessage;
 
                 // ReSharper disable PossibleNullReferenceException
-                var exceptionToHeader = exceptionDispatchInfo.SourceException?.InnerException ?? exceptionDispatchInfo.SourceException;
+                var exceptionToHeader = exceptionDispatchInfo.SourceException.InnerException ?? exceptionDispatchInfo.SourceException;
                 message.SetFailureHeaders(exceptionToHeader, "Message is deadlettered immediately on DeadletterMessageImmediatelyException");
                 // ReSharper restore PossibleNullReferenceException
                 await message.DeadLetterAsync()
