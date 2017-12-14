@@ -13,7 +13,7 @@ namespace MMS.ServiceBus
     using System.Threading.Tasks;
     using Microsoft.ServiceBus.Messaging;
 
-    public class TransportMessage
+    public class TransportMessage : IRenewLock
     {
         private readonly BrokeredMessage message;
 
@@ -163,6 +163,16 @@ namespace MMS.ServiceBus
                 .ToDictionary(x => x.Key, x => (object)x.Value);
 
             return this.DeadLetterAsyncInternal(deadLetterHeaders);
+        }
+
+        void IRenewLock.RenewLock()
+        {
+            this.message.RenewLock();
+        }
+
+        Task IRenewLock.RenewLockAsync()
+        {
+            return this.message.RenewLockAsync();
         }
 
         protected virtual Task DeadLetterAsyncInternal(IDictionary<string, object> deadLetterHeaders)
