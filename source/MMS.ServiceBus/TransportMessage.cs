@@ -165,6 +165,16 @@ namespace MMS.ServiceBus
             return this.DeadLetterAsyncInternal(deadLetterHeaders);
         }
 
+        internal void RenewLock()
+        {
+            this.message.RenewLock();
+        }
+
+        internal Task RenewLockAsync()
+        {
+            return this.message.RenewLockAsync();
+        }
+
         protected virtual Task DeadLetterAsyncInternal(IDictionary<string, object> deadLetterHeaders)
         {
             return this.message.DeadLetterAsync(deadLetterHeaders);

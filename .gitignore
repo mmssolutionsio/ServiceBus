@@ -29,3 +29,4 @@ _ReSharper*/
 [Tt]est[Rr]esult*
 *.feature.cs
 source/packages/*
+/source/.vs/**

@@ -81,6 +81,7 @@
     <Compile Include="IBusForHandler.cs" />
     <Compile Include="IHandleMessage.cs" />
     <Compile Include="IHandleMessageAsync.cs" />
+    <Compile Include="IRenewLock.cs" />
     <Compile Include="MessageIntent.cs" />
     <Compile Include="Pipeline\AlwaysRejectMessageHandler.cs" />
     <Compile Include="Pipeline\Context.cs" />
