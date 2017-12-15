@@ -13,7 +13,7 @@ namespace MMS.ServiceBus
     using System.Threading.Tasks;
     using Microsoft.ServiceBus.Messaging;
 
-    public class TransportMessage : IRenewLock
+    public class TransportMessage
     {
         private readonly BrokeredMessage message;
 
@@ -165,12 +165,12 @@ namespace MMS.ServiceBus
             return this.DeadLetterAsyncInternal(deadLetterHeaders);
         }
 
-        void IRenewLock.RenewLock()
+        internal void RenewLock()
         {
             this.message.RenewLock();
         }
 
-        Task IRenewLock.RenewLockAsync()
+        internal Task RenewLockAsync()
         {
             return this.message.RenewLockAsync();
         }

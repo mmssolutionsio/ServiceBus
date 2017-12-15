@@ -143,11 +143,6 @@ namespace MMS.ServiceBus
                 this.bus = bus;
             }
 
-            private IRenewLock RenewLockMessage
-            {
-                get { return this.incoming; }
-            }
-
             public Task SendLocal(object message)
             {
                 return this.bus.SendLocal(message, this.incoming);
@@ -188,12 +183,12 @@ namespace MMS.ServiceBus
 
             void IRenewLock.RenewLock()
             {
-                this.RenewLockMessage.RenewLock();
+                this.incoming.RenewLock();
             }
 
             Task IRenewLock.RenewLockAsync()
             {
-                return this.RenewLockMessage.RenewLockAsync();
+                return this.incoming.RenewLockAsync();
             }
 
             private static ReplyOptions GetOrCreateReplyOptions(TransportMessage incoming, ReplyOptions options = null)

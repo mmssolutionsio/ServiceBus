@@ -93,18 +93,18 @@ namespace MMS.ServiceBus
             {
                 if (messageType == typeof(Message))
                 {
-                    return this.ConsumeWith(new AsyncHandlerWhichLongRun(this.context));
+                    return this.ConsumeWith(new AsyncHandlerWhichRunsLong(this.context));
                 }
 
                 return this.ConsumeAll();
             }
         }
 
-        public class AsyncHandlerWhichLongRun : IHandleMessageAsync<Message>
+        public class AsyncHandlerWhichRunsLong : IHandleMessageAsync<Message>
         {
             private readonly Context context;
 
-            public AsyncHandlerWhichLongRun(Context context)
+            public AsyncHandlerWhichRunsLong(Context context)
             {
                 this.context = context;
             }
