@@ -36,6 +36,10 @@ namespace MMS.ServiceBus.Pipeline.Incoming
                 // ReSharper restore PossibleNullReferenceException
                 await message.DeadLetterAsync()
                     .ConfigureAwait(false);
+
+                // Because we instructed the message to deadletter it is safe to rethrow. The broker will not redeliver.
+                // Already deadlettered message should not be unlocked - throw for it
+                exceptionDispatchInfo.Throw();
             }
         }
 
