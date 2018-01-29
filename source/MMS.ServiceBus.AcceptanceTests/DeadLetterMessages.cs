@@ -102,7 +102,7 @@ namespace MMS.ServiceBus
 
             Func<Task> action = () => this.receiver.HandOver(tm);
 
-            action.ShouldNotThrow<Exception>();
+            action.ShouldThrow<DeadletterMessageImmediatelyException>();
             tm.DeadLetterHeaders.Should().NotBeEmpty();
             tm.DelayedDeliveryCount.Should().Be(0);
         }

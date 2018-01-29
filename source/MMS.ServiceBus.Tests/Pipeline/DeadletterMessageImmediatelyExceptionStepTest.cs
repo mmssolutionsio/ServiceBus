@@ -39,12 +39,18 @@ namespace MMS.ServiceBus.Pipeline
 
             this.pipelineStepRaisingException = async () =>
             {
-                await Task.Run(() => throw new InvalidOperationException());
+                await Task.Run(() =>
+                    {
+                        throw new InvalidOperationException();
+                    });
             };
 
             this.pipelineStepRaisingDeadletterMessageImmediatelyException = async () =>
             {
-                await Task.Run(() => throw new DeadletterMessageImmediatelyException(this.internalException));
+                await Task.Run(() =>
+                    {
+                        throw new DeadletterMessageImmediatelyException(this.internalException);
+                    });
             };
 
             this.testTransportMessage = new TestTransportMessage(typeof(Message).AssemblyQualifiedName);
@@ -81,18 +87,20 @@ namespace MMS.ServiceBus.Pipeline
         }
 
         [Test]
-        public void Invoke_WhenDeadletterMessageImmediatelyException_ThenConsumeException()
+        public void Invoke_WhenDeadletterMessageImmediatelyException_ThenRethrowException()
         {
 
             Func<Task> action = async () => await this.testee.Invoke(this.incomingLogicalContext, this.busMock.Object, this.pipelineStepRaisingDeadletterMessageImmediatelyException);
 
-            action.ShouldNotThrow<InvalidOperationException>();
+            action.ShouldThrow<DeadletterMessageImmediatelyException>();
         }
 
         [Test]
         public async Task Invoke_WhenDeadletterMessageImmediatelyException_ThenDeadletterMessage()
         {
-            await this.testee.Invoke(this.incomingLogicalContext, this.busMock.Object, this.pipelineStepRaisingDeadletterMessageImmediatelyException);
+            Func<Task> action = async () => await this.testee.Invoke(this.incomingLogicalContext, this.busMock.Object, this.pipelineStepRaisingDeadletterMessageImmediatelyException);
+            action.ShouldThrow<DeadletterMessageImmediatelyException>();
+
             var deadLetterHeaders = this.testTransportMessage.DeadLetterHeaders;
 
             deadLetterHeaders.Should().HaveCount(7);

@@ -129,7 +129,7 @@ namespace MMS.ServiceBus
             return incomingPipeline.Invoke(new IncomingBusDecorator(this, incomingPipeline, message), message, this.readOnlyConfiguration);
         }
 
-        private class IncomingBusDecorator : IBusForHandler
+        private class IncomingBusDecorator : IBusForHandler, IRenewLock
         {
             private readonly Bus bus;
 
@@ -179,6 +179,16 @@ namespace MMS.ServiceBus
             public void DoNotContinueDispatchingCurrentMessageToHandlers()
             {
                 this.incomingPipeline.DoNotInvokeAnyMoreHandlers();
+            }
+
+            void IRenewLock.RenewLock()
+            {
+                this.incoming.RenewLock();
+            }
+
+            Task IRenewLock.RenewLockAsync()
+            {
+                return this.incoming.RenewLockAsync();
             }
 
             private static ReplyOptions GetOrCreateReplyOptions(TransportMessage incoming, ReplyOptions options = null)
