@@ -12,6 +12,17 @@ namespace MMS.ServiceBus.Pipeline
 
     public class NewtonsoftJsonMessageSerializer : IMessageSerializer
     {
+        private readonly Func<JsonSerializerSettings> settings;
+
+        public NewtonsoftJsonMessageSerializer() : this(() => null)
+        {
+        }
+
+        public NewtonsoftJsonMessageSerializer(Func<JsonSerializerSettings> settings)
+        {
+            this.settings = settings;
+        }
+
         public string ContentType
         {
             get
@@ -24,7 +35,7 @@ namespace MMS.ServiceBus.Pipeline
         {
             var streamWriter = new StreamWriter(body);
             var writer = new JsonTextWriter(streamWriter);
-            var serializer = new JsonSerializer();
+            var serializer = JsonSerializer.Create(this.settings());
             serializer.Serialize(writer, message);
             streamWriter.Flush();
 
@@ -36,7 +47,7 @@ namespace MMS.ServiceBus.Pipeline
         {
             var streamReader = new StreamReader(body);
             var reader = new JsonTextReader(streamReader);
-            var serializer = new JsonSerializer();
+            var serializer = JsonSerializer.Create(this.settings());
             return serializer.Deserialize(reader, messageType);
         }
     }
