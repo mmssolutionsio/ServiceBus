@@ -30,3 +30,4 @@ _ReSharper*/
 *.feature.cs
 source/packages/*
 /source/.vs/**
+/source/.idea
