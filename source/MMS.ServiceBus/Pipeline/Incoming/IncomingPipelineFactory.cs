@@ -11,10 +11,12 @@ namespace MMS.ServiceBus.Pipeline.Incoming
     public class IncomingPipelineFactory : IIncomingPipelineFactory
     {
         private readonly IHandlerRegistry registry;
+        private readonly IMessageSerializer serializer;
 
-        public IncomingPipelineFactory(IHandlerRegistry registry)
+        public IncomingPipelineFactory(IHandlerRegistry registry, IMessageSerializer serializer)
         {
             this.registry = registry;
+            this.serializer = serializer;
         }
 
         public Task WarmupAsync()
@@ -28,7 +30,7 @@ namespace MMS.ServiceBus.Pipeline.Incoming
 
             pipeline.Transport
                 .Register(new DeadLetterMessagesWhichCantBeDeserializedStep())
-                .Register(new DeserializeTransportMessageStep(new NewtonsoftJsonMessageSerializer()));
+                .Register(new DeserializeTransportMessageStep(this.serializer));
 
             pipeline.Logical
                 .Register(new DeadLetterMessagesWhenDelayedRetryCountIsReachedStep())

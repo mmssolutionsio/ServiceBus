@@ -15,11 +15,13 @@ namespace MMS.ServiceBus.Pipeline.Outgoing
         private readonly IMessageRouter router;
         private MessageSender sender;
         private MessagePublisher publisher;
+        private readonly IMessageSerializer serializer;
 
-        public OutgoingPipelineFactory(MessagingFactory factory, IMessageRouter router)
+        public OutgoingPipelineFactory(MessagingFactory factory, IMessageRouter router, IMessageSerializer serializer)
         {
             this.router = router;
             this.factory = factory;
+            this.serializer = serializer;
         }
 
         public Task WarmupAsync()
@@ -38,7 +40,7 @@ namespace MMS.ServiceBus.Pipeline.Outgoing
                 .Register(new CreateTransportMessageStep());
 
             pipeline.Transport
-                .Register(new SerializeMessageStep(new NewtonsoftJsonMessageSerializer()))
+                .Register(new SerializeMessageStep(this.serializer))
                 .Register(new DetermineDestinationStep(this.router))
                 .Register(new DispatchToTransportStep(this.sender, this.publisher));
 
