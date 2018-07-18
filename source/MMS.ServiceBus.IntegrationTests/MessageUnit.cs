@@ -80,12 +80,12 @@ namespace MMS.ServiceBus
 
         protected virtual IIncomingPipelineFactory CreateIncomingPipelineFactory()
         {
-            return new IncomingPipelineFactory(this.registry);
+            return new IncomingPipelineFactory(this.registry, new NewtonsoftJsonMessageSerializer());
         }
 
         protected virtual IOutgoingPipelineFactory CreateOutgoingPipelineFactory()
         {
-            return new OutgoingPipelineFactory(this.factory, this.router);
+            return new OutgoingPipelineFactory(this.factory, this.router, new NewtonsoftJsonMessageSerializer());
         }
 
         protected virtual Bus CreateBus(IOutgoingPipelineFactory outgoingPipelineFactory, IIncomingPipelineFactory incomingPipelineFactory)
