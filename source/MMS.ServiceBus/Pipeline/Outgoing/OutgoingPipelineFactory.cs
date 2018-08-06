@@ -13,9 +13,9 @@ namespace MMS.ServiceBus.Pipeline.Outgoing
     {
         private readonly MessagingFactory factory;
         private readonly IMessageRouter router;
+        private readonly IMessageSerializer serializer;
         private MessageSender sender;
         private MessagePublisher publisher;
-        private readonly IMessageSerializer serializer;
 
         public OutgoingPipelineFactory(MessagingFactory factory, IMessageRouter router, IMessageSerializer serializer)
         {
