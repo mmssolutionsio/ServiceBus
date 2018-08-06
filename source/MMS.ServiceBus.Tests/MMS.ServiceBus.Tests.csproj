@@ -69,6 +69,7 @@
     <Compile Include="..\GlobalAssembly.cs">
       <Link>Properties\GlobalAssembly.cs</Link>
     </Compile>
+    <Compile Include="IntentionallyFailingTest.cs" />
     <Compile Include="Pipeline\AlwaysRejectMessageHandlerTests.cs" />
     <Compile Include="Pipeline\ContextTests.cs" />
     <Compile Include="Pipeline\DeadletterMessageImmediatelyExceptionStepTest.cs" />
