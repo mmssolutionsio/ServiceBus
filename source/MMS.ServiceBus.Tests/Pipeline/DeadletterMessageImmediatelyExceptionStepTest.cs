@@ -96,7 +96,7 @@ namespace MMS.ServiceBus.Pipeline
         }
 
         [Test]
-        public async Task Invoke_WhenDeadletterMessageImmediatelyException_ThenDeadletterMessage()
+        public void Invoke_WhenDeadletterMessageImmediatelyException_ThenDeadletterMessage()
         {
             Func<Task> action = async () => await this.testee.Invoke(this.incomingLogicalContext, this.busMock.Object, this.pipelineStepRaisingDeadletterMessageImmediatelyException);
             action.ShouldThrow<DeadletterMessageImmediatelyException>();
