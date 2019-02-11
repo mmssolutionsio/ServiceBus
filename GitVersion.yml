@@ -1,0 +1,12 @@
+assembly-versioning-scheme: MajorMinor
+mode: Mainline
+branches:
+  master:
+    increment: Minor
+  feature:
+    increment: Minor
+    regex: feature[/-]|nobuild[/-]
+  pull-request:
+    increment: Minor
+ignore:
+  sha: []

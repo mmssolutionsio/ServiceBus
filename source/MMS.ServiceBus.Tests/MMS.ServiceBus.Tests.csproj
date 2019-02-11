@@ -1,5 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\packages\UtilPack.NuGet.MSBuild.2.7.0\build\UtilPack.NuGet.MSBuild.props" Condition="Exists('..\packages\UtilPack.NuGet.MSBuild.2.7.0\build\UtilPack.NuGet.MSBuild.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -52,8 +53,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Moq.4.2.1409.1722\lib\net40\Moq.dll</HintPath>
     </Reference>
-    <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed">
-      <HintPath>..\packages\Newtonsoft.Json.11.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed">
+      <HintPath>..\packages\Newtonsoft.Json.12.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="nunit.framework">
       <HintPath>..\packages\NUnit.2.6.3\lib\nunit.framework.dll</HintPath>
@@ -106,4 +108,12 @@
     <Error Condition="'@(NUnit-&gt;Count())' != '1'" Text="There are several NUnit.Runners packages installed. Cannot execute tests." />
     <Exec Condition="'$(Configuration)' == 'Release'" Command="@(NUnit->'%(FullPath)') $(TargetPath) --xml $(TestsFolder)$(MSBuildProjectName).xml" />
   </Target>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105.The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\UtilPack.NuGet.MSBuild.2.7.0\build\UtilPack.NuGet.MSBuild.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\UtilPack.NuGet.MSBuild.2.7.0\build\UtilPack.NuGet.MSBuild.props'))" />
+    <Error Condition="!Exists('..\packages\GitVersionTask.4.0.0\build\GitVersionTask.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\GitVersionTask.4.0.0\build\GitVersionTask.targets'))" />
+  </Target>
+  <Import Project="..\packages\GitVersionTask.4.0.0\build\GitVersionTask.targets" Condition="Exists('..\packages\GitVersionTask.4.0.0\build\GitVersionTask.targets')" />
 </Project>
