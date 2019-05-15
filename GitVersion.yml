@@ -5,7 +5,7 @@ branches:
     increment: Minor
   feature:
     increment: Minor
-    regex: feature[/-]|nobuild[/-]
+    regex: build[/-]|feature[/-]|awesome[/-]|refactor[/-]|epic[/-]
   pull-request:
     increment: Minor
 ignore:
