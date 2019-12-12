@@ -103,7 +103,6 @@
     </PropertyGroup>
     <Error Condition="!Exists('..\packages\UtilPack.NuGet.MSBuild.2.7.0\build\UtilPack.NuGet.MSBuild.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\UtilPack.NuGet.MSBuild.2.7.0\build\UtilPack.NuGet.MSBuild.props'))" />
     <Error Condition="!Exists('..\packages\GitVersionTask.4.0.0\build\GitVersionTask.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\GitVersionTask.4.0.0\build\GitVersionTask.targets'))" />
-    <Error Condition="!Exists('..\packages\StyleCop.MSBuild.6.1.0\build\StyleCop.MSBuild.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\StyleCop.MSBuild.6.1.0\build\StyleCop.MSBuild.targets'))" />
   </Target>
   <!-- Nunit -->
   <PropertyGroup>
@@ -122,5 +121,4 @@
     <Exec Condition="'$(Configuration)' == 'Release'" Command="@(NUnit->'%(FullPath)') $(TargetPath) --xml $(TestsFolder)$(MSBuildProjectName).xml" />
   </Target>
   <Import Project="..\packages\GitVersionTask.4.0.0\build\GitVersionTask.targets" Condition="Exists('..\packages\GitVersionTask.4.0.0\build\GitVersionTask.targets')" />
-  <Import Project="..\packages\StyleCop.MSBuild.6.1.0\build\StyleCop.MSBuild.targets" Condition="Exists('..\packages\StyleCop.MSBuild.6.1.0\build\StyleCop.MSBuild.targets')" />
 </Project>
