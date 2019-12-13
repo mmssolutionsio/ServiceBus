@@ -110,8 +110,7 @@ namespace MMS.ServiceBus
                 return Task.FromResult(0);
             }
 
-            public override int DeliveryCount => DelayedRetryMessages.MaxImmediateRetryCount;
-
+            public override int DeliveryCount => MaxImmediateRetryCount;
         }
 
         public class HandlerRegistrySimulator : HandlerRegistry
