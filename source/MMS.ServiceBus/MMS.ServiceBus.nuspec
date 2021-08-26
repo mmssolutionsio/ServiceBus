@@ -7,6 +7,7 @@
         <authors>MMS Software Development Team</authors>
         <owners>MMS Software Development Team</owners>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <repository type="git" url="https://github.com/mmssolutionsio/ServiceBus"/>
         <description>MMS.ServiceBus contains the Service Bus Abstractions for Windows Service Bus. Manually add the required Microsoft ServiceBus library.</description>
         <dependencies>
             <dependency id="log4net" version="[2.0.0,3)" />
