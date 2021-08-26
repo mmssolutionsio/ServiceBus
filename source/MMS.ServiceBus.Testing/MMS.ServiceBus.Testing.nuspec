@@ -7,9 +7,10 @@
         <authors>MMS Software Development Team</authors>
         <owners>MMS Software Development Team</owners>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <repository type="git" url="https://github.com/mmssolutionsio/ServiceBus"/>
         <description>MMS.ServiceBus.Testing contains the Service Bus Abstractions for Windows Service Bus Acceptance Testing.</description>
         <dependencies>
-			<dependency id="MMS.ServiceBus" version="[3.0.0,4)" />
+			<dependency id="MMS.ServiceBus" version="[4.0.0,5)" />
         </dependencies>
         <references>
 			<reference file="MMS.ServiceBus.Testing.dll" />
