@@ -6,11 +6,8 @@
 
 namespace MMS.ServiceBus
 {
-    using JetBrains.Annotations;
-
-    [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
     public interface IHandleMessage<in TMessage>
     {
-        void Handle([NotNull] TMessage message, [NotNull] IBusForHandler bus);
+        void Handle(TMessage message, IBusForHandler bus);
     }
 }

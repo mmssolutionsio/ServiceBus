@@ -8,10 +8,9 @@ namespace MMS.ServiceBus.Pipeline.Outgoing
 {
     using System;
     using System.Threading.Tasks;
-    using JetBrains.Annotations;
 
     public interface IOutgoingTransportStep
     {
-        Task Invoke([NotNull] OutgoingTransportContext context, [NotNull] Func<Task> next);
+        Task Invoke(OutgoingTransportContext context, Func<Task> next);
     }
 }
