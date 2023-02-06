@@ -8,10 +8,9 @@ namespace MMS.ServiceBus.Pipeline.Incoming
 {
     using System;
     using System.Threading.Tasks;
-    using JetBrains.Annotations;
 
     public interface IIncomingLogicalStep
     {
-        Task Invoke([NotNull] IncomingLogicalContext context, [NotNull] IBusForHandler bus, [NotNull] Func<Task> next);
+        Task Invoke(IncomingLogicalContext context, IBusForHandler bus, Func<Task> next);
     }
 }

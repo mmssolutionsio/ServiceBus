@@ -7,11 +7,9 @@
 namespace MMS.ServiceBus
 {
     using System.Threading.Tasks;
-    using JetBrains.Annotations;
 
-    [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
     public interface IHandleMessageAsync<in TMessage>
     {
-        Task Handle([NotNull] TMessage message, [NotNull] IBusForHandler bus);
+        Task Handle(TMessage message, IBusForHandler bus);
     }
 }

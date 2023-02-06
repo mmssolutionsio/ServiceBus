@@ -7,7 +7,6 @@
 namespace MMS.ServiceBus
 {
     using System;
-    using JetBrains.Annotations;
 
     public class EndpointConfiguration
     {
@@ -27,7 +26,7 @@ namespace MMS.ServiceBus
 
         internal int DelayedRetryCount { get; private set; }
 
-        public EndpointConfiguration Endpoint([NotNull] string endpointName)
+        public EndpointConfiguration Endpoint(string endpointName)
         {
             this.EndpointQueue = Queue.Create(endpointName);
             return this;

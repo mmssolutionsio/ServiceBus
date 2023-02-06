@@ -8,10 +8,9 @@ namespace MMS.ServiceBus.Pipeline.Outgoing
 {
     using System;
     using System.Threading.Tasks;
-    using JetBrains.Annotations;
 
     public interface IOutgoingLogicalStep
     {
-        Task Invoke([NotNull] OutgoingLogicalContext context, [NotNull] Func<Task> next);
+        Task Invoke(OutgoingLogicalContext context, Func<Task> next);
     }
 }
